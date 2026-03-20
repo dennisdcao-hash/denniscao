@@ -1,0 +1,2680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Reef Tank Simulator</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #0a0a1a; color: #d0d0d0; font-family: 'Courier New', monospace; overflow: hidden; }
+#game { display: flex; height: 100vh; }
+.panel { width: 220px; background: #111128; padding: 10px; overflow-y: auto; font-size: 12px; }
+#leftPanel { border-right: 2px solid #2a2a4a; }
+#rightPanel { border-left: 2px solid #2a2a4a; }
+#viewport { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; background: #060612; }
+canvas#tank { display: block; cursor: crosshair; }
+canvas#hit { display: none; }
+.panel h2 { color: #4a9eff; font-size: 14px; margin-bottom: 6px; text-align: center; }
+.panel h3 { color: #3a7acc; font-size: 12px; margin: 8px 0 4px; border-bottom: 1px solid #2a2a4a; padding-bottom: 2px; }
+.section { margin-bottom: 10px; }
+.row { display: flex; align-items: center; gap: 6px; margin: 3px 0; }
+button { background: #1a1a3a; color: #b0b0d0; border: 1px solid #3a3a5a; padding: 4px 8px; cursor: pointer; font-family: inherit; font-size: 11px; border-radius: 3px; }
+button:hover { background: #2a2a5a; }
+button.active { background: #3a5a8a; border-color: #4a9eff; color: #fff; }
+.time-btns { display: flex; gap: 3px; }
+.time-btns button { flex: 1; padding: 3px; }
+.species-btn { display: block; width: 100%; text-align: left; margin: 2px 0; padding: 5px 8px; }
+.species-btn .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: middle; }
+.tool-btns { display: flex; gap: 3px; flex-wrap: wrap; }
+.tool-btns button { flex: 1; min-width: 50px; }
+#info { background: #0a0a1a; padding: 8px; border-radius: 4px; min-height: 40px; font-size: 11px; line-height: 1.5; }
+.hint { color: #666; font-size: 10px; margin-top: 8px; line-height: 1.4; }
+.chem-row { display: flex; align-items: center; margin: 2px 0; }
+.chem-label { width: 36px; }
+.chem-val { width: 55px; text-align: right; margin-right: 4px; }
+.chem-bar { flex: 1; height: 8px; background: #1a1a3a; border-radius: 4px; overflow: hidden; }
+.chem-fill { height: 100%; border-radius: 4px; }
+.action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; margin-top: 6px; }
+.equip-row { display: flex; align-items: center; gap: 4px; margin: 3px 0; font-size: 10px; }
+.equip-row label { flex: 1; }
+.equip-row input[type=checkbox] { margin: 0; }
+.equip-buy { font-size: 10px; padding: 2px 6px; }
+.equip-pm { font-size: 11px; padding: 1px 5px; min-width: 20px; cursor: pointer; background: #334; color: #ccc; border: 1px solid #556; border-radius: 3px; }
+.equip-pm:hover { background: #445; }
+.equip-val { min-width: 28px; text-align: center; display: inline-block; }
+</style>
+</head>
+<body>
+<div id="game">
+  <div id="leftPanel" class="panel">
+    <h2>STATUS</h2>
+    <div class="section">
+      <div class="row" style="justify-content:space-between">
+        <label>Day: <span id="dayNum" style="color:#4a9eff">0</span></label>
+        <label style="color:#4aff4a;font-weight:bold">$<span id="cashDisplay">200</span></label>
+      </div>
+      <div class="row" style="justify-content:space-between">
+        <label>Score: <span id="scoreDisplay" style="color:#ffaa44">0</span></label>
+        <label style="color:#886">Best: <span id="hiScoreDisplay">0</span></label>
+      </div>
+      <div class="time-btns">
+        <button onclick="setSpeed(0)" id="sp0">||</button>
+        <button onclick="setSpeed(1)" id="sp1" class="active">1x</button>
+        <button onclick="setSpeed(2)" id="sp2">2x</button>
+        <button onclick="setSpeed(5)" id="sp5">5x</button>
+        <button onclick="setSpeed(10)" id="sp10">10x</button>
+        <button onclick="setSpeed(20)" id="sp20">20x</button>
+      </div>
+    </div>
+    <div class="section">
+      <h3>Water Chemistry</h3>
+      <div id="chemDisplay"></div>
+      <div class="action-btns">
+        <button onclick="doseCa()">Dose Ca+ $1</button>
+        <button onclick="doseAlk()">Dose Alk+ $1</button>
+        <button onclick="waterChange()">Water Chg $5</button>
+        <button onclick="feed()">Feed $2</button>
+      </div>
+    </div>
+    <div class="section">
+      <h3>Equipment</h3>
+      <div id="equipPanel"></div>
+    </div>
+    <div class="section">
+      <h3>Livestock</h3>
+      <div id="livestockList" style="font-size:10px;max-height:120px;overflow-y:auto"></div>
+    </div>
+    <div class="section">
+      <h3>Info</h3>
+      <div id="info">Click a coral for details</div>
+    </div>
+    <div class="hint">
+      Q/E: Rotate | Scroll: Zoom<br>
+      L-click: Place | R-click: Remove
+    </div>
+  </div>
+  <div id="viewport">
+    <canvas id="tank"></canvas>
+    <canvas id="hit"></canvas>
+  </div>
+  <div id="rightPanel" class="panel">
+    <h2>SHOP</h2>
+    <div class="section">
+      <h3>Tools</h3>
+      <div class="tool-btns">
+        <button id="tool-rock" class="active" onclick="selectTool('rock')">Rock $2</button>
+        <button id="tool-frag" onclick="selectTool('frag')">Frag</button>
+        <button id="tool-remove" onclick="selectTool('remove')">Remove</button>
+      </div>
+    </div>
+    <div class="section">
+      <h3>Branching Corals</h3>
+      <div id="branchingList"></div>
+      <h3>Encrusting Corals</h3>
+      <div id="encrustingList"></div>
+      <h3>Plating Corals</h3>
+      <div id="platingList"></div>
+      <h3>Massive Corals</h3>
+      <div id="massiveList"></div>
+      <h3>LPS Branching</h3>
+      <div id="lps_branchList"></div>
+      <h3>LPS Flat</h3>
+      <div id="lps_flatList"></div>
+    </div>
+    <div class="section">
+      <h3>Fish</h3>
+      <div id="fishShop"></div>
+    </div>
+    <div class="section">
+      <h3>Invertebrates</h3>
+      <div id="invertShop"></div>
+    </div>
+    <div class="section">
+      <h3>Difficulty</h3>
+      <div class="tool-btns">
+        <button id="diff-easy" onclick="setDifficulty('easy')">Easy</button>
+        <button id="diff-medium" class="active" onclick="setDifficulty('medium')">Medium</button>
+        <button id="diff-hard" onclick="setDifficulty('hard')">Hard</button>
+      </div>
+      <h3>Presets</h3>
+      <div class="tool-btns">
+        <button onclick="generatePreset()">Random Reef</button>
+        <button onclick="clearTank()">Clear All</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// CONFIGURATION
+// ============================================================
+const TANK_W = 40, TANK_D = 20, TANK_H = 28;
+const TILE_W = 16, TILE_H = 8, BLOCK_H = 8;
+const EMPTY = 0, SAND = 1, ROCK = 2, ALGAE = 3;
+const CANVAS_W = 960, CANVAS_H = 720;
+const SUBVOX = 3; // sub-voxels per macro-voxel axis (3×3×3 = 27 per macro cell)
+function hash2(a,b){let h=Math.sin(a*127.1+b*311.7)*43758.5453;return h-Math.floor(h);}
+
+// ============================================================
+// SPECIES
+// ============================================================
+const SPECIES = [
+  { id:0, name:'Purple Tip Acro', type:'branching', subType:'branching', baseColor:[155,95,175], tipColor:[120,165,240],
+    variant:{base:[155,95,175],accent:[120,165,240]},
+    growthRate:0.075, maxSize:400 },
+  { id:1, name:'Green Staghorn', type:'branching', subType:'branching', baseColor:[65,150,65], tipColor:[105,215,125],
+    variant:{base:[65,150,65],accent:[105,215,125]},
+    growthRate:0.06, maxSize:500 },
+  { id:2, name:'Pink Birdsnest', type:'branching', subType:'branching', baseColor:[195,95,125], tipColor:[235,155,175],
+    variant:{base:[195,95,125],accent:[235,155,175]},
+    growthRate:0.1, maxSize:350 },
+  { id:3, name:'Sunset Monti', type:'encrusting', subType:'encrusting', baseColor:[220,125,45],
+    variant:{base:[220,125,45],accent:[255,200,80]},
+    growthRate:0.06, maxSize:500 },
+  { id:4, name:'Green Star Polyps', type:'encrusting', subType:'encrusting', baseColor:[45,195,75],
+    variant:{base:[45,195,75],accent:[160,255,180]},
+    growthRate:0.1, maxSize:700 },
+  { id:5, name:'Plating Monti', type:'plating', subType:'plating', baseColor:[145,75,175],
+    variant:{base:[145,75,175],accent:[220,160,255]},
+    growthRate:0.04, maxSize:400 },
+  { id:6, name:'Brain Coral', type:'massive', subType:'massive', baseColor:[65,170,75],
+    variant:{base:[65,170,75],accent:[180,230,120],ridgeFreq:3.5},
+    growthRate:0.03, maxSize:280 },
+  { id:7, name:'Red Mushroom', type:'massive', subType:'massive', baseColor:[180,55,75],
+    variant:{base:[180,55,75],accent:[240,130,130],ridgeFreq:4.0},
+    growthRate:0.04, maxSize:180 },
+  { id:8, name:'Candy Cane', type:'lps_branch', subType:'lps_branch', baseColor:[85,195,155],
+    variant:{base:[85,195,155],accent:[200,240,220],skeleton:[60,90,70],polypSize:2.0,polypRound:1.0,tentacles:false},
+    growthRate:0.025, maxSize:220 },
+  { id:9, name:'Hammer Coral', type:'lps_branch', subType:'lps_branch', baseColor:[120,180,80],
+    variant:{base:[120,180,80],accent:[200,255,120],skeleton:[80,100,60],polypSize:2.0,polypRound:0.6,tentacles:true,tentacleLen:4,tentacleCount:10},
+    growthRate:0.025, maxSize:250 },
+  { id:10, name:'Torch Coral', type:'lps_branch', subType:'lps_branch', baseColor:[200,140,50],
+    variant:{base:[200,140,50],accent:[255,220,100],skeleton:[90,80,60],polypSize:1.8,polypRound:0.6,tentacles:true,tentacleLen:5,tentacleCount:12},
+    growthRate:0.025, maxSize:250 },
+  { id:11, name:'War Coral', type:'lps_flat', subType:'lps_flat', baseColor:[160,60,50],
+    variant:{base:[160,60,50],accent:[80,180,60],polypSize:1.6,polypSpacing:4.0,wallH:0.8},
+    growthRate:0.025, maxSize:300 },
+  { id:12, name:'Acan Lord', type:'lps_flat', subType:'lps_flat', baseColor:[180,40,90],
+    variant:{base:[180,40,90],accent:[60,220,160],polypSize:2.0,polypSpacing:5.0,wallH:0.6},
+    growthRate:0.03, maxSize:250 },
+];
+
+// Prices for corals
+const CORAL_PRICES = [25, 20, 22, 15, 12, 18, 20, 10, 15, 35, 35, 25, 30];
+
+const FISH_SPECIES = [
+  { id:0, name:'Clownfish',    color:[255,130,30],  accent:[255,255,255], size:1.0, price:25, wasteRate:0.3 },
+  { id:1, name:'Royal Gramma', color:[130,40,180],   accent:[240,210,40],  size:0.8, price:30, wasteRate:0.25 },
+  { id:2, name:'Yellow Tang',  color:[255,220,40],   accent:[255,200,20],  size:1.4, price:40, wasteRate:0.5 },
+  { id:3, name:'Firefish',     color:[230,80,60],    accent:[255,200,100], size:0.7, price:20, wasteRate:0.2 },
+  { id:4, name:'Blue Chromis', color:[60,120,230],   accent:[80,180,255],  size:0.6, price:15, wasteRate:0.2 },
+];
+
+const INVERT_SPECIES = [
+  { id:0, name:'Turbo Snail',    color:[120,100,70],  size:0.6, price:8,  speed:0.3, algaeRate:0.4, type:'cleaner' },
+  { id:1, name:'Hermit Crab',    color:[180,80,50],   size:0.5, price:6,  speed:0.5, algaeRate:0.3, type:'cleaner' },
+  { id:2, name:'Cleaner Shrimp', color:[220,60,40],   size:0.7, price:20, speed:0.8, algaeRate:0,   type:'decorative' },
+  { id:3, name:'Nassarius Snail',color:[140,130,100], size:0.4, price:5,  speed:0.4, algaeRate:0.2, type:'cleaner' },
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let grid = [];
+let colonies = [];
+let nextColonyId = 1;
+let water = { ca: 420, alk: 8.5, no3: 5.0, po4: 0.05 };
+let day = 0, timeSpeed = 1, dayAccum = 0;
+const DAY_MS = 3000;
+let rotation = 0, rotAngle = 0, zoom = 1.0; // rotation=target(0-3), rotAngle=smooth(radians)
+let currentTool = 'rock', selectedSpecies = 0;
+let hoverInfo = null, lastTime = 0, animTime = 0;
+let cash = 200;
+let fish = [], nextFishId = 1;
+let inverts = [], nextInvertId = 1;
+let lastFeedDay = 0; // track when last fed
+let score = 0, highScore = 0;
+let difficulty = 'medium';
+const DIFF = {
+  easy:   { startCash: 300, paycheck: 50, label: 'Easy' },
+  medium: { startCash: 200, paycheck: 38,  label: 'Medium' },
+  hard:   { startCash: 100, paycheck: 25,  label: 'Hard' },
+};
+
+// Equipment
+let equipment = {
+  doserCa: { owned: false, enabled: false, amount: 1.0 },  // mL/day
+  doserAlk: { owned: false, enabled: false, amount: 1.0 }, // mL/day
+  doserNo3: { owned: false, enabled: false, amount: 1.0 }, // mL/day
+  doserPo4: { owned: false, enabled: false, amount: 1.0 }, // mL/day
+  autoFeeder: { owned: false, enabled: false, amount: 1.0 }, // 0.5-2.0 multiplier
+  carbonDoser: { owned: false, enabled: false, amount: 1.0 }, // NO3/PO4 reduction
+};
+
+// Voxel lookup cache for rendering
+let voxelLookup = new Map();
+let lightMap = null; // 3D light levels, recomputed each growth tick
+let subVoxelMacroMap = new Map(); // macro cell key → [{sv, colony}]
+
+const canvas = document.getElementById('tank');
+const ctx = canvas.getContext('2d');
+const hitCanvas = document.getElementById('hit');
+const hitCtx = hitCanvas.getContext('2d', { willReadFrequently: true });
+canvas.width = CANVAS_W; canvas.height = CANVAS_H;
+hitCanvas.width = CANVAS_W; hitCanvas.height = CANVAS_H;
+
+// ============================================================
+// GRID
+// ============================================================
+function initGrid() {
+  grid = [];
+  for (let x = 0; x < TANK_W; x++) {
+    grid[x] = [];
+    for (let y = 0; y < TANK_D; y++) {
+      grid[x][y] = new Uint8Array(TANK_H); // faster than plain array
+      grid[x][y][0] = SAND;
+    }
+  }
+  colonies = []; nextColonyId = 1; day = 0; dayAccum = 0;
+  water = { ca: 420, alk: 8.5, no3: 5.0, po4: 0.05 };
+  cash = DIFF[difficulty].startCash; fish = []; nextFishId = 1; inverts = []; nextInvertId = 1; lastFeedDay = 0;
+  equipment = {
+    doserCa: { owned: false, enabled: false, amount: 1.0 },
+    doserAlk: { owned: false, enabled: false, amount: 1.0 },
+    doserNo3: { owned: false, enabled: false, amount: 1.0 },
+    doserPo4: { owned: false, enabled: false, amount: 1.0 },
+    autoFeeder: { owned: false, enabled: false, amount: 1.0 },
+    carbonDoser: { owned: false, enabled: false, amount: 1.0 },
+  };
+}
+initGrid();
+
+function inBounds(x,y,z) { return x>=0&&x<TANK_W&&y>=0&&y<TANK_D&&z>=0&&z<TANK_H; }
+function getCell(x,y,z) { return inBounds(x,y,z) ? grid[x][y][z] : 255; }
+function setCell(x,y,z,v) { if(inBounds(x,y,z)) grid[x][y][z]=v; }
+function isSolid(x,y,z) { const c=getCell(x,y,z); return c>0&&c!==255; }
+function isEmpty(x,y,z) { return inBounds(x,y,z)&&grid[x][y][z]===EMPTY; }
+function isCoralCell(v) { return v>=100&&v<255; }
+function cId(v) { return v-100; }
+function cCell(id) { return id+100; }
+function getColony(id) { return colonies.find(c=>c.id===id); }
+
+// ============================================================
+// SUB-VOXEL GROWTH STATE FACTORIES
+// ============================================================
+function createGrowthState(sp) {
+  switch(sp.subType) {
+    case 'massive': return _createMassiveGrowth(sp.variant);
+    case 'branching': return _createBranchingGrowth(sp.variant);
+    case 'encrusting': return _createEncrustingGrowth(sp.variant);
+    case 'plating': return _createPlatingGrowth(sp.variant);
+    case 'lps_flat': return _createLPSFlatGrowth(sp.variant);
+    case 'lps_branch': return _createLPSBranchGrowth(sp.variant);
+  }
+}
+
+function _createMassiveGrowth(variant) {
+  return {
+    type:'massive', variant, radius:0.5, voxels:[], voxSet:new Set(), maxRadius:6*SUBVOX,
+    tick(amount) {
+      this.radius = Math.min(this.maxRadius, this.radius + amount * 0.4);
+      const r=this.radius, flatness=0.75, freq=variant.ridgeFreq||3.5, grooveDepth=1.5+(r/SUBVOX)*0.6;
+      const s=freq/3.5;
+      function hh(px,py){let h=Math.sin(px*127.1+py*311.7)*43758.5453;return h-Math.floor(h);}
+      function meander(px,py){
+        return Math.sin(px*0.45*s+py*0.25*s+1)+Math.sin(px*0.2*s-py*0.4*s+2.3)*0.8
+          +Math.sin(px*0.35*s+py*0.35*s+0.5)*0.6+Math.sin(px*0.15*s-py*0.3*s-1.2)*0.4
+          +(hh(Math.floor(px*0.7),Math.floor(py*0.7))-0.5)*0.6;
+      }
+      function carve(px,py){return grooveDepth/(1+Math.exp(meander(px,py)*3));}
+      const ir=Math.ceil(r), maxH=Math.ceil(r*flatness)+2;
+      for(let x=-ir;x<=ir;x++) for(let y=-ir;y<=ir;y++){
+        const c=carve(x,y), isValley=c>grooveDepth*0.6, isRidge=c<grooveDepth*0.15;
+        for(let z=0;z<=maxH;z++){
+          const k=`${x},${y},${z}`;
+          if(this.voxSet.has(k)) continue;
+          const d=Math.sqrt(x*x+y*y+(z/flatness)*(z/flatness));
+          if(d<=r-c+0.3 && d<=r+1){
+            this.voxSet.add(k);
+            this.voxels.push({x,y,z,shell:Math.ceil(d/SUBVOX),isRidge,isValley});
+          }
+        }
+      }
+    }
+  };
+}
+
+function _createEncrustingGrowth(variant) {
+  // Surface-following encrusting: flood fills over rock/sand terrain at macro level
+  return {
+    type:'encrusting', variant, voxels:[], voxSet:new Set(),
+    // Frontier and cells track macro-cell offsets relative to origin
+    frontier: [], macroCells: new Set(), colony: null,
+    _fillSubVoxels(dx, dy, dz) {
+      const thickness = Math.max(1, Math.ceil(SUBVOX * 0.4));
+      for (let sx = 0; sx < SUBVOX; sx++) for (let sy = 0; sy < SUBVOX; sy++) {
+        const vx = dx * SUBVOX + sx, vy = dy * SUBVOX + sy, vz = dz * SUBVOX;
+        for (let tz = 0; tz < thickness; tz++) {
+          const k = `${vx},${vy},${vz + tz}`;
+          if (!this.voxSet.has(k)) {
+            this.voxSet.add(k);
+            const d = Math.sqrt(vx * vx + vy * vy);
+            const ph = Math.sin(vx * 7.3 + vy * 13.1) * 43758.5453;
+            const isPolyp = (ph - Math.floor(ph)) > 0.84 && tz === thickness - 1;
+            this.voxels.push({x: vx, y: vy, z: vz + tz, shell: Math.ceil(d / SUBVOX), isPolyp, isBump: false});
+          }
+        }
+      }
+    },
+    _findSurface(wx, wy, refZ) {
+      // Scan z levels near refZ to find a surface (solid below, empty/coral above)
+      const cv = this.colony ? cCell(this.colony.id) : -1;
+      for (let dz = 2; dz >= -3; dz--) {
+        const mz = refZ + dz;
+        if (!inBounds(wx, wy, mz)) continue;
+        const below = getCell(wx, wy, mz);
+        const above = getCell(wx, wy, mz + 1);
+        if ((below === ROCK || below === SAND) && (above === EMPTY || above === cv)) {
+          return mz + 1; // the cell just above the surface
+        }
+      }
+      return -1;
+    },
+    tick(amount) {
+      if (!this.colony) return;
+      const ox = this.colony.originX, oy = this.colony.originY, oz = this.colony.originZ;
+      // Seed origin cell on first tick
+      if (this.macroCells.size === 0) {
+        const sz = this._findSurface(ox, oy, oz - 1);
+        const dz = sz >= 0 ? sz - oz : 0;
+        const mk = `0,0,${dz}`;
+        this.macroCells.add(mk);
+        this.frontier.push({dx: 0, dy: 0, dz, wz: sz >= 0 ? sz : oz});
+        this._fillSubVoxels(0, 0, dz);
+      }
+      const steps = Math.ceil(amount * 1.5);
+      const dirs = [[1,0],[-1,0],[0,1],[0,-1]];
+      for (let s = 0; s < steps && this.frontier.length > 0; s++) {
+        const fi = Math.floor(Math.random() * this.frontier.length);
+        const fc = this.frontier[fi];
+        // Don't remove from frontier - let it keep expanding from edges
+        let expanded = false;
+        // Shuffle dirs
+        for (let i = dirs.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i+1)); [dirs[i],dirs[j]] = [dirs[j],dirs[i]]; }
+        for (const [ddx, ddy] of dirs) {
+          const ndx = fc.dx + ddx, ndy = fc.dy + ddy;
+          const wx = ox + ndx, wy = oy + ndy;
+          if (!inBounds(wx, wy, 0)) continue;
+          const sz = this._findSurface(wx, wy, fc.wz - 1);
+          if (sz < 0) continue;
+          const ndz = sz - oz;
+          const mk = `${ndx},${ndy},${ndz}`;
+          if (this.macroCells.has(mk)) continue;
+          this.macroCells.add(mk);
+          this.frontier.push({dx: ndx, dy: ndy, dz: ndz, wz: sz});
+          this._fillSubVoxels(ndx, ndy, ndz);
+          expanded = true;
+          break; // one expansion per step
+        }
+        // Remove exhausted frontier cells (all neighbors filled)
+        if (!expanded) {
+          this.frontier[fi] = this.frontier[this.frontier.length - 1];
+          this.frontier.pop();
+        }
+      }
+    }
+  };
+}
+
+function _createPlatingGrowth(variant) {
+  return {
+    type:'plating', variant, radius:0.5, voxels:[], voxSet:new Set(), maxRadius:6*SUBVOX,
+    tick(amount) {
+      this.radius = Math.min(this.maxRadius, this.radius + amount * 0.5);
+      const r=this.radius, thickness=Math.max(1,Math.ceil(SUBVOX*0.4)), ir=Math.ceil(r)+2;
+      for(let x=-ir;x<=ir;x++) for(let y=-ir;y<=ir;y++){
+        const d2=Math.sqrt(x*x+y*y);
+        const en=Math.sin(x*0.8)*Math.cos(y*0.7)*1.8+Math.sin(x*1.5-y*0.9)*0.8;
+        if(d2<=r+en){
+          const bv=Math.sin(x*1.1+0.3)*Math.sin(y*1.1+0.7), isBump=bv>0.3;
+          const h=thickness+(isBump?1:0);
+          const ph=Math.sin(x*7.3+y*13.1)*43758.5453, isPolyp=(ph-Math.floor(ph))>0.84;
+          for(let z=0;z<h;z++){
+            const k=`${x},${y},${z}`;
+            if(!this.voxSet.has(k)){
+              this.voxSet.add(k);
+              this.voxels.push({x,y,z,shell:Math.ceil(d2/SUBVOX),isPolyp:isPolyp&&z===h-1,isBump});
+            }
+          }
+        }
+      }
+    }
+  };
+}
+
+function _createLPSFlatGrowth(variant) {
+  const pSize=variant.polypSize||1.6, pSpace=variant.polypSpacing||4.0;
+  const wallH=variant.wallH||0.8, baseH=Math.max(1,Math.round(SUBVOX*0.35));
+  const wallTop=baseH+Math.round(wallH*SUBVOX*0.5), moundMax=6*0.6, maxFull=6*SUBVOX;
+  const polypCenters=[];
+  const row_h=pSpace*0.866;
+  for(let row=-Math.ceil(maxFull/row_h)-1;row<=Math.ceil(maxFull/row_h)+1;row++){
+    for(let col=-Math.ceil(maxFull/pSpace)-1;col<=Math.ceil(maxFull/pSpace)+1;col++){
+      let cx=col*pSpace+(((row%2)+2)%2)*pSpace*0.5, cy=row*row_h;
+      cx+=(hash2(col*7+3,row*13+5)-0.5)*pSpace*0.3;
+      cy+=(hash2(col*11+7,row*3+11)-0.5)*pSpace*0.3;
+      polypCenters.push({cx,cy,r:pSize+(hash2(cx*3.1,cy*7.3)-0.5)*0.4});
+    }
+  }
+  function nearP(px,py){let best=null,bd=Infinity;for(const pc of polypCenters){const d=Math.sqrt((px-pc.cx)**2+(py-pc.cy)**2);if(d<bd){bd=d;best=pc;}}return{polyp:best,dist:bd};}
+  return {
+    type:'lps_flat', variant, radius:0.5, voxels:[], voxSet:new Set(), maxRadius:maxFull,
+    tick(amount) {
+      this.radius=Math.min(this.maxRadius,this.radius+amount*0.4);
+      const r=this.radius, ir=Math.ceil(r)+1;
+      for(let x=-ir;x<=ir;x++) for(let y=-ir;y<=ir;y++){
+        const d=Math.sqrt(x*x+y*y);
+        if(d>r+1)continue;
+        const{polyp,dist}=nearP(x,y);
+        if(!polyp)continue;
+        const isWall=dist>polyp.r*0.75, isPolypCenter=dist<polyp.r*0.25;
+        const mf=1-d/(this.maxRadius+1);
+        const extraH=Math.round(moundMax*mf*mf*(r/this.maxRadius));
+        const topZ=(isWall?wallTop:baseH)+extraH;
+        for(let z=0;z<=topZ;z++){
+          const k=`${x},${y},${z}`;
+          if(!this.voxSet.has(k)){
+            this.voxSet.add(k);
+            this.voxels.push({x,y,z,shell:Math.ceil(d/SUBVOX),isWall,isPolypFlesh:!isWall,isPolypCenter,polypEdge:dist/(polyp.r||1)});
+          }
+        }
+      }
+    }
+  };
+}
+
+function _createBranchingGrowth(variant) {
+  const tips=[{x:0,y:0,z:0,dx:0,dy:0,dz:1,gen:0,maxGen:60}];
+  const initVox=[{x:0,y:0,z:0,shell:0,isTip:false,isPolyp:false}];
+  const initSet=new Set(['0,0,0']);
+  return {
+    type:'branching', variant, voxels:initVox, voxSet:initSet, tips, tickCount:0, radius:1,
+    tick(amount) {
+      const steps=Math.ceil(amount);
+      for(let s=0;s<steps;s++){
+        this.tickCount++;
+        const newT=[];
+        for(let ti=this.tips.length-1;ti>=0;ti--){
+          const tip=this.tips[ti];
+          if(tip.gen>=tip.maxGen)continue;
+          const nx=tip.x+tip.dx,ny=tip.y+tip.dy,nz=tip.z+tip.dz;
+          const rx=Math.round(nx),ry=Math.round(ny),rz=Math.round(nz);
+          const k=`${rx},${ry},${rz}`;
+          if(!this.voxSet.has(k)){
+            this.voxSet.add(k);
+            this.voxels.push({x:rx,y:ry,z:rz,shell:Math.ceil(tip.gen/4),isTip:false,isPolyp:false});
+          }
+          tip.x=nx;tip.y=ny;tip.z=nz;tip.gen++;
+          tip.dx+=(Math.random()-0.5)*0.15;tip.dy+=(Math.random()-0.5)*0.15;
+          tip.dz+=(Math.random()-0.5)*0.05;tip.dz=Math.max(0.3,tip.dz);
+          const mag=Math.sqrt(tip.dx*tip.dx+tip.dy*tip.dy+tip.dz*tip.dz);
+          tip.dx/=mag;tip.dy/=mag;tip.dz/=mag;
+          if(tip.gen>1&&Math.random()<0.15&&this.tips.length+newT.length<80){
+            const a=Math.random()*Math.PI*2,sp2=0.5;
+            const fdx=tip.dx*0.4+Math.cos(a)*sp2,fdy=tip.dy*0.4+Math.sin(a)*sp2;
+            const fdz=0.6+Math.random()*0.3;
+            const fm=Math.sqrt(fdx*fdx+fdy*fdy+fdz*fdz);
+            newT.push({x:tip.x,y:tip.y,z:tip.z,dx:fdx/fm,dy:fdy/fm,dz:fdz/fm,gen:0,maxGen:60});
+          }
+        }
+        this.tips.push(...newT);
+      }
+      this.radius = Math.max(this.radius, this.tickCount * 0.3);
+      // Mark tips
+      const vs=this.voxSet;
+      for(const v of this.voxels){v.isTip=false;v.isPolyp=false;}
+      for(const v of this.voxels){
+        let hasAbove=false;
+        for(let dz=1;dz<=4;dz++){
+          if(vs.has(`${v.x},${v.y},${v.z+dz}`)||vs.has(`${v.x+1},${v.y},${v.z+dz}`)||
+             vs.has(`${v.x-1},${v.y},${v.z+dz}`)||vs.has(`${v.x},${v.y+1},${v.z+dz}`)||
+             vs.has(`${v.x},${v.y-1},${v.z+dz}`)){hasAbove=true;break;}
+        }
+        if(!hasAbove)v.isTip=true;
+        else if(!vs.has(`${v.x},${v.y},${v.z+1}`)){
+          const h=Math.sin(v.x*12.9898+v.y*78.233+v.z*37.719)*43758.5453;
+          v.isPolyp=(h-Math.floor(h))>0.84;
+        }
+      }
+    }
+  };
+}
+
+function _createLPSBranchGrowth(variant) {
+  const pR=variant.polypSize||2.0, roundness=variant.polypRound||0.6;
+  const initZ=Math.round(pR)+1;
+  const heads=[{x:0,y:0,z:initZ,dx:0,dy:0,dz:1,gen:0,alive:true,trail:[{x:0,y:0,z:0},{x:0,y:0,z:initZ}]}];
+  // Pre-deposit initial skeleton from z=0 to head start
+  const initSkel=[], initSkelSet=new Set();
+  for(let z=0;z<=initZ;z++){
+    for(let sdx=-1;sdx<=1;sdx++) for(let sdy=-1;sdy<=1;sdy++){
+      if(sdx*sdx+sdy*sdy>1.5)continue;
+      const k=`${sdx},${sdy},${z}`;
+      if(!initSkelSet.has(k)){
+        initSkelSet.add(k);
+        initSkel.push({x:sdx,y:sdy,z,shell:1,isSkeleton:true,isPolyp:false,isPolypCenter:false,polypEdge:1});
+      }
+    }
+  }
+  const state={
+    type:'lps_branch', variant, skelVoxels:initSkel, skelSet:initSkelSet,
+    voxels:[], voxSet:new Set(), heads, tipPositions:[], polypRadius:pR, tickCount:0, radius:1,
+    tick(amount) {
+      const numSteps=Math.ceil(amount);
+      for(let s=0;s<numSteps;s++){
+        this.tickCount++;
+        const newH=[];
+        for(const head of this.heads){
+          if(!head.alive)continue;
+          head.x+=head.dx;head.y+=head.dy;head.z+=head.dz;head.gen++;
+          head.trail.push({x:head.x,y:head.y,z:head.z});
+          const prev=head.trail[head.trail.length-2],curr=head.trail[head.trail.length-1];
+          const dx=curr.x-prev.x,dy=curr.y-prev.y,dz=curr.z-prev.z;
+          const skelR=1,adx=Math.abs(dx),ady=Math.abs(dy),adz=Math.abs(dz);
+          const lineSteps=Math.max(1,Math.ceil(Math.max(adx,ady,adz)));
+          for(let i=0;i<=lineSteps;i++){
+            const t=i/lineSteps;
+            const px=Math.round(prev.x+dx*t),py=Math.round(prev.y+dy*t),pz=Math.round(prev.z+dz*t);
+            for(let sdx=-skelR;sdx<=skelR;sdx++) for(let sdy=-skelR;sdy<=skelR;sdy++){
+              if(sdx*sdx+sdy*sdy>skelR*skelR+0.5)continue;
+              const k=`${px+sdx},${py+sdy},${pz}`;
+              if(!this.skelSet.has(k)){
+                this.skelSet.add(k);
+                this.skelVoxels.push({x:px+sdx,y:py+sdy,z:pz,shell:1,isSkeleton:true,isPolyp:false,isPolypCenter:false,polypEdge:1});
+              }
+            }
+          }
+          head.dx+=(Math.random()-0.5)*0.08;head.dy+=(Math.random()-0.5)*0.08;
+          head.dz=Math.max(0.5,head.dz+(Math.random()-0.5)*0.03);
+          const mag=Math.sqrt(head.dx*head.dx+head.dy*head.dy+head.dz*head.dz);
+          head.dx/=mag;head.dy/=mag;head.dz/=mag;
+          if(head.gen>2&&Math.random()<0.12&&this.heads.length+newH.length<16){
+            const sa=Math.random()*Math.PI*2,spr=0.4;
+            head.dx+=Math.cos(sa)*spr;head.dy+=Math.sin(sa)*spr;
+            const m1=Math.sqrt(head.dx*head.dx+head.dy*head.dy+head.dz*head.dz);
+            head.dx/=m1;head.dy/=m1;head.dz/=m1;
+            const ndx=head.dx-Math.cos(sa)*spr*2,ndy=head.dy-Math.sin(sa)*spr*2,ndz=head.dz;
+            const m2=Math.sqrt(ndx*ndx+ndy*ndy+ndz*ndz);
+            newH.push({x:head.x,y:head.y,z:head.z,dx:ndx/m2,dy:ndy/m2,dz:ndz/m2,gen:0,alive:true,trail:[{x:head.x,y:head.y,z:head.z}]});
+          }
+          if(head.gen>60)head.alive=false;
+        }
+        this.heads.push(...newH);
+      }
+      this.radius = Math.max(this.radius, this.tickCount * 0.4);
+      // Rebuild combined voxels
+      const polypVoxels=[],polypSet=new Set();
+      this.tipPositions=[];
+      for(const head of this.heads){
+        if(!head.alive&&head.gen<35)continue;
+        const hx=head.x,hy=head.y,hz=head.z;
+        if(this.tipPositions.find(p=>Math.abs(p.x-hx)<1&&Math.abs(p.y-hy)<1&&Math.abs(p.z-hz)<1))continue;
+        this.tipPositions.push({x:hx,y:hy,z:hz});
+        const pr=pR+(hash2(hx*3.1+1,hz*2.7)-0.5)*0.3,flat=roundness;
+        const maxDz=Math.ceil(pr*flat)+1;
+        for(let ddx=-Math.ceil(pr)-1;ddx<=Math.ceil(pr)+1;ddx++)
+          for(let ddy=-Math.ceil(pr)-1;ddy<=Math.ceil(pr)+1;ddy++)
+            for(let ddz=-maxDz;ddz<=maxDz;ddz++){
+              if(roundness<0.9&&ddz<0)continue;
+              const dist=Math.sqrt(ddx*ddx+ddy*ddy+(ddz/flat)*(ddz/flat));
+              if(dist<=pr+0.3){
+                const x=Math.round(hx+ddx),y=Math.round(hy+ddy),z=Math.round(hz+ddz);
+                const k=`${x},${y},${z}`;
+                if(!polypSet.has(k)){
+                  polypSet.add(k);
+                  const cd=Math.sqrt(ddx*ddx+ddy*ddy)/pr;
+                  polypVoxels.push({x,y,z,shell:1,isSkeleton:false,isPolyp:true,isPolypCenter:cd<0.3,polypEdge:cd});
+                }
+              }
+            }
+      }
+      this.voxels=[...this.skelVoxels,...polypVoxels];
+      this.voxSet=new Set(this.voxels.map(v=>`${v.x},${v.y},${v.z}`));
+    }
+  };
+  state.tipPositions=[{x:0,y:0,z:pR+1}];
+  return state;
+}
+
+// ============================================================
+// COLONIES
+// ============================================================
+function createColony(spId, x, y, z) {
+  const price = CORAL_PRICES[spId] || 15;
+  if (cash < price) { showMsg('Not enough cash!'); return null; }
+  cash -= price;
+  const sp = SPECIES[spId];
+  const id = nextColonyId++;
+  const col = {
+    id, speciesId: spId, species: sp,
+    originX: x, originY: y, originZ: z,
+    voxels: [], // macro-level voxels (derived from sub-voxels)
+    age: 0, health: 1.0,
+    growthState: createGrowthState(sp),
+  };
+  // Give encrusting growth a reference to its colony for terrain access
+  if (col.growthState.type === 'encrusting') col.growthState.colony = col;
+  // Initial growth tick to create starting sub-voxels
+  col.growthState.tick(1);
+  colonies.push(col);
+  syncColonyMacro(col);
+  rebuildSubVoxelMap();
+  rebuildLookup();
+  return col;
+}
+
+function syncColonyMacro(col) {
+  const gs = col.growthState;
+  if (!gs) return;
+  const ox = col.originX, oy = col.originY, oz = col.originZ;
+  const cv = cCell(col.id);
+  // Clear old macro cells
+  for (const v of col.voxels) {
+    if (getCell(v.x, v.y, v.z) === cv) setCell(v.x, v.y, v.z, EMPTY);
+  }
+  // Rebuild from sub-voxels
+  const macroSet = new Set();
+  const newVoxels = [];
+  for (const sv of gs.voxels) {
+    const mx = ox + Math.floor(sv.x / SUBVOX);
+    const my = oy + Math.floor(sv.y / SUBVOX);
+    const mz = oz + Math.floor(sv.z / SUBVOX);
+    if (!inBounds(mx, my, mz)) continue;
+    const mk = mx * 10000 + my * 100 + mz;
+    if (macroSet.has(mk)) continue;
+    macroSet.add(mk);
+    const cur = getCell(mx, my, mz);
+    if (cur === EMPTY || cur === cv) {
+      setCell(mx, my, mz, cv);
+      newVoxels.push({ x: mx, y: my, z: mz, health: col.health, age: col.age });
+    }
+  }
+  col.voxels = newVoxels;
+}
+
+function rebuildSubVoxelMap() {
+  subVoxelMacroMap = new Map();
+  for (const col of colonies) {
+    const gs = col.growthState;
+    if (!gs) continue;
+    const ox = col.originX, oy = col.originY, oz = col.originZ;
+    const cv = cCell(col.id);
+    for (const sv of gs.voxels) {
+      const mx = ox + Math.floor(sv.x / SUBVOX);
+      const my = oy + Math.floor(sv.y / SUBVOX);
+      const mz = oz + Math.floor(sv.z / SUBVOX);
+      if (!inBounds(mx, my, mz)) continue;
+      if (getCell(mx, my, mz) !== cv) continue;
+      const mk = mx * 10000 + my * 100 + mz;
+      if (!subVoxelMacroMap.has(mk)) subVoxelMacroMap.set(mk, []);
+      subVoxelMacroMap.get(mk).push({ sv, colony: col });
+    }
+  }
+}
+
+function removeColony(id) {
+  const col = getColony(id);
+  if (!col) return;
+  const cv = cCell(id);
+  for (const v of col.voxels) { if(getCell(v.x,v.y,v.z)===cv) setCell(v.x,v.y,v.z,EMPTY); }
+  colonies = colonies.filter(c => c.id !== id);
+  rebuildSubVoxelMap();
+  rebuildLookup();
+}
+
+function removeVoxelAt(x,y,z) {
+  const v = getCell(x,y,z);
+  if (v===SAND) return;
+  if (v===ROCK||v===ALGAE) { setCell(x,y,z,EMPTY); return; }
+  if (isCoralCell(v)) removeColony(cId(v));
+}
+
+function fragVoxelAt(x, y, z) {
+  const val = getCell(x, y, z);
+  if (!isCoralCell(val)) return -1;
+  const colonyId = cId(val);
+  const col = getColony(colonyId);
+  if (!col) return -1;
+  const speciesId = col.speciesId;
+  const basePrice = CORAL_PRICES[speciesId] || 15;
+  const gs = col.growthState;
+  const ox = col.originX, oy = col.originY, oz = col.originZ;
+  // The cut z-level in sub-voxel space
+  const cutZ = (z - oz) * SUBVOX;
+
+  // Massive / encrusting / plating / lps_flat: sell whole colony (SDF regrows holes)
+  if (gs.type === 'massive' || gs.type === 'encrusting' || gs.type === 'plating' || gs.type === 'lps_flat') {
+    const saleValue = Math.round(col.voxels.length * (basePrice / 8) * col.health);
+    if (saleValue > 0) { cash += saleValue; showMsg(`Sold frag for $${saleValue}!`); }
+    removeColony(colonyId);
+    computeLightMap();
+    return speciesId;
+  }
+
+  // Branching types: cut everything at and above clicked z
+  const before = gs.voxels.length;
+  const aboveCut = sv => sv.z >= cutZ;
+
+  gs.voxels = gs.voxels.filter(sv => !aboveCut(sv));
+  gs.voxSet = new Set(gs.voxels.map(v => `${v.x},${v.y},${v.z}`));
+
+  if (gs.type === 'branching' && gs.tips) {
+    gs.tips = gs.tips.filter(t => Math.round(t.z) < cutZ);
+  }
+  if (gs.type === 'lps_branch') {
+    if (gs.skelVoxels) {
+      gs.skelVoxels = gs.skelVoxels.filter(sv => !aboveCut(sv));
+      gs.skelSet = new Set(gs.skelVoxels.map(v => `${v.x},${v.y},${v.z}`));
+    }
+    if (gs.heads) {
+      gs.heads = gs.heads.filter(h => Math.round(h.z) < cutZ);
+    }
+  }
+
+  const removedCount = before - gs.voxels.length;
+  if (removedCount === 0) {
+    // Clicked the base - just sell whole colony
+    const saleValue = Math.round(col.voxels.length * (basePrice / 8) * col.health);
+    if (saleValue > 0) { cash += saleValue; showMsg(`Sold frag for $${saleValue}!`); }
+    removeColony(colonyId);
+    computeLightMap();
+    return speciesId;
+  }
+
+  const fragValue = Math.round(removedCount * (basePrice / 80) * col.health);
+  if (fragValue > 0) { cash += fragValue; showMsg(`Fragged for $${fragValue}!`); }
+
+  syncColonyMacro(col);
+  if (col.voxels.length === 0) removeColony(colonyId);
+  rebuildSubVoxelMap();
+  rebuildLookup();
+  computeLightMap();
+  return speciesId;
+}
+
+function rebuildLookup() {
+  voxelLookup = new Map();
+  for (const col of colonies) {
+    for (const v of col.voxels) {
+      if (v.removed) continue;
+      voxelLookup.set(v.x*10000+v.y*100+v.z, { vox:v, colony:col });
+    }
+  }
+}
+
+// ============================================================
+// ISOMETRIC
+// ============================================================
+const FACE_DIRS = [
+  { left:[0,1,0], right:[1,0,0] },
+  { left:[1,0,0], right:[0,-1,0] },
+  { left:[0,-1,0], right:[-1,0,0] },
+  { left:[-1,0,0], right:[0,1,0] },
+];
+
+function txCoords(x,y,z) {
+  const cx = TANK_W/2, cy = TANK_D/2;
+  const dx = x - cx, dy = y - cy;
+  const c = Math.cos(rotAngle), s = Math.sin(rotAngle);
+  return [cx + dx*c - dy*s, cy + dx*s + dy*c, z];
+}
+
+// Project a tank corner to screen (for outline/water drawing)
+function txCorner(x,y,z) {
+  const [rx,ry] = txCoords(x,y,0);
+  return isoP(rx,ry,z);
+}
+
+let offX=0, offY=0;
+function calcOff() {
+  offX = canvas.width / 2;
+  offY = canvas.height / 2 + (TANK_W+TANK_D)*TILE_H/4*zoom - TANK_H*BLOCK_H/3*zoom;
+}
+
+function isoP(rx,ry,rz) {
+  return [
+    offX + (rx-ry)*TILE_W/2*zoom,
+    offY + ((rx+ry)*TILE_H/2 - rz*BLOCK_H)*zoom
+  ];
+}
+
+// ============================================================
+// RENDERING HELPERS
+// ============================================================
+function hash(x,y,z) { return ((x*73856093)^(y*19349663)^(z*83492791))&0xFFFF; }
+
+function colStr(r,g,b,a) {
+  r=Math.max(0,Math.min(255,r|0)); g=Math.max(0,Math.min(255,g|0)); b=Math.max(0,Math.min(255,b|0));
+  return a!==undefined ? `rgba(${r},${g},${b},${a})` : `rgb(${r},${g},${b})`;
+}
+
+function adjCol(c,f) { return [c[0]*f, c[1]*f, c[2]*f]; }
+function mixCol(a,b,t) { return [a[0]+(b[0]-a[0])*t, a[1]+(b[1]-a[1])*t, a[2]+(b[2]-a[2])*t]; }
+
+function fillPoly(c, pts, col) {
+  c.fillStyle = colStr(...col);
+  c.beginPath();
+  c.moveTo(pts[0][0], pts[0][1]);
+  for (let i=1;i<pts.length;i++) c.lineTo(pts[i][0], pts[i][1]);
+  c.closePath(); c.fill();
+}
+
+function isOpaque(x,y,z) {
+  const c=getCell(x,y,z);
+  return c===SAND||c===ROCK;
+}
+function faceVis(wx,wy,wz) {
+  const fd = FACE_DIRS[rotation];
+  return {
+    top: !isOpaque(wx,wy,wz+1),
+    left: !isSolid(wx+fd.left[0], wy+fd.left[1], wz+fd.left[2]),
+    right: !isSolid(wx+fd.right[0], wy+fd.right[1], wz+fd.right[2])
+  };
+}
+
+// Standard iso cube (for rock, sand, hit canvas)
+function drawCube(c, sx, sy, tw, th, bh, topCol, leftCol, rightCol, vis) {
+  if (vis.left)
+    fillPoly(c, [[-tw+sx,sy],[sx,th+sy],[sx,th+bh+sy],[-tw+sx,bh+sy]], leftCol);
+  if (vis.right)
+    fillPoly(c, [[tw+sx,sy],[sx,th+sy],[sx,th+bh+sy],[tw+sx,bh+sy]], rightCol);
+  if (vis.top)
+    fillPoly(c, [[sx,-th+sy],[tw+sx,sy],[sx,th+sy],[-tw+sx,sy]], topCol);
+}
+
+// ============================================================
+// SUB-VOXEL CORAL RENDERING
+// ============================================================
+
+function getSubVoxelColor(sv, sp, variant, colony, gs) {
+  // Use light at the macro cell containing this sub-voxel
+  const mx = colony.originX + Math.floor(sv.x / SUBVOX);
+  const my = colony.originY + Math.floor(sv.y / SUBVOX);
+  const mz = colony.originZ + Math.floor(sv.z / SUBVOX);
+  const ll = inBounds(mx,my,mz) ? getLight(mx, my, mz) : getLight(colony.originX, colony.originY, colony.originZ);
+  const isDead = colony.health <= 0;
+  if (isDead) return adjCol([190, 185, 178], ll);
+  const base = variant.base, accent = variant.accent;
+  const dark = adjCol(base, 0.45);
+  const stage = Math.max(1, Math.ceil((gs.radius || 10) / SUBVOX));
+  const shellFrac = Math.min(1, (sv.shell || 1) / Math.max(stage, 1));
+  let col;
+  switch (sp.subType) {
+    case 'massive':
+      if (sv.isValley) col = mixCol(adjCol(accent, 0.5), accent, shellFrac * 0.6);
+      else if (sv.isRidge) col = mixCol(dark, adjCol(base, 1.1), shellFrac);
+      else col = mixCol(dark, mixCol(base, accent, 0.3), shellFrac);
+      break;
+    case 'branching':
+      if (sv.isTip) col = mixCol(adjCol(accent, 0.7), accent, shellFrac);
+      else if (sv.isPolyp) col = mixCol(adjCol(accent, 0.5), adjCol(accent, 0.85), shellFrac);
+      else col = mixCol(dark, base, shellFrac);
+      break;
+    case 'encrusting':
+    case 'plating':
+      if (sv.isPolyp) col = mixCol(adjCol(accent, 0.6), accent, shellFrac);
+      else col = mixCol(dark, base, shellFrac);
+      break;
+    case 'lps_flat':
+      if (sv.isWall) col = adjCol(base, 0.4 + shellFrac * 0.2);
+      else if (sv.isPolypCenter) col = mixCol(adjCol(accent, 0.9), accent, 0.8);
+      else col = mixCol(accent, base, Math.min(1, (sv.polypEdge || 0.5) * 1.3));
+      break;
+    case 'lps_branch': {
+      const skel = variant.skeleton || adjCol(base, 0.4);
+      if (sv.isSkeleton) col = adjCol(skel, 0.6 + shellFrac * 0.4);
+      else if (sv.isPolypCenter) col = mixCol(adjCol(accent, 0.9), accent, 0.8);
+      else if (sv.isPolyp) col = mixCol(accent, base, Math.min(1, (sv.polypEdge || 0.5) * 1.2));
+      else col = mixCol(dark, base, shellFrac);
+      break;
+    }
+    default: col = base.slice(); break;
+  }
+  col = adjCol(col, ll);
+  const hFade = Math.max(0, 1 - colony.health) * 0.7;
+  if (hFade > 0) col = mixCol(col, [180, 175, 170], hFade);
+  return col;
+}
+
+function drawSubVoxelsAt(c, subs) {
+  const stw = TILE_W / 2 * zoom / SUBVOX;
+  const sth = TILE_H / 2 * zoom / SUBVOX;
+  const sbh = BLOCK_H * zoom / SUBVOX;
+  const fd = FACE_DIRS[rotation];
+  // Project and sort sub-voxels
+  const items = [];
+  for (const { sv, colony } of subs) {
+    const gs = colony.growthState;
+    const wx = colony.originX + sv.x / SUBVOX;
+    const wy = colony.originY + sv.y / SUBVOX;
+    const wz = colony.originZ + (sv.z - (SUBVOX - 1)) / SUBVOX;
+    const [rx, ry, rz] = txCoords(wx, wy, wz);
+    const [sx, sy] = isoP(rx, ry, rz);
+    items.push({ sv, colony, gs, sx, sy, rz, rs: rx + ry, rx });
+  }
+  items.sort((a, b) => {
+    if (a.rz !== b.rz) return a.rz - b.rz;
+    return a.rs !== b.rs ? a.rs - b.rs : a.rx - b.rx;
+  });
+  for (const item of items) {
+    const { sv, colony, gs, sx, sy } = item;
+    // Face culling
+    const voxSet = gs.voxSet;
+    const top = !voxSet.has(`${sv.x},${sv.y},${sv.z+1}`);
+    const left = !voxSet.has(`${sv.x+fd.left[0]},${sv.y+fd.left[1]},${sv.z+fd.left[2]}`);
+    const right = !voxSet.has(`${sv.x+fd.right[0]},${sv.y+fd.right[1]},${sv.z+fd.right[2]}`);
+    if (!top && !left && !right) continue;
+    const col = getSubVoxelColor(sv, colony.species, colony.species.variant, colony, gs);
+    if (left)
+      fillPoly(c, [[-stw+sx,sy],[sx,sth+sy],[sx,sth+sbh+sy],[-stw+sx,sbh+sy]], adjCol(col, 0.65));
+    if (right)
+      fillPoly(c, [[stw+sx,sy],[sx,sth+sy],[sx,sth+sbh+sy],[stw+sx,sbh+sy]], adjCol(col, 0.8));
+    if (top) {
+      fillPoly(c, [[sx,-sth+sy],[stw+sx,sy],[sx,sth+sy],[-stw+sx,sy]], col);
+      // Polyp dots on top for branching/encrusting
+      if ((colony.species.subType === 'encrusting' || colony.species.subType === 'plating' || colony.species.subType === 'branching') && sv.isPolyp && zoom > 0.5) {
+        const accent = colony.species.variant.accent;
+        c.fillStyle = `rgba(${accent[0]},${accent[1]},${accent[2]},0.8)`;
+        c.beginPath(); c.arc(sx, sy, stw * 0.35, 0, Math.PI * 2); c.fill();
+      }
+    }
+  }
+}
+
+function drawCoralTentacles(c, colony) {
+  const gs = colony.growthState;
+  const variant = colony.species.variant;
+  if (!variant.tentacles || !gs.tipPositions) return;
+  const stw = TILE_W / 2 * zoom / SUBVOX;
+  const tLen = (variant.tentacleLen || 4) * stw * 2;
+  const tCount = variant.tentacleCount || 10;
+  const accent = variant.accent;
+  for (const tip of gs.tipPositions) {
+    const pr = gs.polypRadius || 2.5;
+    const wx = colony.originX + tip.x / SUBVOX;
+    const wy = colony.originY + tip.y / SUBVOX;
+    const wz = colony.originZ + (tip.z + pr * 0.5 - (SUBVOX - 1)) / SUBVOX;
+    const [rx, ry, rz] = txCoords(wx, wy, wz);
+    const [tipSx, tipSy] = isoP(rx, ry, rz);
+    for (let i = 0; i < tCount; i++) {
+      const angle = (i / tCount) * Math.PI * 2;
+      const bx = tipSx + Math.cos(angle + rotAngle) * pr * stw * 0.8;
+      const by = tipSy + Math.sin(angle + rotAngle) * pr * stw * 0.4 - pr * stw * 0.3;
+      c.strokeStyle = `rgba(${accent[0]},${accent[1]},${accent[2]},0.7)`;
+      c.lineWidth = Math.max(1, stw * 0.4);
+      c.lineCap = 'round';
+      c.beginPath(); c.moveTo(bx, by);
+      let cx2 = bx, cy2 = by;
+      const phase = i * 2.1 + tip.x * 0.3 + tip.y * 0.7;
+      const posture = (Math.sin(animTime * 0.8 + phase * 0.3) + 1) * 0.5;
+      for (let s = 1; s <= 5; s++) {
+        const frac = s / 5;
+        const wiggle = Math.sin(animTime * 2.5 + phase + frac * 3) * tLen * 0.12;
+        const vRise = Math.sin(frac * Math.PI) * tLen * 0.6;
+        const vOut = Math.cos(angle + rotAngle) * tLen * frac * 0.15;
+        const vX = bx + vOut + wiggle, vY = by - vRise;
+        const hOut = Math.cos(angle + rotAngle) * tLen * frac * 0.5;
+        const hDroop = frac * frac * tLen * 0.5;
+        const hX = bx + hOut + wiggle;
+        const hY = by - tLen * 0.1 + hDroop + Math.sin(angle + rotAngle) * tLen * frac * 0.15;
+        cx2 = vX + (hX - vX) * posture;
+        cy2 = vY + (hY - vY) * posture;
+        c.lineTo(cx2, cy2);
+      }
+      c.stroke();
+      if (variant.name === 'Hammer Coral') {
+        const perpX = Math.cos(angle + rotAngle + Math.PI/2) * stw * 1.2;
+        const perpY = Math.sin(angle + rotAngle + Math.PI/2) * stw * 0.5;
+        c.strokeStyle = `rgba(${accent[0]},${accent[1]},${accent[2]},0.85)`;
+        c.lineWidth = Math.max(1.5, stw * 0.5);
+        c.beginPath(); c.moveTo(cx2-perpX, cy2-perpY); c.lineTo(cx2+perpX, cy2+perpY); c.stroke();
+      } else {
+        c.fillStyle = `rgba(${accent[0]},${accent[1]},${accent[2]},0.8)`;
+        c.beginPath(); c.arc(cx2, cy2, stw * 0.5, 0, Math.PI * 2); c.fill();
+      }
+    }
+  }
+}
+
+// Old renderers kept as fallback for colonies without growthState
+function drawBranching(c, sx, sy, vox, col, ll) {
+  const sp = col.species;
+  const maxG = sp.maxGen;
+  const tipCol = sp.tipColor || sp.baseColor;
+  if (ll === undefined) ll = 1;
+
+  // Find parent screen position
+  let psx, psy, parentGen;
+  if (vox.parentIdx >= 0 && vox.parentIdx < col.voxels.length) {
+    const parent = col.voxels[vox.parentIdx];
+    const [prx, pry, prz] = txCoords(parent.x, parent.y, parent.z);
+    [psx, psy] = isoP(prx, pry, prz);
+    parentGen = parent.gen;
+  } else {
+    psx = sx;
+    psy = sy + BLOCK_H * zoom * 0.7;
+    parentGen = -1;
+  }
+
+  // Color gradient from base to tip, darkened by light level
+  const isDead = vox.dead || false;
+  const vHealth = (vox.health !== undefined ? vox.health : 1);
+  const genT = Math.min(1, vox.gen / maxG);
+  const bCol = isDead ? [190, 185, 178]
+    : mixCol(sp.baseColor, tipCol, genT * 0.8);
+  const h = isDead ? 0 : (hash(vox.x, vox.y, vox.z) % 11) - 5;
+  // Blend toward gray as health drops
+  const healthFade = isDead ? 1 : Math.max(0, 1 - vHealth) * 0.7;
+  bCol[0] = ((bCol[0]+h) * (1-healthFade) + 180*healthFade) * ll;
+  bCol[1] = ((bCol[1]+h) * (1-healthFade) + 175*healthFade) * ll;
+  bCol[2] = ((bCol[2]+h) * (1-healthFade) + 170*healthFade) * ll;
+
+  // Width tapers: thick at base, thin at tips
+  const maxW = zoom * 4;
+  const minW = zoom * 1.2;
+  const childW = maxW - genT * (maxW - minW);
+  const parentGenT = parentGen >= 0 ? Math.min(1, parentGen / maxG) : 0;
+  const parentW = parentGen >= 0
+    ? maxW - parentGenT * (maxW - minW)
+    : maxW * 1.3; // extra wide at rock attachment
+
+  // Segment direction in screen space
+  const dx = sx - psx, dy = sy - psy;
+  const len = Math.sqrt(dx*dx + dy*dy);
+
+  if (len > 0.3) {
+    // Perpendicular vector for width
+    const nx = -dy/len, ny = dx/len;
+
+    // Main branch body (medium tone)
+    fillPoly(c, [
+      [psx + nx*parentW/2, psy + ny*parentW/2],
+      [psx - nx*parentW/2, psy - ny*parentW/2],
+      [sx - nx*childW/2, sy - ny*childW/2],
+      [sx + nx*childW/2, sy + ny*childW/2],
+    ], adjCol(bCol, 0.75));
+
+    // Highlight strip along one edge (cylinder shading)
+    const hlF = 0.38;
+    fillPoly(c, [
+      [psx + nx*parentW/2, psy + ny*parentW/2],
+      [psx + nx*parentW/2*(1-hlF), psy + ny*parentW/2*(1-hlF)],
+      [sx + nx*childW/2*(1-hlF), sy + ny*childW/2*(1-hlF)],
+      [sx + nx*childW/2, sy + ny*childW/2],
+    ], adjCol(bCol, 1.1));
+
+    // Shadow strip along other edge
+    const shF = 0.25;
+    fillPoly(c, [
+      [psx - nx*parentW/2, psy - ny*parentW/2],
+      [psx - nx*parentW/2*(1-shF), psy - ny*parentW/2*(1-shF)],
+      [sx - nx*childW/2*(1-shF), sy - ny*childW/2*(1-shF)],
+      [sx - nx*childW/2, sy - ny*childW/2],
+    ], adjCol(bCol, 0.55));
+
+    // Polyp dots scattered along segment (living only)
+    if (zoom > 0.5 && len > 3 && !isDead) {
+      const h2 = hash(vox.x+7, vox.y+13, vox.z+3);
+      const pulse = Math.sin(animTime*2.5 + h2*0.1) * 0.12 + 0.88;
+      c.fillStyle = colStr(...adjCol(bCol, 1.45), 0.5);
+      const nDots = Math.min(4, Math.max(1, Math.floor(len / (zoom * 7))));
+      for (let i = 0; i < nDots; i++) {
+        const t = 0.15 + (i + 0.5) / (nDots + 1) * 0.7;
+        const dotSide = (((h2 >> (i*4)) & 1) ? 1 : -1) * childW * 0.2;
+        const px = psx + dx*t + nx*dotSide;
+        const py = psy + dy*t + ny*dotSide;
+        const r = zoom * 0.85 * pulse * (1 - genT*0.3);
+        c.beginPath(); c.arc(px, py, r, 0, Math.PI*2); c.fill();
+      }
+    }
+  }
+
+  // Tip: rounded bulb (living only)
+  if (vox.isTip && !isDead) {
+    const tipR = Math.max(childW * 0.85, zoom * 1.5);
+    const pulse = Math.sin(animTime*2 + hash(vox.x,vox.y,vox.z)*0.1) * 0.08 + 0.92;
+    // Bulb body
+    c.fillStyle = colStr(...adjCol(bCol, 1.15));
+    c.beginPath();
+    c.ellipse(sx, sy - tipR*0.15, tipR*pulse, tipR*0.65*pulse, 0, 0, Math.PI*2);
+    c.fill();
+    // Specular highlight
+    c.fillStyle = colStr(...adjCol(bCol, 1.6), 0.35);
+    c.beginPath();
+    c.arc(sx - tipR*0.15, sy - tipR*0.4, tipR*0.22, 0, Math.PI*2);
+    c.fill();
+  }
+}
+
+// --- ENCRUSTING ---
+function drawEncrusting(c, sx, sy, vox, col, ll) {
+  const sp = col.species;
+  if (ll === undefined) ll = 1;
+  const isDead = vox.dead || false;
+  const vHealth = (vox.health !== undefined ? vox.health : 1);
+  const h = isDead ? 0 : (hash(vox.x,vox.y,vox.z)%17)-8;
+  const healthFade = isDead ? 1 : Math.max(0, 1 - vHealth) * 0.7;
+  const col3 = [
+    ((sp.baseColor[0]+h)*(1-healthFade) + 185*healthFade)*ll,
+    ((sp.baseColor[1]+h)*(1-healthFade) + 180*healthFade)*ll,
+    ((sp.baseColor[2]+h)*(1-healthFade) + 175*healthFade)*ll
+  ];
+
+  // Determine which surface we're coating
+  const hasRockBelow = (getCell(vox.x,vox.y,vox.z-1)===ROCK || getCell(vox.x,vox.y,vox.z-1)===SAND);
+
+  const tw = TILE_W/2 * zoom;
+  const th = TILE_H/2 * zoom;
+  // Thin profile: 30% of normal block height, positioned at bottom of voxel space
+  const thinH = BLOCK_H * zoom * 0.3;
+  const dropY = BLOCK_H * zoom * 0.7; // push down to sit on surface below
+
+  const adjSy = sy + dropY;
+
+  const vis = faceVis(vox.x, vox.y, vox.z);
+
+  // Thin side faces
+  if (vis.left)
+    fillPoly(c, [[-tw+adjSy-adjSy+sx-tw+tw,adjSy-th+th],  // let me redo this cleanly
+      [-tw+sx,adjSy],[sx,th+adjSy],[sx,th+thinH+adjSy],[-tw+sx,thinH+adjSy]], adjCol(col3, 0.65));
+
+  // Actually let me just draw it with adjusted positions
+  if (vis.left)
+    fillPoly(c, [[-tw+sx,adjSy],[sx,th+adjSy],[sx,th+thinH+adjSy],[-tw+sx,thinH+adjSy]], adjCol(col3,0.65));
+  if (vis.right)
+    fillPoly(c, [[tw+sx,adjSy],[sx,th+adjSy],[sx,th+thinH+adjSy],[tw+sx,thinH+adjSy]], adjCol(col3,0.8));
+
+  // Bumpy top surface: base diamond + raised polyp bumps
+  fillPoly(c, [[sx,-th+adjSy],[tw+sx,adjSy],[sx,th+adjSy],[-tw+sx,adjSy]], col3);
+
+  // Polyp bumps on top face (living only)
+  if (zoom > 0.45 && !isDead) {
+    const h2 = hash(vox.x*3+1, vox.y*7+2, vox.z*5+3);
+    const pulse = Math.sin(animTime*2.0 + h2*0.05) * 0.12 + 0.88;
+    const nPolyps = 5 + (h2 & 3);
+    const bright = adjCol(col3, 1.3);
+    const center = adjCol(col3, 1.5);
+    for (let i = 0; i < nPolyps; i++) {
+      const angle = ((h2 >> (i*3)) & 31) * 0.2;
+      const dist = 0.2 + ((h2 >> (i*3+1)) & 7) * 0.08;
+      const px = sx + Math.cos(angle) * tw * dist;
+      const py = adjSy + Math.sin(angle) * th * dist;
+      const pr = zoom * 1.0 * pulse;
+      // Polyp body
+      c.fillStyle = colStr(...bright, 0.8);
+      c.beginPath(); c.arc(px, py, pr, 0, Math.PI*2); c.fill();
+      // Polyp center dot
+      c.fillStyle = colStr(...center, 0.5);
+      c.beginPath(); c.arc(px, py, pr*0.4, 0, Math.PI*2); c.fill();
+    }
+  }
+}
+
+// --- MASSIVE ---
+function drawMassive(c, sx, sy, vox, col, ll) {
+  const sp = col.species;
+  if (ll === undefined) ll = 1;
+  const isDead = vox.dead || false;
+  const vHealth = (vox.health !== undefined ? vox.health : 1);
+  const h = isDead ? 0 : (hash(vox.x,vox.y,vox.z)%17)-8;
+  const healthFade = isDead ? 1 : Math.max(0, 1 - vHealth) * 0.7;
+  const col3 = [
+    ((sp.baseColor[0]+h)*(1-healthFade) + 190*healthFade)*ll,
+    ((sp.baseColor[1]+h)*(1-healthFade) + 185*healthFade)*ll,
+    ((sp.baseColor[2]+h)*(1-healthFade) + 180*healthFade)*ll
+  ];
+
+  const tw = TILE_W/2 * zoom;
+  const th = TILE_H/2 * zoom;
+  const bh = BLOCK_H * zoom;
+
+  const vis = faceVis(vox.x, vox.y, vox.z);
+
+  // Sides: slightly rounded by drawing multiple layers with slight insets
+  if (vis.left) {
+    fillPoly(c, [[-tw+sx,sy],[sx,th+sy],[sx,th+bh+sy],[-tw+sx,bh+sy]], adjCol(col3,0.6));
+    // Rounded edge highlight
+    const inset = tw * 0.08;
+    fillPoly(c, [[-tw+inset+sx,sy+inset*0.5],[sx-inset,th+sy],[sx-inset,th+bh*0.9+sy],[-tw+inset+sx,bh*0.9+sy]], adjCol(col3,0.7));
+  }
+  if (vis.right) {
+    fillPoly(c, [[tw+sx,sy],[sx,th+sy],[sx,th+bh+sy],[tw+sx,bh+sy]], adjCol(col3,0.75));
+    const inset = tw * 0.08;
+    fillPoly(c, [[tw-inset+sx,sy+inset*0.5],[sx+inset,th+sy],[sx+inset,th+bh*0.9+sy],[tw-inset+sx,bh*0.9+sy]], adjCol(col3,0.85));
+  }
+
+  if (vis.top) {
+    // Base diamond
+    fillPoly(c, [[sx,-th+sy],[tw+sx,sy],[sx,th+sy],[-tw+sx,sy]], col3);
+
+    // Dome: draw concentric shrinking ellipses going upward
+    const domeH = bh * 0.22;
+    const layers = 3;
+    for (let i = layers; i >= 0; i--) {
+      const t = i / layers;
+      const layerCol = adjCol(col3, 1.0 + t*0.2);
+      const lw = tw * (0.85 - t*0.3);
+      const lh = th * (0.85 - t*0.3);
+      c.fillStyle = colStr(...layerCol);
+      c.beginPath();
+      c.ellipse(sx, sy - domeH*t, lw, lh, 0, 0, Math.PI*2);
+      c.fill();
+    }
+
+    // Brain/texture pattern on dome (living only)
+    if (isDead) {} // dead = bare skeleton, no texture
+    else {
+    const h2 = hash(vox.x+5, vox.y+11, vox.z+7);
+    if (sp.name === 'Brain Coral') {
+      // Meandering ridge lines
+      c.strokeStyle = colStr(...adjCol(col3, 0.55), 0.6);
+      c.lineWidth = zoom * 1.2;
+      for (let i = 0; i < 4; i++) {
+        const startX = ((h2>>(i*4))&15) - 8;
+        const startY = ((h2>>(i*4+2))&7) - 4;
+        c.beginPath();
+        c.moveTo(sx + startX*zoom*0.8, sy + startY*zoom*0.5);
+        c.quadraticCurveTo(
+          sx + startX*zoom*0.3 + (i%2?1:-1)*tw*0.3,
+          sy + startY*zoom*0.2 - domeH*0.3,
+          sx - startX*zoom*0.6,
+          sy - startY*zoom*0.4
+        );
+        c.stroke();
+      }
+    } else if (sp.name === 'Red Mushroom') {
+      // Radiating lines from center
+      c.strokeStyle = colStr(...adjCol(col3, 0.7), 0.4);
+      c.lineWidth = zoom * 0.8;
+      for (let i = 0; i < 8; i++) {
+        const angle = i * Math.PI/4 + (h2&3)*0.2;
+        c.beginPath();
+        c.moveTo(sx, sy - domeH*0.3);
+        c.lineTo(sx + Math.cos(angle)*tw*0.6, sy + Math.sin(angle)*th*0.6 - domeH*0.1);
+        c.stroke();
+      }
+    } else {
+      // Candy cane: bright center dots
+      const pulse = Math.sin(animTime*1.5 + h2) * 0.1 + 0.9;
+      c.fillStyle = colStr(...adjCol(col3, 1.6), 0.5 * pulse);
+      c.beginPath();
+      c.arc(sx, sy - domeH*0.3, tw*0.15*pulse, 0, Math.PI*2);
+      c.fill();
+      for (let i = 0; i < 3; i++) {
+        const a = i*Math.PI*2/3 + h2*0.1;
+        c.beginPath();
+        c.arc(sx+Math.cos(a)*tw*0.35, sy+Math.sin(a)*th*0.35-domeH*0.15, tw*0.1*pulse, 0, Math.PI*2);
+        c.fill();
+      }
+    }
+    } // end living texture
+  }
+}
+
+// ============================================================
+// ROCK / SAND RENDERING
+// ============================================================
+function drawRock(c, sx, sy, wx, wy, wz) {
+  const h = (hash(wx,wy,wz)%21)-10;
+  const ll = getLight(wx, wy, wz);
+  const base = [(130+h)*ll, (120+h)*ll, (105+h)*ll];
+  const tw = TILE_W/2*zoom, th = TILE_H/2*zoom, bh = BLOCK_H*zoom;
+  const vis = faceVis(wx,wy,wz);
+  if (!vis.top && !vis.left && !vis.right) return;
+
+  drawCube(c, sx, sy, tw, th, bh, base, adjCol(base,0.7), adjCol(base,0.85), vis);
+
+  // Rock texture: subtle cracks/spots
+  if (zoom > 0.6 && vis.top) {
+    const h2 = hash(wx*3,wy*5,wz*7);
+    c.fillStyle = colStr(...adjCol(base,0.75), 0.3);
+    for (let i = 0; i < 2; i++) {
+      const px = sx + (((h2>>(i*6))&15)-7)*zoom*0.8;
+      const py = sy + (((h2>>(i*6+3))&7)-3)*zoom*0.5;
+      c.beginPath(); c.arc(px, py, zoom*1.5, 0, Math.PI*2); c.fill();
+    }
+  }
+}
+
+function drawSand(c, sx, sy, wx, wy, wz) {
+  const h = (hash(wx,wy,wz)%13)-6;
+  const base = [210+h, 195+h, 155+h];
+  const tw = TILE_W/2*zoom, th = TILE_H/2*zoom, bh = BLOCK_H*zoom;
+  const vis = faceVis(wx,wy,wz);
+  if (!vis.top && !vis.left && !vis.right) return;
+  drawCube(c, sx, sy, tw, th, bh, base, adjCol(base,0.75), adjCol(base,0.88), vis);
+
+  // Sand ripple texture
+  if (zoom > 0.6 && vis.top) {
+    c.strokeStyle = colStr(...adjCol(base,0.85), 0.25);
+    c.lineWidth = zoom * 0.6;
+    c.beginPath();
+    c.moveTo(sx-tw*0.5, sy); c.lineTo(sx+tw*0.5, sy);
+    c.moveTo(sx-tw*0.3, sy-th*0.3); c.lineTo(sx+tw*0.3, sy+th*0.3);
+    c.stroke();
+  }
+}
+
+// ============================================================
+// HIT CANVAS (always draws standard cubes for click detection)
+// ============================================================
+function drawHitVoxel(c, sx, sy, wx, wy, wz) {
+  const tw = TILE_W/2*zoom, th = TILE_H/2*zoom, bh = BLOCK_H*zoom;
+  const vis = faceVis(wx,wy,wz);
+  if (!vis.top && !vis.left && !vis.right) return;
+  const er = wx+1, eg = wy+1;
+  if (vis.left)
+    fillPoly(c, [[-tw+sx,sy],[sx,th+sy],[sx,th+bh+sy],[-tw+sx,bh+sy]], [er,eg,wz*4+1+1]);
+  if (vis.right)
+    fillPoly(c, [[tw+sx,sy],[sx,th+sy],[sx,th+bh+sy],[tw+sx,bh+sy]], [er,eg,wz*4+2+1]);
+  if (vis.top)
+    fillPoly(c, [[sx,-th+sy],[tw+sx,sy],[sx,th+sy],[-tw+sx,sy]], [er,eg,wz*4+0+1]);
+}
+
+// --- ALGAE ---
+function drawAlgae(c, sx, sy, wx, wy, wz) {
+  const vis = faceVis(wx, wy, wz);
+  if (!vis.top && !vis.left && !vis.right) return;
+  const tw = TILE_W/2*zoom, th = TILE_H/2*zoom;
+  const bh = BLOCK_H*zoom * 0.3; // thin
+  const off = BLOCK_H*zoom * 0.7; // offset to sit at bottom of voxel
+  const ay = sy + off; // shifted down
+  const ll = getLight(wx, wy, wz);
+  const h = hash(wx, wy, wz);
+  // Vary between green and brownish
+  const green = (h % 3 === 0);
+  const base = green ? [35+h%20, 95+h%25, 20+h%15] : [75+h%20, 65+h%15, 25+h%10];
+  const tc = adjCol(base, ll);
+  const lc = adjCol(base, ll * 0.7);
+  const rc = adjCol(base, ll * 0.85);
+  if (vis.left)
+    fillPoly(c, [[-tw+sx,ay],[sx,th+ay],[sx,th+bh+ay],[-tw+sx,bh+ay]], lc);
+  if (vis.right)
+    fillPoly(c, [[tw+sx,ay],[sx,th+ay],[sx,th+bh+ay],[tw+sx,bh+ay]], rc);
+  if (vis.top)
+    fillPoly(c, [[sx,-th+ay],[tw+sx,ay],[sx,th+ay],[-tw+sx,ay]], tc);
+  // Texture dots
+  if (zoom > 0.5) {
+    c.fillStyle = colStr(...adjCol(base, ll * 1.3), 0.5);
+    for (let i = 0; i < 3; i++) {
+      const dx = ((h >> (i*5)) % 7 - 3) * zoom * 2;
+      const dy = ((h >> (i*3+1)) % 5 - 2) * zoom * 1.5;
+      c.beginPath(); c.arc(sx + dx, ay + dy - zoom, zoom * 0.8, 0, Math.PI*2); c.fill();
+    }
+  }
+}
+
+// --- FISH & INVERT SPRITES ---
+function drawFishSprite(c, f) {
+  const [rx, ry, rz] = txCoords(f.x, f.y, f.z);
+  const [sx, sy] = isoP(rx, ry, rz);
+  const s = f.species.size * zoom * 6;
+  const facing = f.vx > 0 ? 1 : -1;
+  const col = f.species.color;
+  const ll = getLight(Math.round(f.x), Math.round(f.y), Math.round(f.z));
+  const bc = adjCol(col, ll);
+
+  if (f.speciesId === 2) {
+    // Yellow Tang: tall disc body with pointed snout
+    // Disc body (taller than wide)
+    c.fillStyle = colStr(...bc);
+    c.beginPath();
+    c.ellipse(sx, sy, s * 0.8, s * 1.1, 0, 0, Math.PI * 2);
+    c.fill();
+    // Pointed snout
+    c.beginPath();
+    c.moveTo(sx + facing * s * 0.7, sy);
+    c.lineTo(sx + facing * s * 1.4, sy - s * 0.1);
+    c.lineTo(sx + facing * s * 1.4, sy + s * 0.1);
+    c.closePath();
+    c.fill();
+    // Tall dorsal fin (extends high above body)
+    c.fillStyle = colStr(...adjCol(bc, 1.1), 0.8);
+    c.beginPath();
+    c.moveTo(sx - facing * s * 0.3, sy - s * 1.05);
+    c.lineTo(sx + facing * s * 0.4, sy - s * 1.5);
+    c.lineTo(sx + facing * s * 0.5, sy - s * 0.7);
+    c.closePath();
+    c.fill();
+    // Anal fin (below body, mirrors dorsal)
+    c.beginPath();
+    c.moveTo(sx - facing * s * 0.3, sy + s * 1.05);
+    c.lineTo(sx + facing * s * 0.4, sy + s * 1.4);
+    c.lineTo(sx + facing * s * 0.5, sy + s * 0.7);
+    c.closePath();
+    c.fill();
+    // Tail (forked)
+    c.fillStyle = colStr(...adjCol(bc, 0.85));
+    c.beginPath();
+    c.moveTo(sx - facing * s * 0.75, sy);
+    c.lineTo(sx - facing * s * 1.4, sy - s * 0.6);
+    c.lineTo(sx - facing * s * 1.1, sy);
+    c.lineTo(sx - facing * s * 1.4, sy + s * 0.6);
+    c.closePath();
+    c.fill();
+    // White scalpel mark near tail
+    c.fillStyle = 'rgba(255,255,255,0.7)';
+    c.beginPath();
+    c.ellipse(sx - facing * s * 0.55, sy, s * 0.08, s * 0.25, 0, 0, Math.PI * 2);
+    c.fill();
+    // Eye
+    c.fillStyle = '#fff';
+    c.beginPath();
+    c.arc(sx + facing * s * 0.45, sy - s * 0.2, s * 0.18, 0, Math.PI * 2);
+    c.fill();
+    c.fillStyle = '#111';
+    c.beginPath();
+    c.arc(sx + facing * s * 0.5, sy - s * 0.2, s * 0.09, 0, Math.PI * 2);
+    c.fill();
+  } else {
+    // Generic fish body
+    c.fillStyle = colStr(...bc);
+    c.beginPath();
+    c.ellipse(sx, sy, s * 1.2, s * 0.6, 0, 0, Math.PI * 2);
+    c.fill();
+    // Tail
+    c.beginPath();
+    c.moveTo(sx - facing * s * 1.2, sy);
+    c.lineTo(sx - facing * s * 2, sy - s * 0.5);
+    c.lineTo(sx - facing * s * 2, sy + s * 0.5);
+    c.closePath();
+    c.fillStyle = colStr(...adjCol(bc, 0.8));
+    c.fill();
+    // Stripe/accent
+    c.fillStyle = colStr(...adjCol(f.species.accent, ll), 0.6);
+    c.beginPath();
+    c.ellipse(sx + facing * s * 0.15, sy, s * 0.3, s * 0.55, 0, 0, Math.PI * 2);
+    c.fill();
+    // Eye
+    c.fillStyle = '#fff';
+    c.beginPath();
+    c.arc(sx + facing * s * 0.7, sy - s * 0.15, s * 0.2, 0, Math.PI * 2);
+    c.fill();
+    c.fillStyle = '#111';
+    c.beginPath();
+    c.arc(sx + facing * s * 0.75, sy - s * 0.15, s * 0.1, 0, Math.PI * 2);
+    c.fill();
+    // Dorsal fin
+    c.fillStyle = colStr(...adjCol(bc, 1.15), 0.7);
+    c.beginPath();
+    c.moveTo(sx - s * 0.2, sy - s * 0.55);
+    c.lineTo(sx + s * 0.3, sy - s * 0.55 - s * 0.4);
+    c.lineTo(sx + s * 0.5, sy - s * 0.5);
+    c.closePath();
+    c.fill();
+  }
+}
+
+function drawInvertSprite(c, inv) {
+  const [rx, ry, rz] = txCoords(inv.x, inv.y, inv.z);
+  const [sx, sy] = isoP(rx, ry, rz);
+  const s = inv.species.size * zoom * 5;
+  const col = inv.species.color;
+  const ll = getLight(Math.round(inv.x), Math.round(inv.y), Math.round(inv.z));
+  const bc = adjCol(col, ll);
+
+  if (inv.species.type === 'cleaner' && inv.speciesId <= 1) {
+    // Snail/crab: oval body with shell
+    c.fillStyle = colStr(...adjCol(bc, 0.8));
+    c.beginPath();
+    c.ellipse(sx, sy + s * 0.2, s * 0.8, s * 0.4, 0, 0, Math.PI * 2);
+    c.fill();
+    // Shell dome
+    c.fillStyle = colStr(...bc);
+    c.beginPath();
+    c.ellipse(sx, sy - s * 0.1, s * 0.6, s * 0.6, 0, -Math.PI, 0);
+    c.fill();
+    // Shell highlight
+    c.fillStyle = colStr(...adjCol(bc, 1.3), 0.4);
+    c.beginPath();
+    c.arc(sx - s * 0.15, sy - s * 0.3, s * 0.15, 0, Math.PI * 2);
+    c.fill();
+  } else {
+    // Shrimp: elongated body with antennae
+    c.fillStyle = colStr(...bc);
+    c.beginPath();
+    c.ellipse(sx, sy, s * 1.0, s * 0.35, 0, 0, Math.PI * 2);
+    c.fill();
+    // Antennae
+    c.strokeStyle = colStr(...adjCol(bc, 1.2));
+    c.lineWidth = zoom * 0.5;
+    c.beginPath();
+    c.moveTo(sx + s * 0.8, sy); c.lineTo(sx + s * 1.8, sy - s * 0.6);
+    c.moveTo(sx + s * 0.8, sy); c.lineTo(sx + s * 1.6, sy + s * 0.3);
+    c.stroke();
+  }
+}
+
+function drawCreatures(c) {
+  // Collect all creatures with depth info
+  const items = [];
+  for (const f of fish) {
+    if (f.health <= 0) continue;
+    const [rx, ry, rz] = txCoords(f.x, f.y, f.z);
+    items.push({ type: 'fish', obj: f, rz, rs: rx + ry, rx });
+  }
+  for (const inv of inverts) {
+    if (inv.health <= 0) continue;
+    const [rx, ry, rz] = txCoords(inv.x, inv.y, inv.z);
+    items.push({ type: 'invert', obj: inv, rz, rs: rx + ry, rx });
+  }
+  items.sort((a, b) => {
+    if (a.rz !== b.rz) return a.rz - b.rz;
+    return a.rs !== b.rs ? a.rs - b.rs : a.rx - b.rx;
+  });
+  for (const it of items) {
+    if (it.type === 'fish') drawFishSprite(c, it.obj);
+    else drawInvertSprite(c, it.obj);
+  }
+}
+
+// ============================================================
+// MAIN RENDER
+// ============================================================
+function getDrawOrder() {
+  const voxels = [];
+  for (let x=0;x<TANK_W;x++) for (let y=0;y<TANK_D;y++) for (let z=0;z<TANK_H;z++) {
+    if (grid[x][y][z] !== EMPTY) {
+      const [rx,ry,rz] = txCoords(x,y,z);
+      voxels.push({x,y,z,rx,ry,rz});
+    }
+  }
+  voxels.sort((a,b) => {
+    if (a.rz!==b.rz) return a.rz-b.rz;
+    const sa=a.rx+a.ry, sb=b.rx+b.ry;
+    return sa!==sb ? sa-sb : a.rx-b.rx;
+  });
+  return voxels;
+}
+
+function drawTankOutline(c) {
+  const tc = [[0,0],[TANK_W,0],[TANK_W,TANK_D],[0,TANK_D]];
+  const corners = [[],[]];
+  for (let ci=0;ci<2;ci++) {
+    const z = ci*TANK_H;
+    corners[ci] = tc.map(([x,y]) => txCorner(x,y,z));
+  }
+
+  // Draw all 4 walls semi-transparent (works at any rotation angle)
+  c.fillStyle = 'rgba(15,40,90,0.15)';
+  for (let i=0;i<4;i++) {
+    const j=(i+1)%4;
+    c.beginPath();
+    c.moveTo(...corners[0][i]); c.lineTo(...corners[0][j]);
+    c.lineTo(...corners[1][j]); c.lineTo(...corners[1][i]);
+    c.closePath(); c.fill();
+  }
+
+  // Floor tint
+  c.fillStyle = 'rgba(15,40,90,0.08)';
+  c.beginPath();
+  c.moveTo(...corners[0][0]); c.lineTo(...corners[0][1]);
+  c.lineTo(...corners[0][2]); c.lineTo(...corners[0][3]);
+  c.closePath(); c.fill();
+
+  // Edges
+  c.strokeStyle = 'rgba(70,140,220,0.2)';
+  c.lineWidth = 1.5;
+  c.beginPath();
+  for (let i=0;i<4;i++) {
+    c.moveTo(...corners[0][i]); c.lineTo(...corners[0][(i+1)%4]);
+    c.moveTo(...corners[1][i]); c.lineTo(...corners[1][(i+1)%4]);
+    c.moveTo(...corners[0][i]); c.lineTo(...corners[1][i]);
+  }
+  c.stroke();
+}
+
+function drawWater(c) {
+  const tc = [[0,0],[TANK_W,0],[TANK_W,TANK_D],[0,TANK_D]];
+  const wz = TANK_H;
+  const bot = tc.map(([x,y]) => txCorner(x,y,0));
+  const top = tc.map(([x,y]) => txCorner(x,y,wz));
+
+  // All 4 water faces semi-transparent
+  c.fillStyle = 'rgba(20,80,180,0.04)';
+  for (let i=0;i<4;i++) {
+    const j=(i+1)%4;
+    c.beginPath();
+    c.moveTo(...bot[i]); c.lineTo(...bot[j]);
+    c.lineTo(...top[j]); c.lineTo(...top[i]);
+    c.closePath(); c.fill();
+  }
+
+  // Water surface shimmer
+  const surf = tc.map(([x,y]) => txCorner(x,y,wz-0.5));
+  c.fillStyle = 'rgba(60,160,255,0.06)';
+  c.beginPath();
+  c.moveTo(...surf[0]); c.lineTo(...surf[1]); c.lineTo(...surf[2]); c.lineTo(...surf[3]);
+  c.closePath(); c.fill();
+
+  // Surface caustic lines
+  c.strokeStyle = 'rgba(100,200,255,0.12)';
+  c.lineWidth = zoom;
+  const t = animTime * 0.3;
+  for (let i = 0; i < 5; i++) {
+    const frac = (i+1)/6;
+    const wobble = Math.sin(t + i*1.3) * 3 * zoom;
+    const a = [surf[0][0]+(surf[3][0]-surf[0][0])*frac+wobble, surf[0][1]+(surf[3][1]-surf[0][1])*frac+wobble];
+    const b = [surf[1][0]+(surf[2][0]-surf[1][0])*frac-wobble, surf[1][1]+(surf[2][1]-surf[1][1])*frac-wobble];
+    c.beginPath(); c.moveTo(...a); c.lineTo(...b); c.stroke();
+  }
+}
+
+function drawPlacementPreview(c) {
+  if (!hoverInfo || currentTool==='remove') return;
+  const target = getPlacementTarget(hoverInfo);
+  if (!target) return;
+  const [rx,ry,rz] = txCoords(target.x,target.y,target.z);
+  const [sx,sy] = isoP(rx,ry,rz);
+  const tw=TILE_W/2*zoom, th=TILE_H/2*zoom, bh=BLOCK_H*zoom;
+  c.globalAlpha = 0.35;
+  const pc = currentTool==='rock' ? [140,130,115] : SPECIES[selectedSpecies].baseColor;
+  drawCube(c, sx, sy, tw, th, bh, pc, adjCol(pc,0.7), adjCol(pc,0.85), {top:true,left:true,right:true});
+  c.globalAlpha = 1.0;
+}
+
+function render() {
+  ctx.fillStyle = '#060612';
+  ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+  hitCtx.fillStyle = '#000';
+  hitCtx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+
+  calcOff();
+  drawTankOutline(ctx);
+
+  const voxels = getDrawOrder();
+  for (const v of voxels) {
+    const [rx,ry,rz] = txCoords(v.x,v.y,v.z);
+    const [sx,sy] = isoP(rx,ry,rz);
+    const val = grid[v.x][v.y][v.z];
+
+    // Hit canvas: always standard cubes
+    drawHitVoxel(hitCtx, sx, sy, v.x, v.y, v.z);
+
+    // Main canvas: type-specific rendering
+    if (val === SAND) {
+      drawSand(ctx, sx, sy, v.x, v.y, v.z);
+    } else if (val === ROCK) {
+      drawRock(ctx, sx, sy, v.x, v.y, v.z);
+    } else if (val === ALGAE) {
+      drawAlgae(ctx, sx, sy, v.x, v.y, v.z);
+    } else if (isCoralCell(val)) {
+      // Sub-voxel rendering
+      const mk = v.x * 10000 + v.y * 100 + v.z;
+      const subs = subVoxelMacroMap.get(mk);
+      if (subs && subs.length > 0) {
+        drawSubVoxelsAt(ctx, subs);
+      }
+    }
+  }
+
+  // Tentacles pass (drawn on top of all voxels)
+  for (const col of colonies) {
+    if (col.health > 0 && col.species.subType === 'lps_branch' && col.species.variant.tentacles) {
+      drawCoralTentacles(ctx, col);
+    }
+  }
+
+  drawCreatures(ctx);
+  drawWater(ctx);
+  drawPlacementPreview(ctx);
+
+  // HUD
+  ctx.fillStyle = 'rgba(180,210,255,0.65)';
+  ctx.font = '13px Courier New';
+  ctx.fillText(`Day ${day}  |  $${Math.floor(cash)}  |  Score: ${score}  |  ${timeSpeed===0?'PAUSED':timeSpeed+'x'}  |  Colonies: ${colonies.length}  Fish: ${fish.length}`, 12, 22);
+}
+
+// ============================================================
+// HIT TESTING
+// ============================================================
+function getHitAt(mx,my) {
+  const p = hitCtx.getImageData(mx,my,1,1).data;
+  if (p[0]===0&&p[1]===0&&p[2]===0) return null;
+  const x=p[0]-1, y=p[1]-1, bi=p[2]-1;
+  const z=Math.floor(bi/4), face=bi%4;
+  return inBounds(x,y,z) ? {x,y,z,face} : null;
+}
+
+function getPlacementTarget(hit) {
+  if (!hit) return null;
+  let tx=hit.x, ty=hit.y, tz=hit.z;
+  if (hit.face===0) tz++;
+  else if (hit.face===1) {
+    const d=FACE_DIRS[rotation].left; tx+=d[0]; ty+=d[1]; tz+=d[2];
+  } else if (hit.face===2) {
+    const d=FACE_DIRS[rotation].right; tx+=d[0]; ty+=d[1]; tz+=d[2];
+  }
+  if (!inBounds(tx,ty,tz)||grid[tx][ty][tz]!==EMPTY) return null;
+  return {x:tx,y:ty,z:tz};
+}
+
+// ============================================================
+// LIGHT MAP
+// ============================================================
+function computeLightMap() {
+  // Pass 1: trace light top-down per column. Each solid layer absorbs ~65%.
+  const raw = [];
+  for (let x = 0; x < TANK_W; x++) {
+    raw[x] = [];
+    for (let y = 0; y < TANK_D; y++) {
+      raw[x][y] = new Float32Array(TANK_H);
+      let l = 1.0;
+      for (let z = TANK_H - 1; z >= 0; z--) {
+        raw[x][y][z] = l;
+        if (isSolid(x, y, z)) {
+          const cv = getCell(x, y, z);
+          if (cv === ALGAE) { l *= 0.7; }
+          else if (isCoralCell(cv)) {
+            const cc = getColony(cId(cv));
+            if (cc && (cc.species.type === 'encrusting' || cc.species.type === 'plating' || cc.species.type === 'lps_flat')) { l *= 0.95; }
+            else { l *= 0.35; }
+          } else { l *= 0.35; }
+        }
+      }
+    }
+  }
+  // Pass 2: soft shadow blur — blend with neighbors for penumbra
+  lightMap = [];
+  for (let x = 0; x < TANK_W; x++) {
+    lightMap[x] = [];
+    for (let y = 0; y < TANK_D; y++) {
+      lightMap[x][y] = new Float32Array(TANK_H);
+      for (let z = 0; z < TANK_H; z++) {
+        let sum = raw[x][y][z] * 3, n = 3;
+        for (const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]) {
+          if (inBounds(x+dx,y+dy,z)) { sum += raw[x+dx][y+dy][z]; n++; }
+        }
+        lightMap[x][y][z] = Math.max(0.08, sum / n);
+      }
+    }
+  }
+}
+
+function getLight(x, y, z) {
+  if (!lightMap || !inBounds(x,y,z)) return 1.0;
+  return lightMap[x][y][z];
+}
+
+// ============================================================
+// CORAL GROWTH
+// ============================================================
+function growthMod() {
+  let m = 1;
+  if (water.ca<350) m*=0.2; else if(water.ca<400) m*=0.6; else if(water.ca>500) m*=0.7;
+  if (water.alk<6) m*=0.2; else if(water.alk<7) m*=0.5; else if(water.alk>12) m*=0.6;
+  // Low nutrients starve corals — they need NO3/PO4 to grow
+  if (water.no3<1) m*=0.05; else if(water.no3<3) m*=0.3; else if(water.no3>30) m*=0.7;
+  if (water.po4<0.01) m*=0.1; else if(water.po4<0.02) m*=0.4; else if(water.po4>0.5) m*=0.7;
+  return m;
+}
+
+function consumeCA(amt) {
+  water.ca -= amt*1; water.alk -= amt*0.15;
+  water.ca = Math.max(200, water.ca);
+  water.alk = Math.max(3, water.alk);
+}
+
+function simulateGrowth() {
+  computeLightMap();
+
+  let totalLiving = 0;
+
+  for (const col of colonies) {
+    col.age++;
+    if (col.age < 5) continue;
+
+    // Colony-level health based on best light across exposed cells
+    let colLight = getLight(col.originX, col.originY, col.originZ);
+    for (const v of col.voxels) {
+      const vl = getLight(v.x, v.y, v.z);
+      if (vl > colLight) colLight = vl;
+    }
+    if (colLight < 0.12) col.health -= 0.025;
+    else if (colLight < 0.25) col.health -= 0.006;
+    else col.health = Math.min(1, col.health + 0.008);
+
+    // Nutrient starvation
+    if (water.no3 < 1) col.health -= 0.02;
+    else if (water.no3 < 3) col.health -= 0.005;
+    if (water.po4 < 0.01) col.health -= 0.02;
+    else if (water.po4 < 0.02) col.health -= 0.005;
+    // Bad calcium/alk
+    if (water.ca < 350) col.health -= 0.015;
+    else if (water.ca < 400) col.health -= 0.004;
+    if (water.alk < 6) col.health -= 0.015;
+    else if (water.alk < 7) col.health -= 0.004;
+    // Too-high nutrients toxic
+    if (water.no3 > 40) col.health -= 0.02;
+    else if (water.no3 > 25) col.health -= 0.006;
+    if (water.po4 > 0.5) col.health -= 0.02;
+    else if (water.po4 > 0.2) col.health -= 0.006;
+
+    if (col.health <= 0) {
+      col.health = 0;
+      // Dead colony stays as skeleton until manually removed
+    } else {
+      totalLiving += col.voxels.length;
+
+      // Sub-voxel growth tick
+      const gs = col.growthState;
+      if (gs) {
+        const mod = growthMod();
+        const amount = (col.species.growthRate || 0.03) * mod * col.health * 20;
+        gs.tick(amount);
+        syncColonyMacro(col);
+        consumeCA(amount * 0.3);
+      }
+    }
+  }
+
+  // Corals consume nutrients (nitrate/phosphate uptake)
+  water.no3 -= totalLiving * 0.006;
+  water.po4 -= totalLiving * 0.00015;
+  water.no3 = Math.max(0, water.no3);
+  water.po4 = Math.max(0, water.po4);
+
+  rebuildSubVoxelMap();
+  rebuildLookup();
+}
+
+// ============================================================
+// WATER
+// ============================================================
+function simulateWater() {
+  water.no3 += 0.06; water.po4 += 0.001;
+  water.ca -= 0.12; water.alk -= 0.02;
+  water.ca = Math.max(200, Math.min(550, water.ca));
+  water.alk = Math.max(3, Math.min(14, water.alk));
+  water.no3 = Math.max(0, Math.min(100, water.no3));
+  water.po4 = Math.max(0, Math.min(2, water.po4));
+}
+
+function waterChange() {
+  if (cash < 5) { showMsg('Need $5 for water change!'); return; }
+  cash -= 5;
+  const t={ca:420,alk:8.5,no3:0,po4:0}, p=0.2;
+  water.ca+=(t.ca-water.ca)*p; water.alk+=(t.alk-water.alk)*p;
+  water.no3+=(t.no3-water.no3)*p; water.po4+=(t.po4-water.po4)*p;
+}
+function feed() {
+  if (cash < 2) { showMsg('Need $2 to feed!'); return; }
+  cash -= 2;
+  water.no3+=3; water.po4+=0.08;
+  lastFeedDay = day;
+  for (const f of fish) f.fed = true;
+}
+function doseCa() {
+  if (cash < 1) { showMsg('Need $1 to dose!'); return; }
+  cash -= 1; water.ca+=15;
+}
+function doseAlk() {
+  if (cash < 1) { showMsg('Need $1 to dose!'); return; }
+  cash -= 1; water.alk+=0.8;
+}
+
+// ============================================================
+// FISH & INVERT MANAGEMENT
+// ============================================================
+function buyFish(spId) {
+  const sp = FISH_SPECIES[spId];
+  if (cash < sp.price) { showMsg('Not enough cash!'); return; }
+  cash -= sp.price;
+  // Find random open water position
+  let fx, fy, fz;
+  for (let attempt = 0; attempt < 50; attempt++) {
+    fx = 1 + Math.random() * (TANK_W - 2);
+    fy = 1 + Math.random() * (TANK_D - 2);
+    fz = 3 + Math.random() * (TANK_H - 5);
+    if (!isSolid(Math.round(fx), Math.round(fy), Math.round(fz))) break;
+  }
+  const angle = Math.random() * Math.PI * 2;
+  fish.push({
+    id: nextFishId++, speciesId: spId, species: sp,
+    x: fx, y: fy, z: fz,
+    vx: Math.cos(angle) * 1.5, vy: Math.sin(angle) * 1.5, vz: 0,
+    health: 1, fed: true, age: 0, hunger: 0,
+    targetX: fx, targetY: fy, targetZ: fz, targetTimer: 0
+  });
+  updateUI();
+}
+
+function buyInvert(spId) {
+  const sp = INVERT_SPECIES[spId];
+  if (cash < sp.price) { showMsg('Not enough cash!'); return; }
+  cash -= sp.price;
+  // Place on a random rock/sand surface
+  let ix, iy, iz;
+  for (let attempt = 0; attempt < 50; attempt++) {
+    ix = Math.floor(Math.random() * TANK_W);
+    iy = Math.floor(Math.random() * TANK_D);
+    // Find top surface
+    iz = 1;
+    for (let z = TANK_H - 1; z >= 0; z--) {
+      if (isSolid(ix, iy, z) && !isSolid(ix, iy, z + 1)) { iz = z + 1; break; }
+    }
+    if (iz < TANK_H - 1) break;
+  }
+  inverts.push({
+    id: nextInvertId++, speciesId: spId, species: sp,
+    x: ix + 0.5, y: iy + 0.5, z: iz,
+    targetX: ix + 0.5, targetY: iy + 0.5, targetTimer: 0,
+    health: 1, age: 0
+  });
+  updateUI();
+}
+
+function updateFish(dt) {
+  const sec = dt * 0.001;
+  for (const f of fish) {
+    f.targetTimer -= sec;
+    if (f.targetTimer <= 0) {
+      // Pick new target
+      f.targetX = 1 + Math.random() * (TANK_W - 2);
+      f.targetY = 1 + Math.random() * (TANK_D - 2);
+      f.targetZ = 2 + Math.random() * (TANK_H - 4);
+      f.targetTimer = 2 + Math.random() * 4;
+    }
+    // Steer toward target
+    const dx = f.targetX - f.x, dy = f.targetY - f.y, dz = f.targetZ - f.z;
+    const dist = Math.sqrt(dx*dx + dy*dy + dz*dz) || 1;
+    const spd = 1.5 * f.species.size;
+    f.vx += (dx/dist * spd - f.vx) * 2 * sec;
+    f.vy += (dy/dist * spd - f.vy) * 2 * sec;
+    f.vz += (dz/dist * spd - f.vz) * 2 * sec;
+    // Apply
+    const nx = f.x + f.vx * sec;
+    const ny = f.y + f.vy * sec;
+    const nz = f.z + f.vz * sec;
+    // Collision check
+    if (!isSolid(Math.round(nx), Math.round(ny), Math.round(nz))) {
+      f.x = nx; f.y = ny; f.z = nz;
+    } else {
+      f.vx *= -0.5; f.vy *= -0.5; f.vz *= -0.5;
+      f.targetTimer = 0; // pick new target immediately
+    }
+    // Clamp to tank
+    f.x = Math.max(0.5, Math.min(TANK_W - 0.5, f.x));
+    f.y = Math.max(0.5, Math.min(TANK_D - 0.5, f.y));
+    f.z = Math.max(1.5, Math.min(TANK_H - 1, f.z));
+  }
+}
+
+function updateInverts(dt) {
+  const sec = dt * 0.001;
+  for (const inv of inverts) {
+    inv.targetTimer -= sec;
+    if (inv.targetTimer <= 0) {
+      // Cleaners seek algae, decoratives wander
+      if (inv.species.type === 'cleaner') {
+        let bestDist = Infinity, bx = inv.x, by = inv.y;
+        // Scan nearby for algae
+        const ix = Math.round(inv.x), iy = Math.round(inv.y);
+        for (let dx = -5; dx <= 5; dx++) for (let dy = -5; dy <= 5; dy++) {
+          const ax = ix+dx, ay = iy+dy;
+          if (!inBounds(ax, ay, 0)) continue;
+          for (let z = TANK_H-1; z >= 0; z--) {
+            if (getCell(ax, ay, z) === ALGAE) {
+              const d = dx*dx + dy*dy;
+              if (d < bestDist) { bestDist = d; bx = ax + 0.5; by = ay + 0.5; }
+              break;
+            }
+          }
+        }
+        inv.targetX = bx; inv.targetY = by;
+      } else {
+        inv.targetX = 0.5 + Math.random() * (TANK_W - 1);
+        inv.targetY = 0.5 + Math.random() * (TANK_D - 1);
+      }
+      inv.targetTimer = 1 + Math.random() * 3;
+    }
+    // Move toward target on surface
+    const dx = inv.targetX - inv.x, dy = inv.targetY - inv.y;
+    const dist = Math.sqrt(dx*dx + dy*dy) || 1;
+    const spd = inv.species.speed;
+    if (dist > 0.2) {
+      inv.x += (dx / dist) * spd * sec;
+      inv.y += (dy / dist) * spd * sec;
+    }
+    inv.x = Math.max(0.5, Math.min(TANK_W - 0.5, inv.x));
+    inv.y = Math.max(0.5, Math.min(TANK_D - 0.5, inv.y));
+    // Stay on surface
+    const gx = Math.round(inv.x), gy = Math.round(inv.y);
+    let sz = 1;
+    for (let z = TANK_H - 1; z >= 0; z--) {
+      const c = getCell(gx, gy, z);
+      if (c === ROCK || c === SAND) { sz = z + 1; break; }
+    }
+    inv.z = sz;
+  }
+}
+
+function simulateFishWaste() {
+  for (const f of fish) {
+    if (f.health <= 0) continue;
+    water.no3 += f.species.wasteRate;
+    water.po4 += f.species.wasteRate * 0.025;
+    f.age++;
+    // Hunger
+    if (f.fed) { f.hunger = 0; f.fed = false; }
+    else f.hunger++;
+    // Health: bad water or hunger
+    if (water.no3 > 50) f.health -= 0.03;
+    else if (water.no3 > 35) f.health -= 0.01;
+    if (water.po4 > 1.0) f.health -= 0.03;
+    if (f.hunger > 5) f.health -= 0.02;
+    else if (f.hunger > 3) f.health -= 0.005;
+    if (f.hunger <= 1 && f.health < 1) f.health = Math.min(1, f.health + 0.01);
+    if (f.health <= 0) {
+      f.health = 0;
+      // Dead fish spike nutrients
+      water.no3 += 5; water.po4 += 0.2;
+    }
+  }
+  fish = fish.filter(f => f.health > 0);
+}
+
+function simulateInvertGrazing() {
+  for (const inv of inverts) {
+    if (inv.health <= 0) continue;
+    inv.age++;
+    // Health
+    if (water.no3 > 60) inv.health -= 0.02;
+    if (inv.health < 1 && water.no3 < 40) inv.health = Math.min(1, inv.health + 0.005);
+    if (inv.health <= 0) { inv.health = 0; continue; }
+    // Cleaner inverts eat algae
+    if (inv.species.algaeRate > 0 && Math.random() < inv.species.algaeRate) {
+      const gx = Math.round(inv.x), gy = Math.round(inv.y);
+      let ate = false;
+      for (let dx = -1; dx <= 1 && !ate; dx++) for (let dy = -1; dy <= 1 && !ate; dy++) {
+        const ax = gx+dx, ay = gy+dy;
+        if (!inBounds(ax, ay, 0)) continue;
+        for (let z = TANK_H-1; z >= 0; z--) {
+          if (getCell(ax, ay, z) === ALGAE) {
+            setCell(ax, ay, z, EMPTY);
+            ate = true; break; // eat one per invert per tick
+          }
+        }
+      }
+    }
+  }
+  inverts = inverts.filter(inv => inv.health > 0);
+}
+
+// ============================================================
+// ALGAE GROWTH
+// ============================================================
+function simulateAlgae() {
+  // Algae grows when nutrients are high
+  const nutrientPressure = Math.max(0, (water.no3 - 15) * 0.004) + Math.max(0, (water.po4 - 0.15) * 1.5);
+  if (nutrientPressure <= 0) return;
+
+  // Count existing algae for nutrient consumption
+  let algaeCount = 0;
+  const candidates = [];
+  const dirs = [[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]];
+
+  for (let x = 0; x < TANK_W; x++) for (let y = 0; y < TANK_D; y++) for (let z = 0; z < TANK_H; z++) {
+    const c = getCell(x, y, z);
+    if (c === ALGAE) {
+      algaeCount++;
+      // Spread from existing algae
+      for (const d of dirs) {
+        const nx = x+d[0], ny = y+d[1], nz = z+d[2];
+        if (inBounds(nx,ny,nz) && getCell(nx,ny,nz) === EMPTY) {
+          // Must be on a surface
+          let onSurf = false;
+          for (const d2 of dirs) {
+            const sv = getCell(nx+d2[0], ny+d2[1], nz+d2[2]);
+            if (sv === ROCK || sv === SAND) { onSurf = true; break; }
+          }
+          if (onSurf) candidates.push({x:nx, y:ny, z:nz});
+        }
+      }
+    } else if (c === ROCK || c === SAND) {
+      // Spontaneous algae growth on rock/sand surfaces
+      for (const d of dirs) {
+        const nx = x+d[0], ny = y+d[1], nz = z+d[2];
+        if (inBounds(nx,ny,nz) && getCell(nx,ny,nz) === EMPTY) {
+          if (Math.random() < 0.01) candidates.push({x:nx, y:ny, z:nz});
+        }
+      }
+    }
+  }
+
+  // Grow algae
+  let grown = 0;
+  for (const c of candidates) {
+    if (grown >= 15) break;
+    const ll = getLight(c.x, c.y, c.z);
+    if (Math.random() < nutrientPressure * ll * 0.4) {
+      setCell(c.x, c.y, c.z, ALGAE);
+      grown++;
+    }
+  }
+
+  // Algae consumes nutrients
+  water.no3 -= algaeCount * 0.008;
+  water.po4 -= algaeCount * 0.0002;
+  water.no3 = Math.max(0, water.no3);
+  water.po4 = Math.max(0, water.po4);
+}
+
+function simulateEquipment() {
+  if (cash <= 0) return; // no money, equipment can't run
+  // Auto-doser Ca: fixed mL/day (1 mL ≈ 5 ppm Ca)
+  if (equipment.doserCa.owned && equipment.doserCa.enabled) {
+    const amt = equipment.doserCa.amount;
+    const cost = 0.15 * amt;
+    if (cash >= cost) {
+      water.ca += amt * 5;
+      cash -= cost;
+    }
+  }
+  // Auto-doser Alk: fixed mL/day (1 mL ≈ 0.5 dKH)
+  if (equipment.doserAlk.owned && equipment.doserAlk.enabled) {
+    const amt = equipment.doserAlk.amount;
+    const cost = 0.15 * amt;
+    if (cash >= cost) {
+      water.alk += amt * 0.5;
+      cash -= cost;
+    }
+  }
+  // Auto-doser NO3: 1 mL ≈ 2 ppm NO3
+  if (equipment.doserNo3.owned && equipment.doserNo3.enabled) {
+    const amt = equipment.doserNo3.amount;
+    const cost = 0.1 * amt;
+    if (cash >= cost) {
+      water.no3 += amt * 2;
+      cash -= cost;
+    }
+  }
+  // Auto-doser PO4: 1 mL ≈ 0.03 ppm PO4
+  if (equipment.doserPo4.owned && equipment.doserPo4.enabled) {
+    const amt = equipment.doserPo4.amount;
+    const cost = 0.1 * amt;
+    if (cash >= cost) {
+      water.po4 += amt * 0.03;
+      cash -= cost;
+    }
+  }
+  // Auto-feeder
+  if (equipment.autoFeeder.owned && equipment.autoFeeder.enabled) {
+    const amt = equipment.autoFeeder.amount;
+    const cost = 0.25 * amt;
+    if (cash < cost) return;
+    water.no3 += 3 * amt; water.po4 += 0.08 * amt;
+    lastFeedDay = day;
+    for (const f of fish) f.fed = true;
+    cash -= cost;
+  }
+  // Carbon doser: reduces NO3/PO4 by promoting bacterial consumption
+  if (equipment.carbonDoser.owned && equipment.carbonDoser.enabled && cash >= 0.2) {
+    const amt = equipment.carbonDoser.amount;
+    water.no3 -= 0.8 * amt;
+    water.po4 -= 0.02 * amt;
+    water.no3 = Math.max(0, water.no3);
+    water.po4 = Math.max(0, water.po4);
+    cash -= 0.2 * amt;
+  }
+  cash = Math.max(0, cash);
+}
+
+function simulateDay() {
+  day++;
+  // Biweekly paycheck
+  if (day % 14 === 0) {
+    const pay = DIFF[difficulty].paycheck;
+    cash += pay;
+    showMsg(`Payday! +$${pay}`);
+  }
+  simulateWater();
+  simulateEquipment();
+  simulateFishWaste();
+  simulateAlgae();
+  simulateInvertGrazing();
+  simulateGrowth();
+  calculateScore();
+  updateUI();
+}
+
+function calculateScore() {
+  let s = 0;
+  // Living coral voxels (health-weighted)
+  for (const col of colonies) {
+    if (col.health > 0) {
+      s += col.voxels.length * col.health; // 1 pt per healthy macro voxel
+    }
+  }
+  const speciesSet = new Set(colonies.map(c => c.speciesId));
+  s += speciesSet.size * 10;
+  // Fish: 5 pts per healthy fish
+  for (const f of fish) s += f.health * 5;
+  // Inverts: 3 pts per healthy invert
+  for (const inv of inverts) s += inv.health * 3;
+  // Water quality bonus: up to 20 pts for ideal parameters
+  const caOk = water.ca >= 400 && water.ca <= 450;
+  const alkOk = water.alk >= 7 && water.alk <= 11;
+  const no3Ok = water.no3 >= 1 && water.no3 <= 10;
+  const po4Ok = water.po4 >= 0.01 && water.po4 <= 0.1;
+  s += (caOk ? 5 : 0) + (alkOk ? 5 : 0) + (no3Ok ? 5 : 0) + (po4Ok ? 5 : 0);
+  // Algae penalty: -0.5 per algae voxel
+  for (let x=0;x<TANK_W;x++) for (let y=0;y<TANK_D;y++) for (let z=0;z<TANK_H;z++) {
+    if (getCell(x,y,z) === ALGAE) s -= 0.5;
+  }
+  score = Math.max(0, Math.round(s));
+  if (score > highScore) highScore = score;
+}
+
+// ============================================================
+// INPUT
+// ============================================================
+let mouseX=0, mouseY=0;
+canvas.addEventListener('mousemove', e => {
+  const r=canvas.getBoundingClientRect();
+  mouseX=(e.clientX-r.left)*canvas.width/r.width;
+  mouseY=(e.clientY-r.top)*canvas.height/r.height;
+  hoverInfo = getHitAt(mouseX|0, mouseY|0);
+});
+
+canvas.addEventListener('click', e => {
+  const r=canvas.getBoundingClientRect();
+  const mx=((e.clientX-r.left)*canvas.width/r.width)|0;
+  const my=((e.clientY-r.top)*canvas.height/r.height)|0;
+  const hit = getHitAt(mx,my);
+  if (!hit) return;
+  if (currentTool==='remove') { removeVoxelAt(hit.x,hit.y,hit.z); computeLightMap(); updateUI(); return; }
+  if (currentTool==='frag') {
+    const val = getCell(hit.x, hit.y, hit.z);
+    if (isCoralCell(val)) {
+      const spId = fragVoxelAt(hit.x, hit.y, hit.z);
+      if (spId >= 0) {
+        selectedSpecies = spId;
+        currentTool = 'coral';
+        document.querySelectorAll('.tool-btns button,.species-btn').forEach(b=>b.classList.remove('active'));
+        const btn = document.getElementById('sp-'+spId);
+        if(btn) btn.classList.add('active');
+      }
+    }
+    updateUI();
+    return;
+  }
+  const target = getPlacementTarget(hit);
+  if (!target) return;
+  if (currentTool==='rock') {
+    if (cash < 2) { showMsg('Need $2 for rock!'); return; }
+    cash -= 2;
+    setCell(target.x,target.y,target.z,ROCK);
+    computeLightMap();
+  } else if (currentTool==='coral') {
+    const dirs=[[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]];
+    let adj=false;
+    for (const d of dirs) { const cv=getCell(target.x+d[0],target.y+d[1],target.z+d[2]); if(cv===ROCK||cv===SAND){adj=true;break;} }
+    if (!adj) return;
+    createColony(selectedSpecies, target.x, target.y, target.z);
+  }
+  updateUI();
+});
+
+canvas.addEventListener('contextmenu', e => {
+  e.preventDefault();
+  const r=canvas.getBoundingClientRect();
+  const mx=((e.clientX-r.left)*canvas.width/r.width)|0;
+  const my=((e.clientY-r.top)*canvas.height/r.height)|0;
+  const hit=getHitAt(mx,my);
+  if(hit){removeVoxelAt(hit.x,hit.y,hit.z);computeLightMap();updateUI();}
+});
+
+canvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  zoom *= e.deltaY>0 ? 0.92 : 1.08;
+  zoom = Math.max(0.4, Math.min(2.5, zoom));
+});
+
+document.addEventListener('keydown', e => {
+  if(e.key==='q'||e.key==='Q') rotation=(rotation+3)%4;
+  else if(e.key==='e'||e.key==='E') rotation=(rotation+1)%4;
+  else if(e.key===' ') { e.preventDefault(); setSpeed(timeSpeed===0?1:0); }
+});
+
+// ============================================================
+// UI
+// ============================================================
+function setDifficulty(d) {
+  difficulty = d;
+  document.querySelectorAll('[id^=diff-]').forEach(b => b.classList.remove('active'));
+  const btn = document.getElementById('diff-' + d);
+  if (btn) btn.classList.add('active');
+}
+
+function showMsg(msg) {
+  const info = document.getElementById('info');
+  info.innerHTML = `<span style="color:#f88">${msg}</span>`;
+  setTimeout(() => updateUI(), 1500);
+}
+
+function selectTool(t) {
+  currentTool=t;
+  document.querySelectorAll('.tool-btns button,.species-btn').forEach(b=>b.classList.remove('active'));
+  const btn=document.getElementById('tool-'+t);
+  if(btn)btn.classList.add('active');
+}
+function selectSpecies(id) {
+  selectedSpecies=id; currentTool='coral';
+  document.querySelectorAll('.tool-btns button,.species-btn').forEach(b=>b.classList.remove('active'));
+  const btn=document.getElementById('sp-'+id);
+  if(btn)btn.classList.add('active');
+}
+function setSpeed(s) {
+  timeSpeed=s;
+  document.querySelectorAll('.time-btns button').forEach(b=>b.classList.remove('active'));
+  const btn=document.getElementById('sp'+s);
+  if(btn)btn.classList.add('active');
+}
+
+function buildSpeciesUI() {
+  const ct={branching:document.getElementById('branchingList'),
+            encrusting:document.getElementById('encrustingList'),
+            plating:document.getElementById('platingList'),
+            massive:document.getElementById('massiveList'),
+            lps_branch:document.getElementById('lps_branchList'),
+            lps_flat:document.getElementById('lps_flatList')};
+  for (const sp of SPECIES) {
+    const b=document.createElement('button');
+    b.className='species-btn'; b.id='sp-'+sp.id;
+    const price = CORAL_PRICES[sp.id] || 15;
+    b.innerHTML=`<span class="swatch" style="background:rgb(${sp.baseColor})"></span>${sp.name} <span style="color:#4aff4a">$${price}</span>`;
+    b.onclick=()=>selectSpecies(sp.id);
+    if(ct[sp.type]) ct[sp.type].appendChild(b);
+  }
+}
+
+function buildShopUI() {
+  const fc = document.getElementById('fishShop');
+  for (const sp of FISH_SPECIES) {
+    const b = document.createElement('button');
+    b.className = 'species-btn';
+    b.innerHTML = `<span class="swatch" style="background:rgb(${sp.color})"></span>${sp.name} <span style="color:#4aff4a">$${sp.price}</span>`;
+    b.onclick = () => buyFish(sp.id);
+    fc.appendChild(b);
+  }
+  const ic = document.getElementById('invertShop');
+  for (const sp of INVERT_SPECIES) {
+    const b = document.createElement('button');
+    b.className = 'species-btn';
+    b.innerHTML = `<span class="swatch" style="background:rgb(${sp.color})"></span>${sp.name} <span style="color:#4aff4a">$${sp.price}</span>`;
+    b.onclick = () => buyInvert(sp.id);
+    ic.appendChild(b);
+  }
+}
+
+function updateEquipUI() {
+  const p = document.getElementById('equipPanel');
+  let html = '';
+  // Ca Doser
+  const dCa = equipment.doserCa;
+  if (!dCa.owned) {
+    html += `<div class="equip-row"><label>Ca Doser</label><button class="equip-buy" onclick="buyEquip('doserCa')">Buy $50</button></div>`;
+  } else {
+    html += `<div class="equip-row"><input type="checkbox" ${dCa.enabled?'checked':''} onchange="equipment.doserCa.enabled=this.checked"><label>Ca mL/day </label>
+      <button class="equip-pm" onclick="adjustEquip('doserCa',-0.1)">−</button>
+      <span class="equip-val">${dCa.amount.toFixed(1)}</span>
+      <button class="equip-pm" onclick="adjustEquip('doserCa',0.1)">+</button></div>`;
+  }
+  // Alk Doser
+  const dAlk = equipment.doserAlk;
+  if (!dAlk.owned) {
+    html += `<div class="equip-row"><label>Alk Doser</label><button class="equip-buy" onclick="buyEquip('doserAlk')">Buy $50</button></div>`;
+  } else {
+    html += `<div class="equip-row"><input type="checkbox" ${dAlk.enabled?'checked':''} onchange="equipment.doserAlk.enabled=this.checked"><label>Alk mL/day </label>
+      <button class="equip-pm" onclick="adjustEquip('doserAlk',-0.1)">−</button>
+      <span class="equip-val">${dAlk.amount.toFixed(1)}</span>
+      <button class="equip-pm" onclick="adjustEquip('doserAlk',0.1)">+</button></div>`;
+  }
+  // NO3 Doser
+  const dNo3 = equipment.doserNo3;
+  if (!dNo3.owned) {
+    html += `<div class="equip-row"><label>NO3 Doser</label><button class="equip-buy" onclick="buyEquip('doserNo3')">Buy $40</button></div>`;
+  } else {
+    html += `<div class="equip-row"><input type="checkbox" ${dNo3.enabled?'checked':''} onchange="equipment.doserNo3.enabled=this.checked"><label>NO3 mL/day </label>
+      <button class="equip-pm" onclick="adjustEquip('doserNo3',-0.1)">−</button>
+      <span class="equip-val">${dNo3.amount.toFixed(1)}</span>
+      <button class="equip-pm" onclick="adjustEquip('doserNo3',0.1)">+</button></div>`;
+  }
+  // PO4 Doser
+  const dPo4 = equipment.doserPo4;
+  if (!dPo4.owned) {
+    html += `<div class="equip-row"><label>PO4 Doser</label><button class="equip-buy" onclick="buyEquip('doserPo4')">Buy $40</button></div>`;
+  } else {
+    html += `<div class="equip-row"><input type="checkbox" ${dPo4.enabled?'checked':''} onchange="equipment.doserPo4.enabled=this.checked"><label>PO4 mL/day </label>
+      <button class="equip-pm" onclick="adjustEquip('doserPo4',-0.1)">−</button>
+      <span class="equip-val">${dPo4.amount.toFixed(1)}</span>
+      <button class="equip-pm" onclick="adjustEquip('doserPo4',0.1)">+</button></div>`;
+  }
+  // Auto-feeder
+  const af = equipment.autoFeeder;
+  if (!af.owned) {
+    html += `<div class="equip-row"><label>Auto-Feeder</label><button class="equip-buy" onclick="buyEquip('autoFeeder')">Buy $30</button></div>`;
+  } else {
+    html += `<div class="equip-row"><input type="checkbox" ${af.enabled?'checked':''} onchange="equipment.autoFeeder.enabled=this.checked"><label>Feeder × </label>
+      <button class="equip-pm" onclick="adjustEquip('autoFeeder',-0.1)">−</button>
+      <span class="equip-val">${af.amount.toFixed(1)}</span>
+      <button class="equip-pm" onclick="adjustEquip('autoFeeder',0.1)">+</button></div>`;
+  }
+  // Carbon doser
+  const cd = equipment.carbonDoser;
+  if (!cd.owned) {
+    html += `<div class="equip-row"><label>Carbon Doser</label><button class="equip-buy" onclick="buyEquip('carbonDoser')">Buy $40</button></div>`;
+  } else {
+    html += `<div class="equip-row"><input type="checkbox" ${cd.enabled?'checked':''} onchange="equipment.carbonDoser.enabled=this.checked"><label>Carbon × </label>
+      <button class="equip-pm" onclick="adjustEquip('carbonDoser',-0.1)">−</button>
+      <span class="equip-val">${cd.amount.toFixed(1)}</span>
+      <button class="equip-pm" onclick="adjustEquip('carbonDoser',0.1)">+</button></div>`;
+  }
+  p.innerHTML = html;
+}
+
+function adjustEquip(key, delta) {
+  equipment[key].amount = Math.max(0, +(equipment[key].amount + delta).toFixed(1));
+  updateEquipUI();
+}
+
+function buyEquip(key) {
+  const prices = { doserCa: 50, doserAlk: 50, doserNo3: 40, doserPo4: 40, autoFeeder: 30, carbonDoser: 40 };
+  const price = prices[key];
+  if (cash < price) { showMsg(`Need $${price}!`); return; }
+  cash -= price;
+  equipment[key].owned = true;
+  equipment[key].enabled = true;
+  updateEquipUI();
+  updateUI();
+}
+
+function updateUI() {
+  document.getElementById('dayNum').textContent=day;
+  document.getElementById('cashDisplay').textContent=Math.floor(cash);
+  document.getElementById('scoreDisplay').textContent=score;
+  document.getElementById('hiScoreDisplay').textContent=highScore;
+  const cd=document.getElementById('chemDisplay');
+  const ps=[
+    {l:'Ca',v:water.ca.toFixed(0),mn:300,mx:500,id:[400,450],c:'#4a9'},
+    {l:'Alk',v:water.alk.toFixed(1),mn:3,mx:14,id:[7,11],c:'#49a'},
+    {l:'NO3',v:water.no3.toFixed(1),mn:0,mx:50,id:[1,10],c:'#a94'},
+    {l:'PO4',v:water.po4.toFixed(2),mn:0,mx:1,id:[0.01,0.1],c:'#a49'},
+  ];
+  cd.innerHTML=ps.map(p=>{
+    const pct=Math.max(0,Math.min(100,(parseFloat(p.v)-p.mn)/(p.mx-p.mn)*100));
+    const ok=parseFloat(p.v)>=p.id[0]&&parseFloat(p.v)<=p.id[1];
+    return `<div class="chem-row"><span class="chem-label">${p.l}</span>
+      <span class="chem-val" style="color:${ok?'#8f8':'#f88'}">${p.v}</span>
+      <div class="chem-bar"><div class="chem-fill" style="width:${pct}%;background:${ok?p.c:'#a44'}"></div></div></div>`;
+  }).join('');
+
+  if (hoverInfo) {
+    const val=getCell(hoverInfo.x,hoverInfo.y,hoverInfo.z);
+    const info=document.getElementById('info');
+    if (isCoralCell(val)) {
+      const col=getColony(cId(val));
+      if(col) {
+        const nSub = col.growthState ? col.growthState.voxels.length : 0;
+        const vLight = getLight(col.originX, col.originY, col.originZ);
+        info.innerHTML=`<b style="color:rgb(${col.species.baseColor})">${col.species.name}</b><br>
+          Age: ${col.age}d | Cells: ${col.voxels.length} | Sub-voxels: ${nSub}<br>
+          Health: ${col.health<=0?'DEAD':Math.round(col.health*100)+'%'} | Light: ${Math.round(vLight*100)}%`;
+      }
+    } else if(val===ALGAE) info.textContent='Algae';
+    else if(val===ROCK) info.textContent='Rock';
+    else if(val===SAND) info.textContent='Sand bed';
+    else info.textContent='Empty';
+  }
+
+  // Livestock list
+  const ll = document.getElementById('livestockList');
+  const items = [];
+  for (const f of fish) {
+    const hpCol = f.health > 0.6 ? '#8f8' : f.health > 0.3 ? '#ff8' : '#f88';
+    items.push(`<span style="color:rgb(${f.species.color})">${f.species.name}</span> <span style="color:${hpCol}">${Math.round(f.health*100)}%</span>${f.hunger>3?' <span style="color:#f88">hungry</span>':''}`);
+  }
+  for (const inv of inverts) {
+    const hpCol = inv.health > 0.6 ? '#8f8' : '#ff8';
+    items.push(`<span style="color:rgb(${inv.species.color})">${inv.species.name}</span> <span style="color:${hpCol}">${Math.round(inv.health*100)}%</span>`);
+  }
+  ll.innerHTML = items.length ? items.join('<br>') : '<span style="color:#666">No livestock</span>';
+
+  updateEquipUI();
+}
+
+// ============================================================
+// PRESETS
+// ============================================================
+function generatePreset() {
+  clearTank();
+
+  // Create rock formations (doubled coords for 2x grid)
+  const mounds = [
+    {cx:10, cy:8, r:4, h:8},
+    {cx:20, cy:10, r:4, h:10},
+    {cx:30, cy:8, r:4, h:6},
+    {cx:16, cy:4, r:2, h:6},
+    {cx:28, cy:14, r:4, h:8},
+  ];
+
+  for (const m of mounds) {
+    for (let x=m.cx-m.r; x<=m.cx+m.r; x++) {
+      for (let y=m.cy-m.r; y<=m.cy+m.r; y++) {
+        const dist = Math.sqrt((x-m.cx)**2 + (y-m.cy)**2);
+        if (dist > m.r + 0.5) continue;
+        const maxH = Math.max(1, Math.round(m.h * (1 - dist/m.r * 0.7)));
+        for (let z=1; z<=maxH; z++) {
+          if (inBounds(x,y,z) && Math.random() < 0.75) setCell(x,y,z,ROCK);
+        }
+      }
+    }
+  }
+
+  // Bridge between mound 1 and 2
+  for (let x = 16; x <= 18; x++) {
+    setCell(x, 8, 6, ROCK);
+    setCell(x, 9, 6, ROCK);
+    setCell(x, 10, 6, ROCK);
+  }
+
+  // Scatter rubble
+  for (let i = 0; i < 20; i++) {
+    const rx = 1+Math.floor(Math.random()*(TANK_W-2));
+    const ry = 1+Math.floor(Math.random()*(TANK_D-2));
+    if (isEmpty(rx,ry,1)) {
+      setCell(rx,ry,1,ROCK);
+      if (Math.random()<0.3 && isEmpty(rx,ry,2)) setCell(rx,ry,2,ROCK);
+    }
+  }
+
+  // One tall pillar
+  const rx = 4+Math.floor(Math.random()*(TANK_W-8));
+  const ry = 2+Math.floor(Math.random()*(TANK_D-4));
+  const rh = 6+Math.floor(Math.random()*6);
+  for (let z=1;z<=rh;z++) if(inBounds(rx,ry,z)) setCell(rx,ry,z,ROCK);
+
+  rebuildSubVoxelMap();
+  rebuildLookup();
+  computeLightMap();
+  updateUI();
+}
+
+function clearTank() {
+  for (let x=0;x<TANK_W;x++) for (let y=0;y<TANK_D;y++) {
+    grid[x][y].fill(EMPTY);
+    grid[x][y][0] = SAND;
+  }
+  colonies=[]; nextColonyId=1;
+  fish=[]; nextFishId=1; inverts=[]; nextInvertId=1; cash=DIFF[difficulty].startCash; lastFeedDay=0; score=0;
+  equipment = {
+    doserCa:{owned:false,enabled:false,amount:1.0},
+    doserAlk:{owned:false,enabled:false,amount:1.0},
+    doserNo3:{owned:false,enabled:false,amount:1.0},
+    doserPo4:{owned:false,enabled:false,amount:1.0},
+    autoFeeder:{owned:false,enabled:false,amount:1.0},
+    carbonDoser:{owned:false,enabled:false,amount:1.0},
+  };
+  rebuildSubVoxelMap(); rebuildLookup(); updateUI();
+}
+
+// ============================================================
+// GAME LOOP
+// ============================================================
+function update(dt) {
+  animTime += dt * 0.001;
+  const sec = dt * 0.001;
+
+  // Smooth rotation animation
+  let target = rotation * Math.PI / 2;
+  // Handle wraparound (pick shortest path)
+  while (target - rotAngle > Math.PI) target -= Math.PI * 2;
+  while (target - rotAngle < -Math.PI) target += Math.PI * 2;
+  const diff = target - rotAngle;
+  if (Math.abs(diff) > 0.005) {
+    rotAngle += diff * Math.min(1, 10 * sec); // smooth lerp ~100ms
+  } else {
+    rotAngle = target;
+  }
+
+  const effDt = dt * Math.max(timeSpeed, 1);
+  updateFish(effDt);
+  updateInverts(effDt);
+  if (timeSpeed > 0) {
+    dayAccum += dt * timeSpeed;
+    while (dayAccum >= DAY_MS) { dayAccum -= DAY_MS; simulateDay(); }
+  }
+}
+
+function gameLoop(ts) {
+  const dt = ts - lastTime;
+  lastTime = ts;
+  if (dt < 200) update(dt);
+  render();
+  requestAnimationFrame(gameLoop);
+}
+
+// ============================================================
+// STARTUP
+// ============================================================
+buildSpeciesUI();
+buildShopUI();
+generatePreset();
+computeLightMap();
+updateUI();
+requestAnimationFrame(t => { lastTime=t; gameLoop(t); });
+</script>
+</body>
+</html>

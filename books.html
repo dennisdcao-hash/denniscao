@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Books — Dennis Cao</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="books-page.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <p class="back"><a href="/">&larr; Back</a></p>
+      <h1>Books</h1>
+      <div id="all-time-stats" class="reading-stats"></div>
+    </header>
+
+    <section id="currently-reading-section">
+      <div id="currently-reading"></div>
+    </section>
+
+    <section id="book-list"></section>
+  </div>
+
+  <footer>
+    <p>Dennis Cao</p>
+  </footer>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      fetch("books.json")
+        .then((res) => res.json())
+        .then((data) => {
+          renderCurrentlyReading(data.currentlyReading);
+          renderAllBooks(data.read);
+          renderStats(data.read);
+        })
+        .catch(() => {});
+
+      function renderCurrentlyReading(books) {
+        if (!books.length) return;
+        const el = document.getElementById("currently-reading");
+        const heading = document.createElement("h2");
+        heading.className = "shelf-label";
+        heading.textContent = "Currently reading";
+        el.appendChild(heading);
+
+        const grid = document.createElement("div");
+        grid.className = "book-grid";
+        books.forEach((book) => {
+          grid.appendChild(makeBookCard(book));
+        });
+        el.appendChild(grid);
+      }
+
+      function renderAllBooks(books) {
+        const el = document.getElementById("book-list");
+
+        // Group by year
+        const byYear = {};
+        const noDate = [];
+        books.forEach((book) => {
+          if (book.readAt) {
+            const year = new Date(book.readAt).getFullYear();
+            if (!byYear[year]) byYear[year] = [];
+            byYear[year].push(book);
+          } else {
+            noDate.push(book);
+          }
+        });
+
+        const years = Object.keys(byYear).sort((a, b) => b - a);
+        years.forEach((year) => {
+          const yearBooks = byYear[year];
+          const totalPages = yearBooks.reduce((s, b) => s + b.pages, 0);
+
+          const heading = document.createElement("h2");
+          heading.className = "year-heading";
+          heading.innerHTML = `${year} <span class="year-stats">${yearBooks.length} book${yearBooks.length !== 1 ? "s" : ""}${totalPages ? ` · ${totalPages.toLocaleString()} pages` : ""}</span>`;
+          el.appendChild(heading);
+
+          const list = document.createElement("div");
+          list.className = "book-list-grid";
+          yearBooks.forEach((book) => {
+            list.appendChild(makeBookRow(book));
+          });
+          el.appendChild(list);
+        });
+
+        if (noDate.length) {
+          const heading = document.createElement("h2");
+          heading.className = "year-heading";
+          heading.textContent = "Undated";
+          el.appendChild(heading);
+
+          const list = document.createElement("div");
+          list.className = "book-list-grid";
+          noDate.forEach((book) => {
+            list.appendChild(makeBookRow(book));
+          });
+          el.appendChild(list);
+        }
+      }
+
+      function renderStats(books) {
+        const totalPages = books.reduce((s, b) => s + b.pages, 0);
+        const el = document.getElementById("all-time-stats");
+        el.innerHTML =
+          `<span>${books.length} books read</span>` +
+          (totalPages
+            ? `<span class="stat-sep">&middot;</span><span>${totalPages.toLocaleString()} pages</span>`
+            : "");
+      }
+
+      function makeBookCard(book) {
+        const a = document.createElement("a");
+        a.href = book.link;
+        a.target = "_blank";
+        a.rel = "noopener";
+        a.className = "book";
+        a.title = `${book.title} by ${book.author}`;
+
+        if (book.cover) {
+          const img = document.createElement("img");
+          img.src = book.cover;
+          img.alt = book.title;
+          img.loading = "lazy";
+          a.appendChild(img);
+        }
+
+        const info = document.createElement("span");
+        info.className = "book-title";
+        info.textContent = book.title;
+        a.appendChild(info);
+
+        return a;
+      }
+
+      function makeBookRow(book) {
+        const a = document.createElement("a");
+        a.href = book.link;
+        a.target = "_blank";
+        a.rel = "noopener";
+        a.className = "book-grid-item";
+        a.title = `${book.title} by ${book.author}`;
+
+        if (book.cover) {
+          const img = document.createElement("img");
+          img.src = book.cover;
+          img.alt = book.title;
+          img.loading = "lazy";
+          a.appendChild(img);
+        }
+
+        const title = document.createElement("span");
+        title.className = "book-grid-item-title";
+        title.textContent = book.title;
+        a.appendChild(title);
+
+        const author = document.createElement("span");
+        author.className = "book-grid-item-author";
+        author.textContent = book.author;
+        a.appendChild(author);
+
+        if (book.pages || book.rating) {
+          const meta = document.createElement("div");
+          meta.className = "book-grid-item-meta";
+          const parts = [];
+          if (book.pages) parts.push(`${book.pages} pp`);
+          if (book.rating) parts.push(`<span class="stars">${"★".repeat(book.rating)}</span>`);
+          meta.innerHTML = parts.join(" · ");
+          a.appendChild(meta);
+        }
+
+        return a;
+      }
+    });
+  </script>
+</body>
+</html>

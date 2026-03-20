@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dennis Cao</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Dennis Cao</h1>
+      <p class="tagline">Chemistry professor at Macalester College. I build things sometimes.</p>
+      <nav class="links">
+        <a href="https://dcaolab.com">Lab</a>
+        <a href="https://scholar.google.com/citations?user=gWKmupAAAAAJ&hl=en">Scholar</a>
+        <a href="https://orcid.org/0000-0002-0315-1619">ORCID</a>
+        <a href="https://twitter.com/denniscao">Twitter</a>
+        <a href="https://github.com/dennisdcao-hash">GitHub</a>
+      </nav>
+    </header>
+
+    <section id="projects">
+      <h2>Projects</h2>
+      <div class="project-grid">
+        <a href="https://realorganicchemistry.org" class="project-card">
+          <h3>RealOChem</h3>
+          <p>Interactive organic chemistry practice with structure drawing and resonance problems.</p>
+          <span class="tag">education</span>
+        </a>
+        <a href="reef-tank-sim/" class="project-card">
+          <h3>Reef Tank Sim</h3>
+          <p>Browser-based saltwater aquarium simulator. Place corals, manage water chemistry, watch things grow.</p>
+          <span class="tag">vibe code</span>
+        </a>
+      </div>
+    </section>
+
+    <section id="reading">
+      <h2>Reading</h2>
+      <div id="reading-stats" class="reading-stats"></div>
+      <div id="recent-books"></div>
+      <p class="goodreads-link"><a href="books.html">See all books &rarr;</a></p>
+    </section>
+
+    <section id="hobbies">
+      <h2>Hobbies</h2>
+      <div class="gallery" id="gallery">
+        <p class="placeholder">Coming soon.</p>
+        <!--
+          To add photos: drop images into the photos/ folder, then add them here like:
+          <div class="gallery-item">
+            <img src="photos/your-image.jpg" alt="Description" loading="lazy">
+            <span class="caption">Optional caption</span>
+          </div>
+        -->
+      </div>
+    </section>
+
+    <!-- Lightbox for photography -->
+    <div class="lightbox" id="lightbox">
+      <button class="lightbox-close" aria-label="Close">&times;</button>
+      <button class="lightbox-prev" aria-label="Previous">&lsaquo;</button>
+      <img src="" alt="">
+      <button class="lightbox-next" aria-label="Next">&rsaquo;</button>
+      <p class="lightbox-caption"></p>
+    </div>
+  </div>
+
+  <footer>
+    <p>Dennis Cao</p>
+  </footer>
+
+  <script src="books.js"></script>
+  <script src="gallery.js"></script>
+</body>
+</html>

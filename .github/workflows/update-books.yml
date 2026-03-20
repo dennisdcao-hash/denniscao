@@ -1,0 +1,25 @@
+name: Update books from Goodreads
+
+on:
+  schedule:
+    - cron: "0 8 * * 1" # Every Monday at 8am UTC
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  update-books:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch Goodreads shelves
+        run: python3 scripts/fetch_books.py
+
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add books.json covers/
+          git diff --cached --quiet || git commit -m "Update books from Goodreads"
+          git push

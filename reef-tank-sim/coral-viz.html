@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Coral Sub-Voxel Visualization</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #1a1a2e; color: #ccc; font-family: 'Consolas', monospace; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; }
+h1 { color: #7af; margin: 16px 0 4px; font-size: 18px; }
+h2 { color: #aaa; margin: 14px 0 2px; font-size: 13px; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin: 4px 0 8px; }
+canvas { background: #0d0d1a; border: 1px solid #334; border-radius: 4px; }
+.controls { display: flex; gap: 12px; align-items: center; margin: 8px 0; flex-wrap: wrap; justify-content: center; }
+.controls label { font-size: 12px; }
+.controls input[type=range] { width: 80px; }
+.controls button { padding: 4px 10px; font-size: 11px; background: #334; color: #ccc; border: 1px solid #556; border-radius: 3px; cursor: pointer; }
+.controls button:hover { background: #445; }
+.var-label { font-size: 10px; color: #999; text-align: center; margin-top: 1px; display: block; }
+</style>
+</head>
+<body>
+<h1>Coral Sub-Voxel Rendering — Ridges, Polyps & Color Variants</h1>
+<div class="controls">
+  <button onclick="rotateAll(-1)">&laquo; Rotate</button>
+  <button onclick="rotateAll(1)">Rotate &raquo;</button>
+  <label>Angle: <span id="rotLabel">30</span>&deg;</label>
+  <label>Voxel: <input type="range" id="subSize" min="2" max="6" value="3" oninput="rebuild()"><span id="sizeLabel">3</span>px</label>
+</div>
+
+<h2>INCREMENTAL GROWTH ANIMATION</h2>
+<div class="controls">
+  <button onclick="growthReset()">Reset</button>
+  <button onclick="growthPause=!growthPause" id="pauseBtn">Pause</button>
+  <label>Speed: <input type="range" id="growSpeed" min="1" max="20" value="5"><span id="speedLabel">5</span></label>
+</div>
+<div class="row" id="growthRow"></div>
+
+<hr style="width:90%;border-color:#334;margin:12px 0">
+<h2>MASSIVE — Brain Coral (3D ridges &amp; valleys)</h2>
+<div class="row" id="massiveRow"></div>
+
+<h2>LPS FLAT — War Coral / Acan (encrusting base, discrete polyp pits)</h2>
+<div class="row" id="lps_flatRow"></div>
+
+<h2>LPS BRANCHING — Candy Cane / Hammer / Torch (branches + polyp heads)</h2>
+<div class="row" id="lps_branchRow"></div>
+
+<h2>BRANCHING — Acropora (base + tip polyp color)</h2>
+<div class="row" id="branchingRow"></div>
+
+<h2>ENCRUSTING — Montipora (base + polyp dot color)</h2>
+<div class="row" id="encrustingRow"></div>
+
+<script>
+// ============================================================
+// COLOR VARIANTS
+// ============================================================
+const VARIANTS = {
+  massive: [
+    { name: 'Brain Coral',     base: [65,170,75],   accent: [180,230,120], ridgeFreq: 3.5 },
+    { name: 'Red Brain',       base: [180,55,75],   accent: [240,130,130], ridgeFreq: 4.0 },
+    { name: 'Lobo Brain',      base: [80,120,190],  accent: [140,200,255], ridgeFreq: 3.0 },
+  ],
+  lps_flat: [
+    { name: 'War Coral',  base: [160,60,50],  accent: [80,180,60],  polypSize: 1.6, polypSpacing: 4.0, wallH: 0.8 },
+    { name: 'Acan Lord',  base: [180,40,90],  accent: [60,220,160], polypSize: 2.0, polypSpacing: 5.0, wallH: 0.6 },
+    { name: 'Favia',      base: [140,120,60], accent: [220,200,80], polypSize: 1.4, polypSpacing: 3.5, wallH: 0.9 },
+  ],
+  lps_branch: [
+    { name: 'Candy Cane',    base: [85,195,155],  accent: [200,240,220], skeleton: [60,90,70],  polypSize: 2.0, polypRound: 1.0, tentacles: false },
+    { name: 'Hammer Coral',  base: [120,180,80],  accent: [200,255,120], skeleton: [80,100,60], polypSize: 2.0, polypRound: 0.6, tentacles: true, tentacleLen: 4, tentacleCount: 10 },
+    { name: 'Torch Coral',   base: [200,140,50],  accent: [255,220,100], skeleton: [90,80,60],  polypSize: 1.8, polypRound: 0.6, tentacles: true, tentacleLen: 5, tentacleCount: 12 },
+  ],
+  branching: [
+    { name: 'Purple Tip Acro', base: [155,95,175],  accent: [120,165,240] },
+    { name: 'Green Staghorn',  base: [65,150,65],   accent: [105,215,125] },
+    { name: 'Pink Birdsnest',  base: [195,95,125],  accent: [235,155,175] },
+    { name: 'Blue Staghorn',   base: [60,100,180],  accent: [130,200,255] },
+  ],
+  encrusting: [
+    { name: 'Sunset Monti',    base: [220,125,45],  accent: [255,200,80]  },
+    { name: 'Green Star Polyp',base: [45,195,75],   accent: [160,255,180] },
+    { name: 'Purple Monti',    base: [145,75,175],  accent: [220,160,255] },
+    { name: 'Rainbow Monti',   base: [200,80,60],   accent: [80,220,130]  },
+  ],
+};
+
+const SUBVOX = 3;
+
+function hash2(a, b) {
+  let h = Math.sin(a * 127.1 + b * 311.7) * 43758.5453;
+  return h - Math.floor(h);
+}
+
+// ============================================================
+// MASSIVE — hemisphere with brain-like meandering ridges
+// ============================================================
+function genMassive(stage, variant) {
+  const voxels = [];
+  const maxR = stage * SUBVOX;
+  const flatness = 0.75;
+  const freq = variant.ridgeFreq || 3.5;
+  const grooveDepth = 1.5 + stage * 0.6;
+
+  function hash(px, py) {
+    let h = Math.sin(px * 127.1 + py * 311.7) * 43758.5453;
+    return h - Math.floor(h);
+  }
+
+  function meander(px, py) {
+    const s = freq / 3.5;
+    const base = Math.sin(px*0.45*s + py*0.25*s + 1.0)
+               + Math.sin(px*0.2*s  - py*0.4*s  + 2.3) * 0.8
+               + Math.sin(px*0.35*s + py*0.35*s + 0.5) * 0.6
+               + Math.sin(px*0.15*s - py*0.3*s  - 1.2) * 0.4;
+    const noise = (hash(Math.floor(px*0.7), Math.floor(py*0.7)) - 0.5) * 0.6;
+    return base + noise;
+  }
+
+  function carveAt(px, py) {
+    const m = meander(px, py);
+    const sharpness = 3.0;
+    const t = 1.0 / (1.0 + Math.exp(m * sharpness));
+    return t * grooveDepth;
+  }
+
+  const maxH = Math.ceil(maxR * flatness) + 2;
+  for (let x = -maxR; x <= maxR; x++) {
+    for (let y = -maxR; y <= maxR; y++) {
+      const carve = carveAt(x, y);
+      const isValley = carve > grooveDepth * 0.6;
+      const isRidge = carve < grooveDepth * 0.15;
+      for (let z = 0; z <= maxH; z++) {
+        const d = Math.sqrt(x*x + y*y + (z/flatness)*(z/flatness));
+        const localR = maxR - carve;
+        if (d > localR + 0.3) continue;
+        if (d > maxR + 1) continue;
+        const shell = Math.ceil(d / SUBVOX);
+        voxels.push({ x, y, z, shell: Math.min(shell, stage), isRidge, isValley });
+      }
+    }
+  }
+  return voxels;
+}
+
+// ============================================================
+// BRANCHING — L-system with tip polyps
+// ============================================================
+function genBranching(stage, variant) {
+  const voxels = [];
+  const set = new Map();
+  const key = (x,y,z) => `${x},${y},${z}`;
+
+  function addCylinder(x0,y0,z0, x1,y1,z1, radius, shell, isTip) {
+    const dx = x1-x0, dy = y1-y0, dz = z1-z0;
+    const len = Math.sqrt(dx*dx + dy*dy + dz*dz);
+    if (len < 0.5) return;
+    const steps = Math.ceil(len * 1.5);
+    for (let i = 0; i <= steps; i++) {
+      const t = i / steps;
+      const cx = Math.round(x0 + dx*t);
+      const cy = Math.round(y0 + dy*t);
+      const cz = Math.round(z0 + dz*t);
+      for (let rx = -radius; rx <= radius; rx++) {
+        for (let ry = -radius; ry <= radius; ry++) {
+          if (rx*rx + ry*ry <= radius*radius + 0.5) {
+            const k = key(cx+rx, cy+ry, cz);
+            if (!set.has(k)) {
+              const v = { x: cx+rx, y: cy+ry, z: cz, shell, isTip: false, isPolyp: false };
+              set.set(k, v);
+              voxels.push(v);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  function branch(x, y, z, dirX, dirY, dirZ, length, radius, depth, shell) {
+    if (depth <= 0 || length < 1) return;
+    const ex = x + dirX * length;
+    const ey = y + dirY * length;
+    const ez = z + dirZ * length;
+    const isTerminal = depth <= 1;
+    // Taper radius toward tips — SPS branches are wire-thin
+    const tipRad = isTerminal ? 0 : Math.max(0, radius);
+    addCylinder(x, y, z, ex, ey, ez, tipRad, shell, isTerminal);
+    if (isTerminal) return;
+    const forks = 2 + (depth % 2);
+    const newLen = length * 0.6;
+    const newRad = Math.max(0, radius - 1);
+    for (let f = 0; f < forks; f++) {
+      const angle = (f / forks) * Math.PI * 2 + (depth * 1.3) + stage * 0.5;
+      const spread = 0.55;
+      const ndx = dirX * 0.4 + Math.cos(angle) * spread;
+      const ndy = dirY * 0.4 + Math.sin(angle) * spread;
+      const ndz = 0.8;
+      const mag = Math.sqrt(ndx*ndx + ndy*ndy + ndz*ndz);
+      branch(ex, ey, ez, ndx/mag, ndy/mag, ndz/mag, newLen, newRad, depth-1, shell+1);
+    }
+  }
+
+  // SPS: thin trunk, wire-like branches
+  const trunkH = stage * SUBVOX * 1.2;
+  const trunkR = stage >= 5 ? 1 : 0; // only thicken trunk at large sizes
+  const depth = Math.min(stage + 1, 5);
+  addCylinder(0, 0, 0, 0, 0, trunkH * 0.35, trunkR, 1, false);
+  branch(0, 0, trunkH * 0.35, 0, 0, 1, trunkH * 0.5, trunkR, depth, 2);
+
+  // Mark tips: only voxels with nothing within 4 above
+  const voxSet = new Set(voxels.map(v => key(v.x, v.y, v.z)));
+  for (const v of voxels) {
+    let hasAbove = false;
+    for (let dz = 1; dz <= 4; dz++) {
+      if (voxSet.has(key(v.x,v.y,v.z+dz)) || voxSet.has(key(v.x+1,v.y,v.z+dz)) ||
+          voxSet.has(key(v.x-1,v.y,v.z+dz)) || voxSet.has(key(v.x,v.y+1,v.z+dz)) ||
+          voxSet.has(key(v.x,v.y-1,v.z+dz))) {
+        hasAbove = true; break;
+      }
+    }
+    if (!hasAbove) {
+      v.isTip = true;
+    } else if (!voxSet.has(key(v.x,v.y,v.z+1))) {
+      const h = Math.sin(v.x*12.9898+v.y*78.233+v.z*37.719)*43758.5453;
+      if ((h-Math.floor(h)) > 0.84) v.isPolyp = true;
+    }
+  }
+  return voxels;
+}
+
+// ============================================================
+// ENCRUSTING — thin crust with polyp dots on surface
+// ============================================================
+function genEncrusting(stage, variant) {
+  const voxels = [];
+  const maxR = stage * SUBVOX;
+  const thickness = Math.max(1, Math.ceil(SUBVOX * 0.4));
+  for (let x = -maxR; x <= maxR; x++) {
+    for (let y = -maxR; y <= maxR; y++) {
+      const d2 = Math.sqrt(x*x + y*y);
+      const edgeNoise = Math.sin(x*0.8 + stage) * Math.cos(y*0.7) * 1.8
+                       + Math.sin(x*1.5 - y*0.9) * 0.8;
+      if (d2 <= maxR + edgeNoise) {
+        const bumpVal = Math.sin(x * 1.1 + 0.3) * Math.sin(y * 1.1 + 0.7);
+        const isBump = bumpVal > 0.3;
+        const h = thickness + (isBump ? 1 : 0);
+        const shell = Math.ceil(d2 / SUBVOX);
+        const ph = Math.sin(x * 7.3 + y * 13.1) * 43758.5453;
+        const isPolyp = (ph - Math.floor(ph)) > 0.84;
+        for (let z = 0; z < h; z++) {
+          voxels.push({ x, y, z, shell: Math.min(shell, stage), isPolyp: isPolyp && z === h - 1, isBump });
+        }
+      }
+    }
+  }
+  return voxels;
+}
+
+// ============================================================
+// LPS FLAT — encrusting base with discrete polyp cups (War Coral, Acan, Favia)
+// Corallite walls between polyps, fleshy polyps sunken into pits
+// ============================================================
+function genLPSFlat(stage, variant) {
+  const voxels = [];
+  const set = new Set();
+  const key = (x,y,z) => `${x},${y},${z}`;
+  const maxR = stage * SUBVOX;
+  const pSize = variant.polypSize || 1.6;
+  const pSpace = variant.polypSpacing || 4.0;
+  const wallH = variant.wallH || 0.8;
+  const baseH = Math.max(1, Math.round(SUBVOX * 0.35));
+  const wallTop = baseH + Math.round(wallH * SUBVOX * 0.5);
+
+  // Generate polyp centers on hex grid with jitter
+  const polypCenters = [];
+  const row_h = pSpace * 0.866;
+  for (let row = -Math.ceil(maxR / row_h) - 1; row <= Math.ceil(maxR / row_h) + 1; row++) {
+    for (let col = -Math.ceil(maxR / pSpace) - 1; col <= Math.ceil(maxR / pSpace) + 1; col++) {
+      let cx = col * pSpace + (((row % 2) + 2) % 2) * pSpace * 0.5;
+      let cy = row * row_h;
+      cx += (hash2(col * 7 + 3, row * 13 + 5) - 0.5) * pSpace * 0.3;
+      cy += (hash2(col * 11 + 7, row * 3 + 11) - 0.5) * pSpace * 0.3;
+      const d = Math.sqrt(cx*cx + cy*cy);
+      if (d <= maxR + 0.5) {
+        polypCenters.push({ cx, cy, r: pSize + (hash2(cx * 3.1, cy * 7.3) - 0.5) * 0.4 });
+      }
+    }
+  }
+
+  // For each x,y find nearest polyp center → determines if wall or polyp flesh
+  function nearestPolyp(px, py) {
+    let best = null, bestD = Infinity;
+    for (const pc of polypCenters) {
+      const d = Math.sqrt((px-pc.cx)*(px-pc.cx) + (py-pc.cy)*(py-pc.cy));
+      if (d < bestD) { bestD = d; best = pc; }
+    }
+    return { polyp: best, dist: bestD };
+  }
+
+  // Mound profile: height bonus based on distance from colony center
+  // Center is tallest, edges taper — gives a gentle dome
+  const moundH = stage * 0.6; // max extra height at center
+
+  for (let x = -maxR; x <= maxR; x++) {
+    for (let y = -maxR; y <= maxR; y++) {
+      const d = Math.sqrt(x*x + y*y);
+      if (d > maxR + 1) continue;
+
+      const { polyp, dist } = nearestPolyp(x, y);
+      if (!polyp) continue;
+
+      const isWall = dist > polyp.r * 0.75;
+      const isPolypCenter = dist < polyp.r * 0.25;
+      const isPolypFlesh = !isWall;
+
+      // Dome mounding: extra height that tapers from center to edge
+      const moundFrac = 1.0 - (d / (maxR + 1));
+      const extraH = Math.round(moundH * moundFrac * moundFrac);
+
+      // Wall voxels go up to wallTop, polyp flesh stays at baseH
+      const topZ = (isWall ? wallTop : baseH) + extraH;
+      const shell = Math.ceil(d / SUBVOX);
+
+      for (let z = 0; z <= topZ; z++) {
+        const k = key(x, y, z);
+        if (set.has(k)) continue;
+        set.add(k);
+        voxels.push({
+          x, y, z, shell: Math.min(shell, stage),
+          isWall, isPolypFlesh, isPolypCenter,
+          polypEdge: dist / (polyp.r || 1),
+        });
+      }
+    }
+  }
+  return voxels;
+}
+
+// ============================================================
+// LPS BRANCHING — branching skeleton with polyp heads at tips
+// Candy Cane: round dome polyps. Hammer/Torch: polyps + tentacles
+// ============================================================
+function genLPSBranch(stage, variant) {
+  const voxels = [];
+  const set = new Set();
+  const key = (x,y,z) => `${x},${y},${z}`;
+  const tipPositions = []; // collect branch tip positions for polyp heads
+
+  function addCylinder(x0,y0,z0, x1,y1,z1, radius, shell) {
+    const dx = x1-x0, dy = y1-y0, dz = z1-z0;
+    const len = Math.sqrt(dx*dx + dy*dy + dz*dz);
+    if (len < 0.5) return;
+    const steps = Math.ceil(len * 1.5);
+    for (let i = 0; i <= steps; i++) {
+      const t = i / steps;
+      const cx = Math.round(x0 + dx*t);
+      const cy = Math.round(y0 + dy*t);
+      const cz = Math.round(z0 + dz*t);
+      for (let rx = -radius; rx <= radius; rx++) {
+        for (let ry = -radius; ry <= radius; ry++) {
+          if (rx*rx + ry*ry <= radius*radius + 0.5) {
+            const k = key(cx+rx, cy+ry, cz);
+            if (!set.has(k)) {
+              set.add(k);
+              voxels.push({ x: cx+rx, y: cy+ry, z: cz, shell, isSkeleton: true, isPolyp: false, isPolypCenter: false, polypEdge: 1 });
+            }
+          }
+        }
+      }
+    }
+  }
+
+  function branch(x, y, z, dirX, dirY, dirZ, length, radius, depth, shell) {
+    if (depth <= 0 || length < 1) return;
+    const ex = x + dirX * length;
+    const ey = y + dirY * length;
+    const ez = z + dirZ * length;
+    const isTerminal = depth <= 1;
+    addCylinder(x, y, z, ex, ey, ez, radius, shell);
+
+    if (isTerminal) {
+      tipPositions.push({ x: ex, y: ey, z: ez });
+      return;
+    }
+    // LPS: fewer forks, longer segments = clear branch-then-polyp look
+    const forks = 2;
+    const newLen = length * 0.6;
+    const newRad = Math.max(1, radius);
+    for (let f = 0; f < forks; f++) {
+      const angle = (f / forks) * Math.PI * 2 + (depth * 1.5) + stage * 0.7;
+      const spread = 0.55;
+      const ndx = dirX * 0.3 + Math.cos(angle) * spread;
+      const ndy = dirY * 0.3 + Math.sin(angle) * spread;
+      const ndz = 0.75;
+      const mag = Math.sqrt(ndx*ndx + ndy*ndy + ndz*ndz);
+      branch(ex, ey, ez, ndx/mag, ndy/mag, ndz/mag, newLen, newRad, depth-1, shell+1);
+    }
+  }
+
+  // LPS branches: chunky but with clear length between forks
+  const trunkH = stage * SUBVOX * 1.1;
+  const trunkR = Math.max(1, Math.min(stage, 2));
+  const depth = Math.min(stage, 4);
+  addCylinder(0, 0, 0, 0, 0, trunkH * 0.4, trunkR, 1);
+  branch(0, 0, trunkH * 0.4, 0, 0, 1, trunkH * 0.5, Math.max(1, trunkR), depth, 2);
+
+  // At stage 1 with no forks, ensure at least one tip
+  if (tipPositions.length === 0) {
+    tipPositions.push({ x: 0, y: 0, z: Math.round(trunkH * 0.85) });
+  }
+
+  // Add polyp dome heads at each tip
+  const pR = variant.polypSize || 2.0;
+  const roundness = variant.polypRound || 0.6; // 1.0 = full sphere, 0.6 = flattened dome
+  for (const tip of tipPositions) {
+    const pr = pR + (hash2(tip.x * 3.1 + 1, tip.z * 2.7) - 0.5) * 0.3;
+    const flatness = roundness;
+    const maxDz = Math.ceil(pr * flatness) + 1;
+    for (let dx = -Math.ceil(pr) - 1; dx <= Math.ceil(pr) + 1; dx++) {
+      for (let dy = -Math.ceil(pr) - 1; dy <= Math.ceil(pr) + 1; dy++) {
+        for (let dz = -maxDz; dz <= maxDz; dz++) {
+          // For roundness=1 (candy cane), allow full sphere; otherwise hemisphere
+          if (roundness < 0.9 && dz < 0) continue;
+          const dist = Math.sqrt(dx*dx + dy*dy + (dz/flatness)*(dz/flatness));
+          if (dist <= pr + 0.3) {
+            const x = Math.round(tip.x + dx);
+            const y = Math.round(tip.y + dy);
+            const z = Math.round(tip.z + dz);
+            const k = key(x, y, z);
+            if (!set.has(k)) {
+              set.add(k);
+              const centerDist = Math.sqrt(dx*dx + dy*dy) / pr;
+              voxels.push({
+                x, y, z, shell: 1,
+                isSkeleton: false, isPolyp: true,
+                isPolypCenter: centerDist < 0.3,
+                polypEdge: centerDist,
+              });
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Store tip positions on the result for tentacle rendering
+  voxels.tipPositions = tipPositions;
+  voxels.polypRadius = pR;
+  return voxels;
+}
+
+// ============================================================
+// ISOMETRIC RENDERER
+// ============================================================
+let globalRot = 30;
+let animTime = 0;
+
+function lerpC(a, b, t) {
+  return [Math.round(a[0]+(b[0]-a[0])*t), Math.round(a[1]+(b[1]-a[1])*t), Math.round(a[2]+(b[2]-a[2])*t)];
+}
+function clampC(c) {
+  return [Math.min(255,Math.max(0,c[0])), Math.min(255,Math.max(0,c[1])), Math.min(255,Math.max(0,c[2]))];
+}
+function scaleC(c, s) {
+  return clampC([c[0]*s, c[1]*s, c[2]*s]);
+}
+
+function renderCoral(canvas, voxels, coralType, stage, variant, time) {
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  const subSize = +document.getElementById('subSize').value;
+  const tw = subSize;
+  const th = subSize * 0.5;
+  const bh = subSize * 0.7;
+
+  const base = variant.base;
+  const accent = variant.accent;
+  const dark = scaleC(base, 0.45);
+
+  const rot = globalRot * Math.PI / 180;
+  const cosR = Math.cos(rot), sinR = Math.sin(rot);
+
+  function project(vx, vy, vz) {
+    const rx = vx * cosR - vy * sinR;
+    const ry = vx * sinR + vy * cosR;
+    return [(rx - ry) * tw + W/2, (rx + ry) * th - vz * bh + H * 0.75];
+  }
+
+  const projected = voxels.map(v => {
+    const [sx, sy] = project(v.x, v.y, v.z);
+    const rx = v.x * cosR - v.y * sinR;
+    const ry = v.x * sinR + v.y * cosR;
+    return { ...v, sx, sy, sortKey: ry * 100 + rx * 0.1 - v.z * 0.01 };
+  });
+
+  projected.sort((a, b) => a.sortKey - b.sortKey);
+
+  const voxSet = new Set(voxels.map(v => `${v.x},${v.y},${v.z}`));
+  const has = (x,y,z) => voxSet.has(`${x},${y},${z}`);
+
+  for (const v of projected) {
+    const { x, y, z, sx, sy, shell } = v;
+    const shellFrac = shell / Math.max(stage, 1);
+
+    let col;
+    if (coralType === 'massive') {
+      if (v.isValley) {
+        col = lerpC(scaleC(accent, 0.5), accent, shellFrac * 0.6);
+      } else if (v.isRidge) {
+        col = lerpC(dark, scaleC(base, 1.1), shellFrac);
+      } else {
+        col = lerpC(dark, lerpC(base, accent, 0.3), shellFrac);
+      }
+    } else if (coralType === 'branching') {
+      if (v.isTip) col = lerpC(scaleC(accent, 0.7), accent, shellFrac);
+      else if (v.isPolyp) col = lerpC(scaleC(accent, 0.5), scaleC(accent, 0.85), shellFrac);
+      else col = lerpC(dark, base, shellFrac);
+    } else if (coralType === 'lps_flat') {
+      if (v.isWall) {
+        col = scaleC(base, 0.4 + shellFrac * 0.2);
+      } else if (v.isPolypCenter) {
+        col = lerpC(scaleC(accent, 0.9), accent, 0.8);
+      } else {
+        const edge = v.polypEdge || 0.5;
+        col = lerpC(accent, base, Math.min(1, edge * 1.3));
+      }
+    } else if (coralType === 'lps_branch') {
+      const skel = variant.skeleton || scaleC(base, 0.4);
+      if (v.isSkeleton) {
+        col = scaleC(skel, 0.6 + shellFrac * 0.4);
+      } else if (v.isPolypCenter) {
+        col = lerpC(scaleC(accent, 0.9), accent, 0.8);
+      } else if (v.isPolyp) {
+        const edge = v.polypEdge || 0.5;
+        col = lerpC(accent, base, Math.min(1, edge * 1.2));
+      } else {
+        col = lerpC(dark, base, shellFrac);
+      }
+    } else {
+      // Encrusting
+      if (v.isPolyp) col = lerpC(scaleC(accent, 0.6), accent, shellFrac);
+      else col = lerpC(dark, base, shellFrac);
+    }
+
+    const showTop = !has(x, y, z+1);
+
+    if (showTop) {
+      const tc = scaleC(col, 1.2);
+      ctx.fillStyle = `rgb(${tc[0]},${tc[1]},${tc[2]})`;
+      ctx.beginPath();
+      ctx.moveTo(sx, sy - th); ctx.lineTo(sx + tw, sy); ctx.lineTo(sx, sy + th); ctx.lineTo(sx - tw, sy);
+      ctx.closePath(); ctx.fill();
+
+      if ((coralType === 'encrusting' || coralType === 'branching') && v.isPolyp && subSize >= 3) {
+        ctx.fillStyle = `rgba(${accent[0]},${accent[1]},${accent[2]},0.85)`;
+        ctx.beginPath(); ctx.arc(sx, sy, subSize * 0.3, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+
+    const lc = scaleC(col, 0.65);
+    ctx.fillStyle = `rgb(${lc[0]},${lc[1]},${lc[2]})`;
+    ctx.beginPath();
+    ctx.moveTo(sx - tw, sy); ctx.lineTo(sx, sy + th); ctx.lineTo(sx, sy + th + bh); ctx.lineTo(sx - tw, sy + bh);
+    ctx.closePath(); ctx.fill();
+
+    const rc = scaleC(col, 0.8);
+    ctx.fillStyle = `rgb(${rc[0]},${rc[1]},${rc[2]})`;
+    ctx.beginPath();
+    ctx.moveTo(sx + tw, sy); ctx.lineTo(sx, sy + th); ctx.lineTo(sx, sy + th + bh); ctx.lineTo(sx + tw, sy + bh);
+    ctx.closePath(); ctx.fill();
+  }
+
+  // Draw tentacles for hammer/torch corals AFTER voxels (on top)
+  if (coralType === 'lps_branch' && variant.tentacles && voxels.tipPositions) {
+    const tLen = (variant.tentacleLen || 4) * subSize;
+    const tCount = variant.tentacleCount || 10;
+    const t = time || 0;
+
+    for (const tip of voxels.tipPositions) {
+      const pr = voxels.polypRadius || 2.5;
+      const [tipSx, tipSy] = project(tip.x, tip.y, tip.z + pr * 0.5);
+
+      for (let i = 0; i < tCount; i++) {
+        const angle = (i / tCount) * Math.PI * 2;
+        // Base position around polyp edge
+        const bx = tipSx + Math.cos(angle + rot) * pr * subSize * 0.8;
+        const by = tipSy + Math.sin(angle + rot) * pr * subSize * 0.4 - pr * subSize * 0.3;
+
+        // Animated wavy tentacle — oscillates between vertical reach and horizontal droop
+        ctx.strokeStyle = `rgba(${accent[0]},${accent[1]},${accent[2]},0.7)`;
+        ctx.lineWidth = Math.max(1, subSize * 0.4);
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(bx, by);
+
+        let cx = bx, cy = by;
+        const segs = 5;
+        const phase = i * 2.1 + tip.x * 0.3 + tip.y * 0.7;
+        // posture: 0=vertical(up), 1=horizontal(out/droop) — smoothly cycles
+        const posture = (Math.sin(t * 0.8 + phase * 0.3) + 1) * 0.5;
+        for (let s = 1; s <= segs; s++) {
+          const frac = s / segs;
+          const wiggle = Math.sin(t * 2.5 + phase + frac * 3) * tLen * 0.12;
+
+          // Vertical mode: arch upward
+          const vRise = Math.sin(frac * Math.PI) * tLen * 0.6;
+          const vOut = Math.cos(angle + rot) * tLen * frac * 0.15;
+          const vX = bx + vOut + wiggle;
+          const vY = by - vRise;
+
+          // Horizontal mode: reach outward then droop
+          const hOut = Math.cos(angle + rot) * tLen * frac * 0.5;
+          const hDroop = frac * frac * tLen * 0.5;
+          const hX = bx + hOut + wiggle;
+          const hY = by - tLen * 0.1 + hDroop + Math.sin(angle + rot) * tLen * frac * 0.15;
+
+          // Blend between the two postures
+          cx = vX + (hX - vX) * posture;
+          cy = vY + (hY - vY) * posture;
+          ctx.lineTo(cx, cy);
+        }
+        ctx.stroke();
+
+        // Tiny tip blob (hammer T-shape / torch blob)
+        if (variant.name === 'Hammer Coral') {
+          // T-shaped tip
+          const perpX = Math.cos(angle + rot + Math.PI/2) * subSize * 1.2;
+          const perpY = Math.sin(angle + rot + Math.PI/2) * subSize * 0.5;
+          ctx.strokeStyle = `rgba(${accent[0]},${accent[1]},${accent[2]},0.85)`;
+          ctx.lineWidth = Math.max(1.5, subSize * 0.5);
+          ctx.beginPath();
+          ctx.moveTo(cx - perpX, cy - perpY);
+          ctx.lineTo(cx + perpX, cy + perpY);
+          ctx.stroke();
+        } else {
+          // Torch: round blob tip
+          ctx.fillStyle = `rgba(${accent[0]},${accent[1]},${accent[2]},0.8)`;
+          ctx.beginPath();
+          ctx.arc(cx, cy, subSize * 0.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    }
+  }
+
+  ctx.fillStyle = '#888';
+  ctx.font = '10px Consolas';
+  ctx.textAlign = 'center';
+  ctx.fillText(`Stage ${stage}  (${voxels.length})`, W/2, H - 6);
+}
+
+// ============================================================
+// BUILD & ANIMATION LOOP
+// ============================================================
+const TYPES = ['massive', 'lps_flat', 'lps_branch', 'branching', 'encrusting'];
+const canvases = {};
+TYPES.forEach(t => canvases[t] = []);
+
+// Cache generated voxels so we don't regen every frame
+const voxelCache = {};
+TYPES.forEach(t => voxelCache[t] = []);
+
+function buildCanvases() {
+  for (const type of TYPES) {
+    const row = document.getElementById(type + 'Row');
+    row.innerHTML = '';
+    canvases[type] = [];
+    voxelCache[type] = [];
+    const vars = VARIANTS[type];
+    for (let vi = 0; vi < vars.length; vi++) {
+      const stages = type === 'branching' ? [2, 4, 6, 8] : [2, 4, 6];
+      for (const stage of stages) {
+        const wrap = document.createElement('div');
+        const cvs = document.createElement('canvas');
+        const size = (type === 'branching' || type === 'lps_branch') ? 220 : 180;
+        cvs.width = size;
+        cvs.height = size;
+        wrap.appendChild(cvs);
+        const lbl = document.createElement('span');
+        lbl.className = 'var-label';
+        lbl.textContent = vars[vi].name;
+        wrap.appendChild(lbl);
+        row.appendChild(wrap);
+        canvases[type].push({ canvas: cvs, stage, variantIdx: vi });
+        voxelCache[type].push(null);
+      }
+    }
+  }
+}
+
+function genForType(type, stage, variant) {
+  if (type === 'massive') return genMassive(stage, variant);
+  if (type === 'branching') return genBranching(stage, variant);
+  if (type === 'encrusting') return genEncrusting(stage, variant);
+  if (type === 'lps_flat') return genLPSFlat(stage, variant);
+  if (type === 'lps_branch') return genLPSBranch(stage, variant);
+  return [];
+}
+
+function rebuild() {
+  document.getElementById('sizeLabel').textContent = document.getElementById('subSize').value;
+  for (const type of TYPES) {
+    for (let i = 0; i < canvases[type].length; i++) {
+      const entry = canvases[type][i];
+      const variant = VARIANTS[type][entry.variantIdx];
+      const voxels = genForType(type, entry.stage, variant);
+      voxelCache[type][i] = voxels;
+      renderCoral(entry.canvas, voxels, type, entry.stage, variant, animTime);
+    }
+  }
+}
+
+// Only re-render animated types each frame (lps_branch with tentacles)
+function animFrame(ts) {
+  animTime = ts * 0.001;
+  // Only redraw lps_branch canvases for tentacle animation
+  const type = 'lps_branch';
+  for (let i = 0; i < canvases[type].length; i++) {
+    const entry = canvases[type][i];
+    const variant = VARIANTS[type][entry.variantIdx];
+    if (!variant.tentacles) continue;
+    const voxels = voxelCache[type][i];
+    if (!voxels) continue;
+    renderCoral(entry.canvas, voxels, type, entry.stage, variant, animTime);
+  }
+  requestAnimationFrame(animFrame);
+}
+
+function rotateAll(dir) {
+  globalRot = (globalRot + dir * 15) % 360;
+  document.getElementById('rotLabel').textContent = globalRot;
+  rebuild();
+}
+
+buildCanvases();
+rebuild();
+
+// ============================================================
+// INCREMENTAL GROWTH SYSTEM
+// ============================================================
+let growthPause = false;
+let growthStates = [];
+let growthCanvases = [];
+let lastGrowthTick = 0;
+
+const GROWTH_CONFIGS = [
+  { type: 'massive',    variant: VARIANTS.massive[0],     label: 'Brain Coral' },
+  { type: 'lps_flat',   variant: VARIANTS.lps_flat[0],    label: 'War Coral' },
+  { type: 'lps_branch', variant: VARIANTS.lps_branch[1],  label: 'Hammer' },
+  { type: 'branching',  variant: VARIANTS.branching[0],   label: 'Purple Tip Acro' },
+  { type: 'encrusting', variant: VARIANTS.encrusting[0],  label: 'Sunset Monti' },
+];
+
+// --- Incremental growth state factories ---
+
+function createMassiveGrowth(variant) {
+  return {
+    type: 'massive', variant,
+    radius: 0.5,       // current SDF radius (sub-voxels), grows over time
+    voxels: [],
+    voxSet: new Set(),
+    maxRadius: 6 * SUBVOX,
+    tick(amount) {
+      this.radius = Math.min(this.maxRadius, this.radius + amount * 0.4);
+      const r = this.radius;
+      const flatness = 0.75;
+      const freq = variant.ridgeFreq || 3.5;
+      const grooveDepth = 1.5 + (r / SUBVOX) * 0.6;
+      const s = freq / 3.5;
+      function hash(px, py) { let h = Math.sin(px*127.1+py*311.7)*43758.5453; return h-Math.floor(h); }
+      function meander(px, py) {
+        return Math.sin(px*0.45*s+py*0.25*s+1) + Math.sin(px*0.2*s-py*0.4*s+2.3)*0.8
+             + Math.sin(px*0.35*s+py*0.35*s+0.5)*0.6 + Math.sin(px*0.15*s-py*0.3*s-1.2)*0.4
+             + (hash(Math.floor(px*0.7),Math.floor(py*0.7))-0.5)*0.6;
+      }
+      function carve(px, py) {
+        const m = meander(px, py);
+        return grooveDepth / (1 + Math.exp(m * 3));
+      }
+      const ir = Math.ceil(r);
+      const maxH = Math.ceil(r * flatness) + 2;
+      for (let x = -ir; x <= ir; x++) {
+        for (let y = -ir; y <= ir; y++) {
+          const c = carve(x, y);
+          const isValley = c > grooveDepth * 0.6;
+          const isRidge = c < grooveDepth * 0.15;
+          for (let z = 0; z <= maxH; z++) {
+            const k = `${x},${y},${z}`;
+            if (this.voxSet.has(k)) continue;
+            const d = Math.sqrt(x*x + y*y + (z/flatness)*(z/flatness));
+            const localR = r - c;
+            if (d <= localR + 0.3 && d <= r + 1) {
+              this.voxSet.add(k);
+              this.voxels.push({ x, y, z, shell: Math.ceil(d/SUBVOX), isRidge, isValley });
+            }
+          }
+        }
+      }
+    }
+  };
+}
+
+function createEncrustingGrowth(variant) {
+  return {
+    type: 'encrusting', variant,
+    radius: 0.5,
+    voxels: [],
+    voxSet: new Set(),
+    maxRadius: 6 * SUBVOX,
+    tick(amount) {
+      this.radius = Math.min(this.maxRadius, this.radius + amount * 0.5);
+      const r = this.radius;
+      const thickness = Math.max(1, Math.ceil(SUBVOX * 0.4));
+      const ir = Math.ceil(r) + 2;
+      for (let x = -ir; x <= ir; x++) {
+        for (let y = -ir; y <= ir; y++) {
+          const d2 = Math.sqrt(x*x + y*y);
+          const edgeNoise = Math.sin(x*0.8)*Math.cos(y*0.7)*1.8 + Math.sin(x*1.5-y*0.9)*0.8;
+          if (d2 <= r + edgeNoise) {
+            const bumpVal = Math.sin(x*1.1+0.3)*Math.sin(y*1.1+0.7);
+            const isBump = bumpVal > 0.3;
+            const h = thickness + (isBump ? 1 : 0);
+            const ph = Math.sin(x*7.3+y*13.1)*43758.5453;
+            const isPolyp = (ph-Math.floor(ph)) > 0.84;
+            for (let z = 0; z < h; z++) {
+              const k = `${x},${y},${z}`;
+              if (!this.voxSet.has(k)) {
+                this.voxSet.add(k);
+                this.voxels.push({ x, y, z, shell: Math.ceil(d2/SUBVOX), isPolyp: isPolyp && z===h-1, isBump });
+              }
+            }
+          }
+        }
+      }
+    }
+  };
+}
+
+function createLPSFlatGrowth(variant) {
+  const pSize = variant.polypSize || 1.6;
+  const pSpace = variant.polypSpacing || 4.0;
+  const wallH = variant.wallH || 0.8;
+  const baseH = Math.max(1, Math.round(SUBVOX * 0.35));
+  const wallTop = baseH + Math.round(wallH * SUBVOX * 0.5);
+  const moundMax = 6 * 0.6;
+
+  // Pre-generate polyp grid for full size
+  const maxFull = 6 * SUBVOX;
+  const polypCenters = [];
+  const row_h = pSpace * 0.866;
+  for (let row = -Math.ceil(maxFull/row_h)-1; row <= Math.ceil(maxFull/row_h)+1; row++) {
+    for (let col = -Math.ceil(maxFull/pSpace)-1; col <= Math.ceil(maxFull/pSpace)+1; col++) {
+      let cx = col*pSpace + (((row%2)+2)%2)*pSpace*0.5;
+      let cy = row*row_h;
+      cx += (hash2(col*7+3,row*13+5)-0.5)*pSpace*0.3;
+      cy += (hash2(col*11+7,row*3+11)-0.5)*pSpace*0.3;
+      polypCenters.push({ cx, cy, r: pSize + (hash2(cx*3.1,cy*7.3)-0.5)*0.4 });
+    }
+  }
+
+  function nearestPolyp(px, py) {
+    let best = null, bestD = Infinity;
+    for (const pc of polypCenters) {
+      const d = Math.sqrt((px-pc.cx)*(px-pc.cx)+(py-pc.cy)*(py-pc.cy));
+      if (d < bestD) { bestD = d; best = pc; }
+    }
+    return { polyp: best, dist: bestD };
+  }
+
+  return {
+    type: 'lps_flat', variant,
+    radius: 0.5,
+    voxels: [],
+    voxSet: new Set(),
+    maxRadius: maxFull,
+    tick(amount) {
+      this.radius = Math.min(this.maxRadius, this.radius + amount * 0.4);
+      const r = this.radius;
+      const ir = Math.ceil(r) + 1;
+      for (let x = -ir; x <= ir; x++) {
+        for (let y = -ir; y <= ir; y++) {
+          const d = Math.sqrt(x*x + y*y);
+          if (d > r + 1) continue;
+          const { polyp, dist } = nearestPolyp(x, y);
+          if (!polyp) continue;
+          const isWall = dist > polyp.r * 0.75;
+          const isPolypCenter = dist < polyp.r * 0.25;
+          const moundFrac = 1 - d / (this.maxRadius + 1);
+          const extraH = Math.round(moundMax * moundFrac * moundFrac * (r / this.maxRadius));
+          const topZ = (isWall ? wallTop : baseH) + extraH;
+          for (let z = 0; z <= topZ; z++) {
+            const k = `${x},${y},${z}`;
+            if (!this.voxSet.has(k)) {
+              this.voxSet.add(k);
+              this.voxels.push({ x, y, z, shell: Math.ceil(d/SUBVOX), isWall, isPolypFlesh: !isWall, isPolypCenter, polypEdge: dist/(polyp.r||1) });
+            }
+          }
+        }
+      }
+    }
+  };
+}
+
+function createBranchingGrowth(variant) {
+  // Store active tips that extend each tick
+  const tips = [{ x: 0, y: 0, z: 1, dx: 0, dy: 0, dz: 1, gen: 0, maxGen: 30 }];
+  return {
+    type: 'branching', variant,
+    voxels: [],
+    voxSet: new Set(),
+    tips,
+    tickCount: 0,
+    tick(amount) {
+      const steps = Math.ceil(amount);
+      for (let s = 0; s < steps; s++) {
+        this.tickCount++;
+        const newTips = [];
+        for (let ti = tips.length - 1; ti >= 0; ti--) {
+          const tip = tips[ti];
+          if (tip.gen >= tip.maxGen) continue;
+
+          // Extend tip by 1 sub-voxel
+          const nx = tip.x + tip.dx;
+          const ny = tip.y + tip.dy;
+          const nz = tip.z + tip.dz;
+          const rx = Math.round(nx), ry = Math.round(ny), rz = Math.round(nz);
+          const k = `${rx},${ry},${rz}`;
+          if (!this.voxSet.has(k)) {
+            this.voxSet.add(k);
+            this.voxels.push({ x: rx, y: ry, z: rz, shell: Math.ceil(tip.gen/4), isTip: false, isPolyp: false });
+          }
+
+          tip.x = nx; tip.y = ny; tip.z = nz;
+          tip.gen++;
+
+          // Random slight direction drift (keeps it organic)
+          tip.dx += (Math.random() - 0.5) * 0.15;
+          tip.dy += (Math.random() - 0.5) * 0.15;
+          tip.dz += (Math.random() - 0.5) * 0.05;
+          // Bias upward
+          tip.dz = Math.max(0.3, tip.dz);
+          // Normalize to keep speed ~1
+          const mag = Math.sqrt(tip.dx*tip.dx + tip.dy*tip.dy + tip.dz*tip.dz);
+          tip.dx /= mag; tip.dy /= mag; tip.dz /= mag;
+
+          // Fork chance increases with generation
+          const forkChance = tip.gen > 4 ? 0.08 : 0;
+          if (Math.random() < forkChance && tips.length + newTips.length < 80) {
+            // Create a new branch splitting off at an angle
+            const angle = Math.random() * Math.PI * 2;
+            const spread = 0.5;
+            const fdx = tip.dx * 0.4 + Math.cos(angle) * spread;
+            const fdy = tip.dy * 0.4 + Math.sin(angle) * spread;
+            const fdz = 0.6 + Math.random() * 0.3;
+            const fm = Math.sqrt(fdx*fdx + fdy*fdy + fdz*fdz);
+            newTips.push({ x: tip.x, y: tip.y, z: tip.z, dx: fdx/fm, dy: fdy/fm, dz: fdz/fm, gen: tip.gen, maxGen: tip.maxGen - 2 });
+          }
+        }
+        tips.push(...newTips);
+      }
+      // Mark tips: only voxels with no voxel within 3 above them
+      // First clear all tip/polyp flags
+      const vs = this.voxSet;
+      for (const v of this.voxels) {
+        v.isTip = false;
+        v.isPolyp = false;
+      }
+      for (const v of this.voxels) {
+        // Check if any voxel exists 1-4 steps above
+        let hasAbove = false;
+        for (let dz = 1; dz <= 4; dz++) {
+          if (vs.has(`${v.x},${v.y},${v.z+dz}`) ||
+              vs.has(`${v.x+1},${v.y},${v.z+dz}`) ||
+              vs.has(`${v.x-1},${v.y},${v.z+dz}`) ||
+              vs.has(`${v.x},${v.y+1},${v.z+dz}`) ||
+              vs.has(`${v.x},${v.y-1},${v.z+dz}`)) {
+            hasAbove = true; break;
+          }
+        }
+        if (!hasAbove) {
+          v.isTip = true;
+          // Sparse polyp dots on non-tip exposed surfaces
+        } else if (!vs.has(`${v.x},${v.y},${v.z+1}`)) {
+          const h = Math.sin(v.x*12.9898+v.y*78.233+v.z*37.719)*43758.5453;
+          v.isPolyp = (h - Math.floor(h)) > 0.84;
+        }
+      }
+    }
+  };
+}
+
+function createLPSBranchGrowth(variant) {
+  // Polyp-first growth: polyps are the active agents.
+  // Skeleton extrudes BEHIND the polyp as it moves upward.
+  // Branching = a polyp splits into two that diverge.
+  const pR = variant.polypSize || 2.0;
+  const roundness = variant.polypRound || 0.6;
+
+  // Each head: a living polyp with position + direction
+  const heads = [{ x: 0, y: 0, z: pR + 1, dx: 0, dy: 0, dz: 1, gen: 0, alive: true, trail: [{x:0,y:0,z:0},{x:0,y:0,z:pR+1}] }];
+
+  const state = {
+    type: 'lps_branch', variant,
+    skelVoxels: [],    // permanent skeleton voxels
+    skelSet: new Set(),
+    voxels: [],        // combined (rebuilt each tick: skeleton + polyp domes)
+    voxSet: new Set(),
+    heads,
+    tipPositions: [],
+    polypRadius: pR,
+    tickCount: 0,
+
+    tick(amount) {
+      const numSteps = Math.ceil(amount);
+      for (let s = 0; s < numSteps; s++) {
+        this.tickCount++;
+        const newHeads = [];
+
+        for (const head of heads) {
+          if (!head.alive) continue;
+
+          // 1) Move polyp head upward/outward
+          head.x += head.dx;
+          head.y += head.dy;
+          head.z += head.dz;
+          head.gen++;
+
+          // 2) Record trail and deposit skeleton along the path
+          head.trail.push({ x: head.x, y: head.y, z: head.z });
+          const prev = head.trail[head.trail.length - 2];
+          const curr = head.trail[head.trail.length - 1];
+          const dx = curr.x - prev.x, dy = curr.y - prev.y, dz = curr.z - prev.z;
+          const skelR = 1;
+          const adx = Math.abs(dx), ady = Math.abs(dy), adz = Math.abs(dz);
+          const lineSteps = Math.max(1, Math.ceil(Math.max(adx, ady, adz)));
+          for (let i = 0; i <= lineSteps; i++) {
+            const t = i / lineSteps;
+            const px = Math.round(prev.x + dx * t);
+            const py = Math.round(prev.y + dy * t);
+            const pz = Math.round(prev.z + dz * t);
+            for (let sdx = -skelR; sdx <= skelR; sdx++) {
+              for (let sdy = -skelR; sdy <= skelR; sdy++) {
+                if (sdx*sdx + sdy*sdy > skelR*skelR + 0.5) continue;
+                const k = `${px+sdx},${py+sdy},${pz}`;
+                if (!this.skelSet.has(k)) {
+                  this.skelSet.add(k);
+                  this.skelVoxels.push({ x: px+sdx, y: py+sdy, z: pz, shell: 1, isSkeleton: true, isPolyp: false, isPolypCenter: false, polypEdge: 1 });
+                }
+              }
+            }
+          }
+
+          // Slight organic drift
+          head.dx += (Math.random() - 0.5) * 0.08;
+          head.dy += (Math.random() - 0.5) * 0.08;
+          head.dz = Math.max(0.5, head.dz + (Math.random() - 0.5) * 0.03);
+          const mag = Math.sqrt(head.dx*head.dx + head.dy*head.dy + head.dz*head.dz);
+          head.dx /= mag; head.dy /= mag; head.dz /= mag;
+
+          // 3) Polyp splitting — the polyp divides into two that diverge
+          const splitChance = head.gen > 8 ? 0.04 : 0;
+          const totalHeads = heads.length + newHeads.length;
+          if (Math.random() < splitChance && totalHeads < 16 && head.gen < 30) {
+            // Split: current head goes one way, new head goes the other
+            const splitAngle = Math.random() * Math.PI * 2;
+            const spread = 0.4;
+
+            // Deflect original head
+            head.dx += Math.cos(splitAngle) * spread;
+            head.dy += Math.sin(splitAngle) * spread;
+            const m1 = Math.sqrt(head.dx*head.dx + head.dy*head.dy + head.dz*head.dz);
+            head.dx /= m1; head.dy /= m1; head.dz /= m1;
+
+            // Create sibling in opposite direction
+            const ndx = head.dx - Math.cos(splitAngle) * spread * 2;
+            const ndy = head.dy - Math.sin(splitAngle) * spread * 2;
+            const ndz = head.dz;
+            const m2 = Math.sqrt(ndx*ndx + ndy*ndy + ndz*ndz);
+            newHeads.push({
+              x: head.x, y: head.y, z: head.z,
+              dx: ndx/m2, dy: ndy/m2, dz: ndz/m2,
+              gen: head.gen, alive: true,
+              trail: [{ x: head.x, y: head.y, z: head.z }],
+            });
+          }
+
+          // Cap max height
+          if (head.gen > 35) head.alive = false;
+        }
+        heads.push(...newHeads);
+      }
+
+      // Rebuild combined voxels: skeleton (permanent) + polyp domes (rebuilt fresh)
+      const polypVoxels = [];
+      const polypSet = new Set();
+      this.tipPositions = [];
+
+      // Collect all head positions (alive + dead)
+      for (const head of heads) {
+        if (!head.alive && head.gen < 35) continue;
+        const hx = head.x, hy = head.y, hz = head.z;
+        if (!this.tipPositions.find(p => Math.abs(p.x-hx)<1 && Math.abs(p.y-hy)<1 && Math.abs(p.z-hz)<1)) {
+          this.tipPositions.push({ x: hx, y: hy, z: hz });
+          // Build dome into polypVoxels
+          const pr = pR + (hash2(hx*3.1+1, hz*2.7) - 0.5) * 0.3;
+          const flat = roundness;
+          const maxDz = Math.ceil(pr * flat) + 1;
+          for (let ddx = -Math.ceil(pr)-1; ddx <= Math.ceil(pr)+1; ddx++) {
+            for (let ddy = -Math.ceil(pr)-1; ddy <= Math.ceil(pr)+1; ddy++) {
+              for (let ddz = -maxDz; ddz <= maxDz; ddz++) {
+                if (roundness < 0.9 && ddz < 0) continue;
+                const dist = Math.sqrt(ddx*ddx + ddy*ddy + (ddz/flat)*(ddz/flat));
+                if (dist <= pr + 0.3) {
+                  const x = Math.round(hx+ddx), y = Math.round(hy+ddy), z = Math.round(hz+ddz);
+                  const k = `${x},${y},${z}`;
+                  if (!polypSet.has(k)) {
+                    polypSet.add(k);
+                    const cd = Math.sqrt(ddx*ddx + ddy*ddy) / pr;
+                    polypVoxels.push({ x, y, z, shell: 1, isSkeleton: false, isPolyp: true, isPolypCenter: cd < 0.3, polypEdge: cd });
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+      // Combine: skeleton first, then polyp domes (polyps render on top)
+      this.voxels = [...this.skelVoxels, ...polypVoxels];
+      this.voxSet = new Set(this.voxels.map(v => `${v.x},${v.y},${v.z}`));
+    },
+
+  };
+
+  // Initial state: the tick will build the dome on first call
+  state.tipPositions = [{ x: 0, y: 0, z: pR + 1 }];
+
+  return state;
+}
+
+function createGrowthState(config) {
+  switch (config.type) {
+    case 'massive': return createMassiveGrowth(config.variant);
+    case 'encrusting': return createEncrustingGrowth(config.variant);
+    case 'lps_flat': return createLPSFlatGrowth(config.variant);
+    case 'branching': return createBranchingGrowth(config.variant);
+    case 'lps_branch': return createLPSBranchGrowth(config.variant);
+  }
+}
+
+function buildGrowthCanvases() {
+  const row = document.getElementById('growthRow');
+  row.innerHTML = '';
+  growthCanvases = [];
+  growthStates = [];
+  for (const config of GROWTH_CONFIGS) {
+    const wrap = document.createElement('div');
+    const cvs = document.createElement('canvas');
+    cvs.width = 240; cvs.height = 240;
+    wrap.appendChild(cvs);
+    const lbl = document.createElement('span');
+    lbl.className = 'var-label';
+    lbl.id = 'glabel-' + config.type;
+    lbl.textContent = config.label;
+    wrap.appendChild(lbl);
+    row.appendChild(wrap);
+    growthCanvases.push(cvs);
+    growthStates.push(createGrowthState(config));
+  }
+}
+
+function growthReset() {
+  growthStates = [];
+  for (let i = 0; i < GROWTH_CONFIGS.length; i++) {
+    growthStates[i] = createGrowthState(GROWTH_CONFIGS[i]);
+  }
+}
+
+function growthTick(ts) {
+  const speed = +document.getElementById('growSpeed').value;
+  document.getElementById('speedLabel').textContent = speed;
+
+  if (!growthPause) {
+    const elapsed = lastGrowthTick ? (ts - lastGrowthTick) * 0.001 : 0;
+    const amount = elapsed * speed;
+    if (amount > 0 && amount < 2) { // guard against huge jumps
+      for (const state of growthStates) {
+        state.tick(amount);
+      }
+    }
+  }
+  lastGrowthTick = ts;
+
+  // Render all growth canvases
+  for (let i = 0; i < growthStates.length; i++) {
+    const state = growthStates[i];
+    const config = GROWTH_CONFIGS[i];
+    const cvs = growthCanvases[i];
+    // Attach tipPositions/polypRadius for tentacle rendering
+    const voxels = state.voxels;
+    if (state.tipPositions) {
+      voxels.tipPositions = state.tipPositions;
+      voxels.polypRadius = state.polypRadius;
+    }
+    const stage = Math.max(1, Math.ceil((state.radius || 10) / SUBVOX));
+    renderCoral(cvs, voxels, config.type, stage, config.variant, animTime);
+    // Update label with voxel count
+    const lbl = document.getElementById('glabel-' + config.type);
+    if (lbl) lbl.textContent = `${config.label} (${voxels.length})`;
+  }
+}
+
+buildGrowthCanvases();
+
+// Combined animation loop
+function mainLoop(ts) {
+  animTime = ts * 0.001;
+  // Tentacle animation for static lps_branch canvases
+  const type = 'lps_branch';
+  for (let i = 0; i < canvases[type].length; i++) {
+    const entry = canvases[type][i];
+    const variant = VARIANTS[type][entry.variantIdx];
+    if (!variant.tentacles) continue;
+    const voxels = voxelCache[type][i];
+    if (!voxels) continue;
+    renderCoral(entry.canvas, voxels, type, entry.stage, variant, animTime);
+  }
+  // Growth animation
+  growthTick(ts);
+  requestAnimationFrame(mainLoop);
+}
+requestAnimationFrame(mainLoop);
+</script>
+</body>
+</html>

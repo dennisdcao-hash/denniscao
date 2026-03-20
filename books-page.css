@@ -1,0 +1,93 @@
+.container {
+  max-width: 960px;
+}
+
+.back a {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.15s;
+}
+
+.back a:hover {
+  color: var(--accent);
+}
+
+.back {
+  margin-bottom: 1rem;
+}
+
+.year-heading {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  color: var(--text);
+}
+
+.year-heading:first-child {
+  margin-top: 0;
+}
+
+.year-stats {
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--text-muted);
+  margin-left: 0.5rem;
+}
+
+.book-list-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 1.2rem;
+}
+
+.book-grid-item {
+  text-decoration: none;
+  color: var(--text);
+  text-align: center;
+}
+
+.book-grid-item img {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  border-radius: 4px;
+  transition: transform 0.15s;
+}
+
+.book-grid-item:hover img {
+  transform: scale(1.04);
+}
+
+.book-grid-item-title {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-top: 0.4rem;
+  line-height: 1.3;
+}
+
+.book-grid-item-author {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
+}
+
+.book-grid-item-meta {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
+}
+
+.book-grid-item-meta .stars {
+  color: var(--accent);
+}
+
+@media (max-width: 500px) {
+  .book-list-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 0.8rem;
+  }
+}
