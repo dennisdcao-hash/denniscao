@@ -1,7 +1,7 @@
 {
   "currentlyReading": [
     {
-      "title": "Redemption Ark (Revelation Space, #2)",
+      "title": "Redemption Ark (The Inhibitor Sequence, #2)",
       "author": "Alastair Reynolds",
       "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1309206851l/89190.jpg",
       "pages": 694,
@@ -29,6 +29,15 @@
     }
   ],
   "read": [
+    {
+      "title": "City of Last Chances (The Tyrant Philosophers, #1)",
+      "author": "Adrian Tchaikovsky",
+      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1655508932l/60147395.jpg",
+      "pages": 500,
+      "rating": 3,
+      "link": "https://www.goodreads.com/review/show/8551919490?utm_medium=api&utm_source=rss",
+      "readAt": null
+    },
     {
       "title": "Star Wars: Scoundrels",
       "author": "Timothy Zahn",
@@ -318,7 +327,7 @@
       "readAt": "Sat, 26 Jul 2025 00:00:00 +0000"
     },
     {
-      "title": "Revelation Space (Revelation Space, #1)",
+      "title": "Revelation Space (The Inhibitor Sequence, #1)",
       "author": "Alastair Reynolds",
       "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1405532042l/89187.jpg",
       "pages": 585,
