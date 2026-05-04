@@ -30,6 +30,24 @@
   ],
   "read": [
     {
+      "title": "Fate of the Jedi: Omen (Star Wars: Fate of the Jedi, #2)",
+      "author": "Christie Golden",
+      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1388215851l/5826352.jpg",
+      "pages": 276,
+      "rating": 3,
+      "link": "https://www.goodreads.com/review/show/8560159441?utm_medium=api&utm_source=rss",
+      "readAt": "Tue, 28 Apr 2026 00:00:00 +0000"
+    },
+    {
+      "title": "Fate of the Jedi: Outcast (Star Wars: Fate of the Jedi, #1)",
+      "author": "Aaron Allston",
+      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1388215849l/4161697.jpg",
+      "pages": 318,
+      "rating": 3,
+      "link": "https://www.goodreads.com/review/show/8560158521?utm_medium=api&utm_source=rss",
+      "readAt": "Sun, 26 Apr 2026 00:00:00 +0000"
+    },
+    {
       "title": "City of Last Chances (The Tyrant Philosophers, #1)",
       "author": "Adrian Tchaikovsky",
       "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1655508932l/60147395.jpg",
@@ -1327,7 +1345,7 @@
     },
     {
       "title": "Dune Messiah (Dune #2)",
-      "author": "Frank Patrick Herbert",
+      "author": "Frank Herbert",
       "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1577043824l/44492285._SY475_.jpg",
       "pages": 336,
       "rating": 0,
@@ -1336,7 +1354,7 @@
     },
     {
       "title": "Dune (Dune, #1)",
-      "author": "Frank Patrick Herbert",
+      "author": "Frank Herbert",
       "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1555447414l/44767458.jpg",
       "pages": 658,
       "rating": 0,
