@@ -30,6 +30,33 @@
   ],
   "read": [
     {
+      "title": "Cage of Souls",
+      "author": "Adrian Tchaikovsky",
+      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1547654406l/40803025._SY475_.jpg",
+      "pages": 608,
+      "rating": 4,
+      "link": "https://www.goodreads.com/review/show/8588985778?utm_medium=api&utm_source=rss",
+      "readAt": "Sat, 9 May 2026 00:00:00 +0000"
+    },
+    {
+      "title": "The Brewer's Tale: A History of the World According to Beer",
+      "author": "William Bostwick",
+      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1403207367l/20663698.jpg",
+      "pages": 304,
+      "rating": 3,
+      "link": "https://www.goodreads.com/review/show/8587251313?utm_medium=api&utm_source=rss",
+      "readAt": "Fri, 8 May 2026 00:00:00 +0000"
+    },
+    {
+      "title": "Shadow of the Sith (Star Wars)",
+      "author": "Adam Christopher",
+      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1648149155l/59149048.jpg",
+      "pages": 465,
+      "rating": 4,
+      "link": "https://www.goodreads.com/review/show/8574619559?utm_medium=api&utm_source=rss",
+      "readAt": "Mon, 4 May 2026 00:00:00 +0000"
+    },
+    {
       "title": "Fate of the Jedi: Omen (Star Wars: Fate of the Jedi, #2)",
       "author": "Christie Golden",
       "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1388215851l/5826352.jpg",
