@@ -30,6 +30,24 @@
   ],
   "read": [
     {
+      "title": "Genghis Khan and the Making of the Modern World",
+      "author": "Jack Weatherford",
+      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1530716694l/40718726._SY475_.jpg",
+      "pages": 352,
+      "rating": 4,
+      "link": "https://www.goodreads.com/review/show/8602998965?utm_medium=api&utm_source=rss",
+      "readAt": "Fri, 15 May 2026 00:00:00 +0000"
+    },
+    {
+      "title": "Breakneck: China's Quest to Engineer the Future",
+      "author": "Dan  Wang",
+      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1763995484l/228185703._SY475_.jpg",
+      "pages": 275,
+      "rating": 4,
+      "link": "https://www.goodreads.com/review/show/8296019008?utm_medium=api&utm_source=rss",
+      "readAt": "Wed, 4 Feb 2026 00:00:00 +0000"
+    },
+    {
       "title": "Cage of Souls",
       "author": "Adrian Tchaikovsky",
       "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1547654406l/40803025._SY475_.jpg",
@@ -154,15 +172,6 @@
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/8339801584?utm_medium=api&utm_source=rss",
       "readAt": "Sat, 7 Feb 2026 00:00:00 +0000"
-    },
-    {
-      "title": "Breakneck: China's Quest to Engineer the Future",
-      "author": "Dan  Wang",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1763995484l/228185703._SY475_.jpg",
-      "pages": 275,
-      "rating": 4,
-      "link": "https://www.goodreads.com/review/show/8296019008?utm_medium=api&utm_source=rss",
-      "readAt": "Wed, 4 Feb 2026 00:00:00 +0000"
     },
     {
       "title": "Abundance",
