@@ -30,7 +30,7 @@ canvas { background: #0d0d1a; border: 1px solid #334; border-radius: 4px; }
 <h2>INCREMENTAL GROWTH ANIMATION</h2>
 <div class="controls">
   <button onclick="growthReset()">Reset</button>
-  <button onclick="growthPause=!growthPause" id="pauseBtn">Pause</button>
+  <button onclick="togglePause()" id="pauseBtn">Pause</button>
   <label>Speed: <input type="range" id="growSpeed" min="1" max="20" value="5"><span id="speedLabel">5</span></label>
 </div>
 <div class="row" id="growthRow"></div>
@@ -52,6 +52,10 @@ canvas { background: #0d0d1a; border: 1px solid #334; border-radius: 4px; }
 <div class="row" id="encrustingRow"></div>
 
 <script>
+// NOTE: standalone dev sandbox for coral shape/color experiments.
+// The game (index.html) has its own copies of the growth-state factories,
+// tuned separately — treat index.html as canonical and re-port changes
+// made here deliberately.
 // ============================================================
 // COLOR VARIANTS
 // ============================================================
@@ -497,7 +501,13 @@ function renderCoral(canvas, voxels, coralType, stage, variant, time) {
 
   projected.sort((a, b) => a.sortKey - b.sortKey);
 
-  const voxSet = new Set(voxels.map(v => `${v.x},${v.y},${v.z}`));
+  // Cache the occupancy set on the voxel array; growth only appends voxels,
+  // so the length doubles as the invalidation key
+  if (!voxels._set || voxels._setLen !== voxels.length) {
+    voxels._set = new Set(voxels.map(v => `${v.x},${v.y},${v.z}`));
+    voxels._setLen = voxels.length;
+  }
+  const voxSet = voxels._set;
   const has = (x,y,z) => voxSet.has(`${x},${y},${z}`);
 
   for (const v of projected) {
@@ -712,24 +722,8 @@ function rebuild() {
   }
 }
 
-// Only re-render animated types each frame (lps_branch with tentacles)
-function animFrame(ts) {
-  animTime = ts * 0.001;
-  // Only redraw lps_branch canvases for tentacle animation
-  const type = 'lps_branch';
-  for (let i = 0; i < canvases[type].length; i++) {
-    const entry = canvases[type][i];
-    const variant = VARIANTS[type][entry.variantIdx];
-    if (!variant.tentacles) continue;
-    const voxels = voxelCache[type][i];
-    if (!voxels) continue;
-    renderCoral(entry.canvas, voxels, type, entry.stage, variant, animTime);
-  }
-  requestAnimationFrame(animFrame);
-}
-
 function rotateAll(dir) {
-  globalRot = (globalRot + dir * 15) % 360;
+  globalRot = ((globalRot + dir * 15) % 360 + 360) % 360;
   document.getElementById('rotLabel').textContent = globalRot;
   rebuild();
 }
@@ -741,6 +735,10 @@ rebuild();
 // INCREMENTAL GROWTH SYSTEM
 // ============================================================
 let growthPause = false;
+function togglePause() {
+  growthPause = !growthPause;
+  document.getElementById('pauseBtn').textContent = growthPause ? 'Resume' : 'Pause';
+}
 let growthStates = [];
 let growthCanvases = [];
 let lastGrowthTick = 0;

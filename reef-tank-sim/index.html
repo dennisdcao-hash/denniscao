@@ -159,45 +159,45 @@ function hash2(a,b){let h=Math.sin(a*127.1+b*311.7)*43758.5453;return h-Math.flo
 // SPECIES
 // ============================================================
 const SPECIES = [
-  { id:0, name:'Purple Tip Acro', type:'branching', subType:'branching', baseColor:[155,95,175], tipColor:[120,165,240],
+  { id:0, name:'Purple Tip Acro', type:'branching', baseColor:[155,95,175],
     variant:{base:[155,95,175],accent:[120,165,240]},
-    growthRate:0.075, maxSize:400 },
-  { id:1, name:'Green Staghorn', type:'branching', subType:'branching', baseColor:[65,150,65], tipColor:[105,215,125],
+    growthRate:0.075 },
+  { id:1, name:'Green Staghorn', type:'branching', baseColor:[65,150,65],
     variant:{base:[65,150,65],accent:[105,215,125]},
-    growthRate:0.06, maxSize:500 },
-  { id:2, name:'Pink Birdsnest', type:'branching', subType:'branching', baseColor:[195,95,125], tipColor:[235,155,175],
+    growthRate:0.06 },
+  { id:2, name:'Pink Birdsnest', type:'branching', baseColor:[195,95,125],
     variant:{base:[195,95,125],accent:[235,155,175]},
-    growthRate:0.1, maxSize:350 },
-  { id:3, name:'Sunset Monti', type:'encrusting', subType:'encrusting', baseColor:[220,125,45],
+    growthRate:0.1 },
+  { id:3, name:'Sunset Monti', type:'encrusting', baseColor:[220,125,45],
     variant:{base:[220,125,45],accent:[255,200,80]},
-    growthRate:0.06, maxSize:500 },
-  { id:4, name:'Green Star Polyps', type:'encrusting', subType:'encrusting', baseColor:[45,195,75],
+    growthRate:0.06 },
+  { id:4, name:'Green Star Polyps', type:'encrusting', baseColor:[45,195,75],
     variant:{base:[45,195,75],accent:[160,255,180]},
-    growthRate:0.1, maxSize:700 },
-  { id:5, name:'Plating Monti', type:'plating', subType:'plating', baseColor:[145,75,175],
+    growthRate:0.1 },
+  { id:5, name:'Plating Monti', type:'plating', baseColor:[145,75,175],
     variant:{base:[145,75,175],accent:[220,160,255]},
-    growthRate:0.04, maxSize:400 },
-  { id:6, name:'Brain Coral', type:'massive', subType:'massive', baseColor:[65,170,75],
+    growthRate:0.04 },
+  { id:6, name:'Brain Coral', type:'massive', baseColor:[65,170,75],
     variant:{base:[65,170,75],accent:[180,230,120],ridgeFreq:3.5},
-    growthRate:0.03, maxSize:280 },
-  { id:7, name:'Red Mushroom', type:'massive', subType:'massive', baseColor:[180,55,75],
+    growthRate:0.03 },
+  { id:7, name:'Red Mushroom', type:'massive', baseColor:[180,55,75],
     variant:{base:[180,55,75],accent:[240,130,130],ridgeFreq:4.0},
-    growthRate:0.04, maxSize:180 },
-  { id:8, name:'Candy Cane', type:'lps_branch', subType:'lps_branch', baseColor:[85,195,155],
+    growthRate:0.04 },
+  { id:8, name:'Candy Cane', type:'lps_branch', baseColor:[85,195,155],
     variant:{base:[85,195,155],accent:[200,240,220],skeleton:[60,90,70],polypSize:2.0,polypRound:1.0,tentacles:false},
-    growthRate:0.025, maxSize:220 },
-  { id:9, name:'Hammer Coral', type:'lps_branch', subType:'lps_branch', baseColor:[120,180,80],
+    growthRate:0.025 },
+  { id:9, name:'Hammer Coral', type:'lps_branch', baseColor:[120,180,80],
     variant:{base:[120,180,80],accent:[200,255,120],skeleton:[80,100,60],polypSize:2.0,polypRound:0.6,tentacles:true,tentacleLen:4,tentacleCount:10},
-    growthRate:0.025, maxSize:250 },
-  { id:10, name:'Torch Coral', type:'lps_branch', subType:'lps_branch', baseColor:[200,140,50],
+    growthRate:0.025 },
+  { id:10, name:'Torch Coral', type:'lps_branch', baseColor:[200,140,50],
     variant:{base:[200,140,50],accent:[255,220,100],skeleton:[90,80,60],polypSize:1.8,polypRound:0.6,tentacles:true,tentacleLen:5,tentacleCount:12},
-    growthRate:0.025, maxSize:250 },
-  { id:11, name:'War Coral', type:'lps_flat', subType:'lps_flat', baseColor:[160,60,50],
+    growthRate:0.025 },
+  { id:11, name:'War Coral', type:'lps_flat', baseColor:[160,60,50],
     variant:{base:[160,60,50],accent:[80,180,60],polypSize:1.6,polypSpacing:4.0,wallH:0.8},
-    growthRate:0.025, maxSize:300 },
-  { id:12, name:'Acan Lord', type:'lps_flat', subType:'lps_flat', baseColor:[180,40,90],
+    growthRate:0.025 },
+  { id:12, name:'Acan Lord', type:'lps_flat', baseColor:[180,40,90],
     variant:{base:[180,40,90],accent:[60,220,160],polypSize:2.0,polypSpacing:5.0,wallH:0.6},
-    growthRate:0.03, maxSize:250 },
+    growthRate:0.03 },
 ];
 
 // Prices for corals
@@ -233,9 +233,11 @@ let hoverInfo = null, lastTime = 0, animTime = 0;
 let cash = 200;
 let fish = [], nextFishId = 1;
 let inverts = [], nextInvertId = 1;
-let lastFeedDay = 0; // track when last fed
 let score = 0, highScore = 0;
+try { highScore = +localStorage.getItem('reefHighScore') || 0; } catch (e) {}
 let difficulty = 'medium';
+let activeDifficulty = difficulty; // difficulty the current tank was started with
+let gridVersion = 0; // bumped on any grid change; invalidates render caches
 const DIFF = {
   easy:   { startCash: 300, paycheck: 50, label: 'Easy' },
   medium: { startCash: 200, paycheck: 38,  label: 'Medium' },
@@ -276,9 +278,14 @@ function initGrid() {
       grid[x][y][0] = SAND;
     }
   }
-  colonies = []; nextColonyId = 1; day = 0; dayAccum = 0;
+  resetGameState();
+}
+
+function resetGameState() {
+  colonies = []; nextColonyId = 1; day = 0; dayAccum = 0; score = 0;
   water = { ca: 420, alk: 8.5, no3: 5.0, po4: 0.05 };
-  cash = DIFF[difficulty].startCash; fish = []; nextFishId = 1; inverts = []; nextInvertId = 1; lastFeedDay = 0;
+  activeDifficulty = difficulty;
+  cash = DIFF[difficulty].startCash; fish = []; nextFishId = 1; inverts = []; nextInvertId = 1;
   equipment = {
     doserCa: { owned: false, enabled: false, amount: 1.0 },
     doserAlk: { owned: false, enabled: false, amount: 1.0 },
@@ -287,12 +294,13 @@ function initGrid() {
     autoFeeder: { owned: false, enabled: false, amount: 1.0 },
     carbonDoser: { owned: false, enabled: false, amount: 1.0 },
   };
+  gridVersion++;
 }
 initGrid();
 
 function inBounds(x,y,z) { return x>=0&&x<TANK_W&&y>=0&&y<TANK_D&&z>=0&&z<TANK_H; }
 function getCell(x,y,z) { return inBounds(x,y,z) ? grid[x][y][z] : 255; }
-function setCell(x,y,z,v) { if(inBounds(x,y,z)) grid[x][y][z]=v; }
+function setCell(x,y,z,v) { if(inBounds(x,y,z)) { grid[x][y][z]=v; gridVersion++; } }
 function isSolid(x,y,z) { const c=getCell(x,y,z); return c>0&&c!==255; }
 function isEmpty(x,y,z) { return inBounds(x,y,z)&&grid[x][y][z]===EMPTY; }
 function isCoralCell(v) { return v>=100&&v<255; }
@@ -304,7 +312,7 @@ function getColony(id) { return colonies.find(c=>c.id===id); }
 // SUB-VOXEL GROWTH STATE FACTORIES
 // ============================================================
 function createGrowthState(sp) {
-  switch(sp.subType) {
+  switch(sp.type) {
     case 'massive': return _createMassiveGrowth(sp.variant);
     case 'branching': return _createBranchingGrowth(sp.variant);
     case 'encrusting': return _createEncrustingGrowth(sp.variant);
@@ -669,6 +677,7 @@ function createColony(spId, x, y, z) {
   col.growthState.tick(1);
   colonies.push(col);
   syncColonyMacro(col);
+  computeLightMap(); // before rebuildSubVoxelMap so cached colors use fresh light
   rebuildSubVoxelMap();
   rebuildLookup();
   return col;
@@ -710,6 +719,7 @@ function rebuildSubVoxelMap() {
     if (!gs) continue;
     const ox = col.originX, oy = col.originY, oz = col.originZ;
     const cv = cCell(col.id);
+    const vs = gs.voxSet;
     for (const sv of gs.voxels) {
       const mx = ox + Math.floor(sv.x / SUBVOX);
       const my = oy + Math.floor(sv.y / SUBVOX);
@@ -719,6 +729,17 @@ function rebuildSubVoxelMap() {
       const mk = mx * 10000 + my * 100 + mz;
       if (!subVoxelMacroMap.has(mk)) subVoxelMacroMap.set(mk, []);
       subVoxelMacroMap.get(mk).push({ sv, colony: col });
+      // Cache neighbor mask + lit face colors here (growth cadence) so the
+      // per-frame render loop does no Set lookups or color math
+      sv.nmask = (vs.has(`${sv.x+1},${sv.y},${sv.z}`) ? 1 : 0)
+               | (vs.has(`${sv.x-1},${sv.y},${sv.z}`) ? 2 : 0)
+               | (vs.has(`${sv.x},${sv.y+1},${sv.z}`) ? 4 : 0)
+               | (vs.has(`${sv.x},${sv.y-1},${sv.z}`) ? 8 : 0)
+               | (vs.has(`${sv.x},${sv.y},${sv.z+1}`) ? 16 : 0);
+      const c = getSubVoxelColor(sv, col.species, col.species.variant, col, gs);
+      sv.fillTop = colStr(c[0], c[1], c[2]);
+      sv.fillLeft = colStr(c[0]*0.65, c[1]*0.65, c[2]*0.65);
+      sv.fillRight = colStr(c[0]*0.8, c[1]*0.8, c[2]*0.8);
     }
   }
 }
@@ -729,6 +750,7 @@ function removeColony(id) {
   const cv = cCell(id);
   for (const v of col.voxels) { if(getCell(v.x,v.y,v.z)===cv) setCell(v.x,v.y,v.z,EMPTY); }
   colonies = colonies.filter(c => c.id !== id);
+  computeLightMap();
   rebuildSubVoxelMap();
   rebuildLookup();
 }
@@ -758,7 +780,6 @@ function fragVoxelAt(x, y, z) {
     const saleValue = Math.round(col.voxels.length * (basePrice / 8) * col.health);
     if (saleValue > 0) { cash += saleValue; showMsg(`Sold frag for $${saleValue}!`); }
     removeColony(colonyId);
-    computeLightMap();
     return speciesId;
   }
 
@@ -788,7 +809,6 @@ function fragVoxelAt(x, y, z) {
     const saleValue = Math.round(col.voxels.length * (basePrice / 8) * col.health);
     if (saleValue > 0) { cash += saleValue; showMsg(`Sold frag for $${saleValue}!`); }
     removeColony(colonyId);
-    computeLightMap();
     return speciesId;
   }
 
@@ -797,9 +817,9 @@ function fragVoxelAt(x, y, z) {
 
   syncColonyMacro(col);
   if (col.voxels.length === 0) removeColony(colonyId);
+  computeLightMap(); // before rebuildSubVoxelMap so cached colors use fresh light
   rebuildSubVoxelMap();
   rebuildLookup();
-  computeLightMap();
   return speciesId;
 }
 
@@ -863,7 +883,7 @@ function adjCol(c,f) { return [c[0]*f, c[1]*f, c[2]*f]; }
 function mixCol(a,b,t) { return [a[0]+(b[0]-a[0])*t, a[1]+(b[1]-a[1])*t, a[2]+(b[2]-a[2])*t]; }
 
 function fillPoly(c, pts, col) {
-  c.fillStyle = colStr(...col);
+  c.fillStyle = typeof col === 'string' ? col : colStr(...col);
   c.beginPath();
   c.moveTo(pts[0][0], pts[0][1]);
   for (let i=1;i<pts.length;i++) c.lineTo(pts[i][0], pts[i][1]);
@@ -910,7 +930,7 @@ function getSubVoxelColor(sv, sp, variant, colony, gs) {
   const stage = Math.max(1, Math.ceil((gs.radius || 10) / SUBVOX));
   const shellFrac = Math.min(1, (sv.shell || 1) / Math.max(stage, 1));
   let col;
-  switch (sp.subType) {
+  switch (sp.type) {
     case 'massive':
       if (sv.isValley) col = mixCol(adjCol(accent, 0.5), accent, shellFrac * 0.6);
       else if (sv.isRidge) col = mixCol(dark, adjCol(base, 1.1), shellFrac);
@@ -947,43 +967,44 @@ function getSubVoxelColor(sv, sp, variant, colony, gs) {
   return col;
 }
 
+// Map a FACE_DIRS axis vector to its bit in sv.nmask (see rebuildSubVoxelMap)
+function dirBit(d) { return d[0]===1 ? 1 : d[0]===-1 ? 2 : d[1]===1 ? 4 : 8; }
+
 function drawSubVoxelsAt(c, subs) {
   const stw = TILE_W / 2 * zoom / SUBVOX;
   const sth = TILE_H / 2 * zoom / SUBVOX;
   const sbh = BLOCK_H * zoom / SUBVOX;
   const fd = FACE_DIRS[rotation];
-  // Project and sort sub-voxels
+  const leftBit = dirBit(fd.left), rightBit = dirBit(fd.right);
+  // Project, cull and sort sub-voxels (faces/colors are precomputed at growth time)
   const items = [];
   for (const { sv, colony } of subs) {
-    const gs = colony.growthState;
+    const top = !(sv.nmask & 16);
+    const left = !(sv.nmask & leftBit);
+    const right = !(sv.nmask & rightBit);
+    if (!top && !left && !right) continue;
     const wx = colony.originX + sv.x / SUBVOX;
     const wy = colony.originY + sv.y / SUBVOX;
     const wz = colony.originZ + (sv.z - (SUBVOX - 1)) / SUBVOX;
     const [rx, ry, rz] = txCoords(wx, wy, wz);
     const [sx, sy] = isoP(rx, ry, rz);
-    items.push({ sv, colony, gs, sx, sy, rz, rs: rx + ry, rx });
+    items.push({ sv, colony, sx, sy, top, left, right, rz, rs: rx + ry, rx });
   }
   items.sort((a, b) => {
     if (a.rz !== b.rz) return a.rz - b.rz;
     return a.rs !== b.rs ? a.rs - b.rs : a.rx - b.rx;
   });
   for (const item of items) {
-    const { sv, colony, gs, sx, sy } = item;
-    // Face culling
-    const voxSet = gs.voxSet;
-    const top = !voxSet.has(`${sv.x},${sv.y},${sv.z+1}`);
-    const left = !voxSet.has(`${sv.x+fd.left[0]},${sv.y+fd.left[1]},${sv.z+fd.left[2]}`);
-    const right = !voxSet.has(`${sv.x+fd.right[0]},${sv.y+fd.right[1]},${sv.z+fd.right[2]}`);
-    if (!top && !left && !right) continue;
-    const col = getSubVoxelColor(sv, colony.species, colony.species.variant, colony, gs);
-    if (left)
-      fillPoly(c, [[-stw+sx,sy],[sx,sth+sy],[sx,sth+sbh+sy],[-stw+sx,sbh+sy]], adjCol(col, 0.65));
-    if (right)
-      fillPoly(c, [[stw+sx,sy],[sx,sth+sy],[sx,sth+sbh+sy],[stw+sx,sbh+sy]], adjCol(col, 0.8));
-    if (top) {
-      fillPoly(c, [[sx,-sth+sy],[stw+sx,sy],[sx,sth+sy],[-stw+sx,sy]], col);
+    const { sv, colony, sx, sy } = item;
+    if (item.left)
+      fillPoly(c, [[-stw+sx,sy],[sx,sth+sy],[sx,sth+sbh+sy],[-stw+sx,sbh+sy]], sv.fillLeft);
+    if (item.right)
+      fillPoly(c, [[stw+sx,sy],[sx,sth+sy],[sx,sth+sbh+sy],[stw+sx,sbh+sy]], sv.fillRight);
+    if (item.top) {
+      fillPoly(c, [[sx,-sth+sy],[stw+sx,sy],[sx,sth+sy],[-stw+sx,sy]], sv.fillTop);
       // Polyp dots on top for branching/encrusting
-      if ((colony.species.subType === 'encrusting' || colony.species.subType === 'plating' || colony.species.subType === 'branching') && sv.isPolyp && zoom > 0.5) {
+      const t = colony.species.type;
+      if ((t === 'encrusting' || t === 'plating' || t === 'branching') && sv.isPolyp && zoom > 0.5) {
         const accent = colony.species.variant.accent;
         c.fillStyle = `rgba(${accent[0]},${accent[1]},${accent[2]},0.8)`;
         c.beginPath(); c.arc(sx, sy, stw * 0.35, 0, Math.PI * 2); c.fill();
@@ -1033,7 +1054,7 @@ function drawCoralTentacles(c, colony) {
         c.lineTo(cx2, cy2);
       }
       c.stroke();
-      if (variant.name === 'Hammer Coral') {
+      if (colony.species.name === 'Hammer Coral') {
         const perpX = Math.cos(angle + rotAngle + Math.PI/2) * stw * 1.2;
         const perpY = Math.sin(angle + rotAngle + Math.PI/2) * stw * 0.5;
         c.strokeStyle = `rgba(${accent[0]},${accent[1]},${accent[2]},0.85)`;
@@ -1044,281 +1065,6 @@ function drawCoralTentacles(c, colony) {
         c.beginPath(); c.arc(cx2, cy2, stw * 0.5, 0, Math.PI * 2); c.fill();
       }
     }
-  }
-}
-
-// Old renderers kept as fallback for colonies without growthState
-function drawBranching(c, sx, sy, vox, col, ll) {
-  const sp = col.species;
-  const maxG = sp.maxGen;
-  const tipCol = sp.tipColor || sp.baseColor;
-  if (ll === undefined) ll = 1;
-
-  // Find parent screen position
-  let psx, psy, parentGen;
-  if (vox.parentIdx >= 0 && vox.parentIdx < col.voxels.length) {
-    const parent = col.voxels[vox.parentIdx];
-    const [prx, pry, prz] = txCoords(parent.x, parent.y, parent.z);
-    [psx, psy] = isoP(prx, pry, prz);
-    parentGen = parent.gen;
-  } else {
-    psx = sx;
-    psy = sy + BLOCK_H * zoom * 0.7;
-    parentGen = -1;
-  }
-
-  // Color gradient from base to tip, darkened by light level
-  const isDead = vox.dead || false;
-  const vHealth = (vox.health !== undefined ? vox.health : 1);
-  const genT = Math.min(1, vox.gen / maxG);
-  const bCol = isDead ? [190, 185, 178]
-    : mixCol(sp.baseColor, tipCol, genT * 0.8);
-  const h = isDead ? 0 : (hash(vox.x, vox.y, vox.z) % 11) - 5;
-  // Blend toward gray as health drops
-  const healthFade = isDead ? 1 : Math.max(0, 1 - vHealth) * 0.7;
-  bCol[0] = ((bCol[0]+h) * (1-healthFade) + 180*healthFade) * ll;
-  bCol[1] = ((bCol[1]+h) * (1-healthFade) + 175*healthFade) * ll;
-  bCol[2] = ((bCol[2]+h) * (1-healthFade) + 170*healthFade) * ll;
-
-  // Width tapers: thick at base, thin at tips
-  const maxW = zoom * 4;
-  const minW = zoom * 1.2;
-  const childW = maxW - genT * (maxW - minW);
-  const parentGenT = parentGen >= 0 ? Math.min(1, parentGen / maxG) : 0;
-  const parentW = parentGen >= 0
-    ? maxW - parentGenT * (maxW - minW)
-    : maxW * 1.3; // extra wide at rock attachment
-
-  // Segment direction in screen space
-  const dx = sx - psx, dy = sy - psy;
-  const len = Math.sqrt(dx*dx + dy*dy);
-
-  if (len > 0.3) {
-    // Perpendicular vector for width
-    const nx = -dy/len, ny = dx/len;
-
-    // Main branch body (medium tone)
-    fillPoly(c, [
-      [psx + nx*parentW/2, psy + ny*parentW/2],
-      [psx - nx*parentW/2, psy - ny*parentW/2],
-      [sx - nx*childW/2, sy - ny*childW/2],
-      [sx + nx*childW/2, sy + ny*childW/2],
-    ], adjCol(bCol, 0.75));
-
-    // Highlight strip along one edge (cylinder shading)
-    const hlF = 0.38;
-    fillPoly(c, [
-      [psx + nx*parentW/2, psy + ny*parentW/2],
-      [psx + nx*parentW/2*(1-hlF), psy + ny*parentW/2*(1-hlF)],
-      [sx + nx*childW/2*(1-hlF), sy + ny*childW/2*(1-hlF)],
-      [sx + nx*childW/2, sy + ny*childW/2],
-    ], adjCol(bCol, 1.1));
-
-    // Shadow strip along other edge
-    const shF = 0.25;
-    fillPoly(c, [
-      [psx - nx*parentW/2, psy - ny*parentW/2],
-      [psx - nx*parentW/2*(1-shF), psy - ny*parentW/2*(1-shF)],
-      [sx - nx*childW/2*(1-shF), sy - ny*childW/2*(1-shF)],
-      [sx - nx*childW/2, sy - ny*childW/2],
-    ], adjCol(bCol, 0.55));
-
-    // Polyp dots scattered along segment (living only)
-    if (zoom > 0.5 && len > 3 && !isDead) {
-      const h2 = hash(vox.x+7, vox.y+13, vox.z+3);
-      const pulse = Math.sin(animTime*2.5 + h2*0.1) * 0.12 + 0.88;
-      c.fillStyle = colStr(...adjCol(bCol, 1.45), 0.5);
-      const nDots = Math.min(4, Math.max(1, Math.floor(len / (zoom * 7))));
-      for (let i = 0; i < nDots; i++) {
-        const t = 0.15 + (i + 0.5) / (nDots + 1) * 0.7;
-        const dotSide = (((h2 >> (i*4)) & 1) ? 1 : -1) * childW * 0.2;
-        const px = psx + dx*t + nx*dotSide;
-        const py = psy + dy*t + ny*dotSide;
-        const r = zoom * 0.85 * pulse * (1 - genT*0.3);
-        c.beginPath(); c.arc(px, py, r, 0, Math.PI*2); c.fill();
-      }
-    }
-  }
-
-  // Tip: rounded bulb (living only)
-  if (vox.isTip && !isDead) {
-    const tipR = Math.max(childW * 0.85, zoom * 1.5);
-    const pulse = Math.sin(animTime*2 + hash(vox.x,vox.y,vox.z)*0.1) * 0.08 + 0.92;
-    // Bulb body
-    c.fillStyle = colStr(...adjCol(bCol, 1.15));
-    c.beginPath();
-    c.ellipse(sx, sy - tipR*0.15, tipR*pulse, tipR*0.65*pulse, 0, 0, Math.PI*2);
-    c.fill();
-    // Specular highlight
-    c.fillStyle = colStr(...adjCol(bCol, 1.6), 0.35);
-    c.beginPath();
-    c.arc(sx - tipR*0.15, sy - tipR*0.4, tipR*0.22, 0, Math.PI*2);
-    c.fill();
-  }
-}
-
-// --- ENCRUSTING ---
-function drawEncrusting(c, sx, sy, vox, col, ll) {
-  const sp = col.species;
-  if (ll === undefined) ll = 1;
-  const isDead = vox.dead || false;
-  const vHealth = (vox.health !== undefined ? vox.health : 1);
-  const h = isDead ? 0 : (hash(vox.x,vox.y,vox.z)%17)-8;
-  const healthFade = isDead ? 1 : Math.max(0, 1 - vHealth) * 0.7;
-  const col3 = [
-    ((sp.baseColor[0]+h)*(1-healthFade) + 185*healthFade)*ll,
-    ((sp.baseColor[1]+h)*(1-healthFade) + 180*healthFade)*ll,
-    ((sp.baseColor[2]+h)*(1-healthFade) + 175*healthFade)*ll
-  ];
-
-  // Determine which surface we're coating
-  const hasRockBelow = (getCell(vox.x,vox.y,vox.z-1)===ROCK || getCell(vox.x,vox.y,vox.z-1)===SAND);
-
-  const tw = TILE_W/2 * zoom;
-  const th = TILE_H/2 * zoom;
-  // Thin profile: 30% of normal block height, positioned at bottom of voxel space
-  const thinH = BLOCK_H * zoom * 0.3;
-  const dropY = BLOCK_H * zoom * 0.7; // push down to sit on surface below
-
-  const adjSy = sy + dropY;
-
-  const vis = faceVis(vox.x, vox.y, vox.z);
-
-  // Thin side faces
-  if (vis.left)
-    fillPoly(c, [[-tw+adjSy-adjSy+sx-tw+tw,adjSy-th+th],  // let me redo this cleanly
-      [-tw+sx,adjSy],[sx,th+adjSy],[sx,th+thinH+adjSy],[-tw+sx,thinH+adjSy]], adjCol(col3, 0.65));
-
-  // Actually let me just draw it with adjusted positions
-  if (vis.left)
-    fillPoly(c, [[-tw+sx,adjSy],[sx,th+adjSy],[sx,th+thinH+adjSy],[-tw+sx,thinH+adjSy]], adjCol(col3,0.65));
-  if (vis.right)
-    fillPoly(c, [[tw+sx,adjSy],[sx,th+adjSy],[sx,th+thinH+adjSy],[tw+sx,thinH+adjSy]], adjCol(col3,0.8));
-
-  // Bumpy top surface: base diamond + raised polyp bumps
-  fillPoly(c, [[sx,-th+adjSy],[tw+sx,adjSy],[sx,th+adjSy],[-tw+sx,adjSy]], col3);
-
-  // Polyp bumps on top face (living only)
-  if (zoom > 0.45 && !isDead) {
-    const h2 = hash(vox.x*3+1, vox.y*7+2, vox.z*5+3);
-    const pulse = Math.sin(animTime*2.0 + h2*0.05) * 0.12 + 0.88;
-    const nPolyps = 5 + (h2 & 3);
-    const bright = adjCol(col3, 1.3);
-    const center = adjCol(col3, 1.5);
-    for (let i = 0; i < nPolyps; i++) {
-      const angle = ((h2 >> (i*3)) & 31) * 0.2;
-      const dist = 0.2 + ((h2 >> (i*3+1)) & 7) * 0.08;
-      const px = sx + Math.cos(angle) * tw * dist;
-      const py = adjSy + Math.sin(angle) * th * dist;
-      const pr = zoom * 1.0 * pulse;
-      // Polyp body
-      c.fillStyle = colStr(...bright, 0.8);
-      c.beginPath(); c.arc(px, py, pr, 0, Math.PI*2); c.fill();
-      // Polyp center dot
-      c.fillStyle = colStr(...center, 0.5);
-      c.beginPath(); c.arc(px, py, pr*0.4, 0, Math.PI*2); c.fill();
-    }
-  }
-}
-
-// --- MASSIVE ---
-function drawMassive(c, sx, sy, vox, col, ll) {
-  const sp = col.species;
-  if (ll === undefined) ll = 1;
-  const isDead = vox.dead || false;
-  const vHealth = (vox.health !== undefined ? vox.health : 1);
-  const h = isDead ? 0 : (hash(vox.x,vox.y,vox.z)%17)-8;
-  const healthFade = isDead ? 1 : Math.max(0, 1 - vHealth) * 0.7;
-  const col3 = [
-    ((sp.baseColor[0]+h)*(1-healthFade) + 190*healthFade)*ll,
-    ((sp.baseColor[1]+h)*(1-healthFade) + 185*healthFade)*ll,
-    ((sp.baseColor[2]+h)*(1-healthFade) + 180*healthFade)*ll
-  ];
-
-  const tw = TILE_W/2 * zoom;
-  const th = TILE_H/2 * zoom;
-  const bh = BLOCK_H * zoom;
-
-  const vis = faceVis(vox.x, vox.y, vox.z);
-
-  // Sides: slightly rounded by drawing multiple layers with slight insets
-  if (vis.left) {
-    fillPoly(c, [[-tw+sx,sy],[sx,th+sy],[sx,th+bh+sy],[-tw+sx,bh+sy]], adjCol(col3,0.6));
-    // Rounded edge highlight
-    const inset = tw * 0.08;
-    fillPoly(c, [[-tw+inset+sx,sy+inset*0.5],[sx-inset,th+sy],[sx-inset,th+bh*0.9+sy],[-tw+inset+sx,bh*0.9+sy]], adjCol(col3,0.7));
-  }
-  if (vis.right) {
-    fillPoly(c, [[tw+sx,sy],[sx,th+sy],[sx,th+bh+sy],[tw+sx,bh+sy]], adjCol(col3,0.75));
-    const inset = tw * 0.08;
-    fillPoly(c, [[tw-inset+sx,sy+inset*0.5],[sx+inset,th+sy],[sx+inset,th+bh*0.9+sy],[tw-inset+sx,bh*0.9+sy]], adjCol(col3,0.85));
-  }
-
-  if (vis.top) {
-    // Base diamond
-    fillPoly(c, [[sx,-th+sy],[tw+sx,sy],[sx,th+sy],[-tw+sx,sy]], col3);
-
-    // Dome: draw concentric shrinking ellipses going upward
-    const domeH = bh * 0.22;
-    const layers = 3;
-    for (let i = layers; i >= 0; i--) {
-      const t = i / layers;
-      const layerCol = adjCol(col3, 1.0 + t*0.2);
-      const lw = tw * (0.85 - t*0.3);
-      const lh = th * (0.85 - t*0.3);
-      c.fillStyle = colStr(...layerCol);
-      c.beginPath();
-      c.ellipse(sx, sy - domeH*t, lw, lh, 0, 0, Math.PI*2);
-      c.fill();
-    }
-
-    // Brain/texture pattern on dome (living only)
-    if (isDead) {} // dead = bare skeleton, no texture
-    else {
-    const h2 = hash(vox.x+5, vox.y+11, vox.z+7);
-    if (sp.name === 'Brain Coral') {
-      // Meandering ridge lines
-      c.strokeStyle = colStr(...adjCol(col3, 0.55), 0.6);
-      c.lineWidth = zoom * 1.2;
-      for (let i = 0; i < 4; i++) {
-        const startX = ((h2>>(i*4))&15) - 8;
-        const startY = ((h2>>(i*4+2))&7) - 4;
-        c.beginPath();
-        c.moveTo(sx + startX*zoom*0.8, sy + startY*zoom*0.5);
-        c.quadraticCurveTo(
-          sx + startX*zoom*0.3 + (i%2?1:-1)*tw*0.3,
-          sy + startY*zoom*0.2 - domeH*0.3,
-          sx - startX*zoom*0.6,
-          sy - startY*zoom*0.4
-        );
-        c.stroke();
-      }
-    } else if (sp.name === 'Red Mushroom') {
-      // Radiating lines from center
-      c.strokeStyle = colStr(...adjCol(col3, 0.7), 0.4);
-      c.lineWidth = zoom * 0.8;
-      for (let i = 0; i < 8; i++) {
-        const angle = i * Math.PI/4 + (h2&3)*0.2;
-        c.beginPath();
-        c.moveTo(sx, sy - domeH*0.3);
-        c.lineTo(sx + Math.cos(angle)*tw*0.6, sy + Math.sin(angle)*th*0.6 - domeH*0.1);
-        c.stroke();
-      }
-    } else {
-      // Candy cane: bright center dots
-      const pulse = Math.sin(animTime*1.5 + h2) * 0.1 + 0.9;
-      c.fillStyle = colStr(...adjCol(col3, 1.6), 0.5 * pulse);
-      c.beginPath();
-      c.arc(sx, sy - domeH*0.3, tw*0.15*pulse, 0, Math.PI*2);
-      c.fill();
-      for (let i = 0; i < 3; i++) {
-        const a = i*Math.PI*2/3 + h2*0.1;
-        c.beginPath();
-        c.arc(sx+Math.cos(a)*tw*0.35, sy+Math.sin(a)*th*0.35-domeH*0.15, tw*0.1*pulse, 0, Math.PI*2);
-        c.fill();
-      }
-    }
-    } // end living texture
   }
 }
 
@@ -1582,7 +1328,11 @@ function drawCreatures(c) {
 // ============================================================
 // MAIN RENDER
 // ============================================================
+let drawOrderCache = null, drawOrderVersion = -1, drawOrderAngle = null;
 function getDrawOrder() {
+  // Grid scan + depth sort is expensive; reuse until the grid or view changes
+  if (drawOrderCache && drawOrderVersion === gridVersion && drawOrderAngle === rotAngle)
+    return drawOrderCache;
   const voxels = [];
   for (let x=0;x<TANK_W;x++) for (let y=0;y<TANK_D;y++) for (let z=0;z<TANK_H;z++) {
     if (grid[x][y][z] !== EMPTY) {
@@ -1595,6 +1345,7 @@ function getDrawOrder() {
     const sa=a.rx+a.ry, sb=b.rx+b.ry;
     return sa!==sb ? sa-sb : a.rx-b.rx;
   });
+  drawOrderCache = voxels; drawOrderVersion = gridVersion; drawOrderAngle = rotAngle;
   return voxels;
 }
 
@@ -1684,23 +1435,28 @@ function drawPlacementPreview(c) {
   c.globalAlpha = 1.0;
 }
 
+let hitVersion = -1, hitAngle = null, hitZoom = null;
 function render() {
   ctx.fillStyle = '#060612';
   ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
-  hitCtx.fillStyle = '#000';
-  hitCtx.fillRect(0, 0, CANVAS_W, CANVAS_H);
 
   calcOff();
   drawTankOutline(ctx);
 
+  // Hit canvas only changes with the grid/view, not with animation frames
+  const hitStale = hitVersion !== gridVersion || hitAngle !== rotAngle || hitZoom !== zoom;
+  if (hitStale) {
+    hitCtx.fillStyle = '#000';
+    hitCtx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+  }
+
   const voxels = getDrawOrder();
   for (const v of voxels) {
-    const [rx,ry,rz] = txCoords(v.x,v.y,v.z);
-    const [sx,sy] = isoP(rx,ry,rz);
+    const [sx,sy] = isoP(v.rx,v.ry,v.rz);
     const val = grid[v.x][v.y][v.z];
 
     // Hit canvas: always standard cubes
-    drawHitVoxel(hitCtx, sx, sy, v.x, v.y, v.z);
+    if (hitStale) drawHitVoxel(hitCtx, sx, sy, v.x, v.y, v.z);
 
     // Main canvas: type-specific rendering
     if (val === SAND) {
@@ -1719,9 +1475,11 @@ function render() {
     }
   }
 
+  if (hitStale) { hitVersion = gridVersion; hitAngle = rotAngle; hitZoom = zoom; }
+
   // Tentacles pass (drawn on top of all voxels)
   for (const col of colonies) {
-    if (col.health > 0 && col.species.subType === 'lps_branch' && col.species.variant.tentacles) {
+    if (col.health > 0 && col.species.type === 'lps_branch' && col.species.variant.tentacles) {
       drawCoralTentacles(ctx, col);
     }
   }
@@ -1744,7 +1502,8 @@ function getHitAt(mx,my) {
   if (p[0]===0&&p[1]===0&&p[2]===0) return null;
   const x=p[0]-1, y=p[1]-1, bi=p[2]-1;
   const z=Math.floor(bi/4), face=bi%4;
-  return inBounds(x,y,z) ? {x,y,z,face} : null;
+  // Reject anti-aliased edge pixels that decode to a cell nothing was drawn for
+  return inBounds(x,y,z) && grid[x][y][z] !== EMPTY ? {x,y,z,face} : null;
 }
 
 function getPlacementTarget(hit) {
@@ -1907,21 +1666,24 @@ function waterChange() {
   const t={ca:420,alk:8.5,no3:0,po4:0}, p=0.2;
   water.ca+=(t.ca-water.ca)*p; water.alk+=(t.alk-water.alk)*p;
   water.no3+=(t.no3-water.no3)*p; water.po4+=(t.po4-water.po4)*p;
+  updateUI();
 }
 function feed() {
   if (cash < 2) { showMsg('Need $2 to feed!'); return; }
   cash -= 2;
   water.no3+=3; water.po4+=0.08;
-  lastFeedDay = day;
   for (const f of fish) f.fed = true;
+  updateUI();
 }
 function doseCa() {
   if (cash < 1) { showMsg('Need $1 to dose!'); return; }
   cash -= 1; water.ca+=15;
+  updateUI();
 }
 function doseAlk() {
   if (cash < 1) { showMsg('Need $1 to dose!'); return; }
   cash -= 1; water.alk+=0.8;
+  updateUI();
 }
 
 // ============================================================
@@ -1939,6 +1701,8 @@ function buyFish(spId) {
     fz = 3 + Math.random() * (TANK_H - 5);
     if (!isSolid(Math.round(fx), Math.round(fy), Math.round(fz))) break;
   }
+  // Fallback: if every attempt landed in rock, rise to open water
+  while (fz < TANK_H - 1 && isSolid(Math.round(fx), Math.round(fy), Math.round(fz))) fz++;
   const angle = Math.random() * Math.PI * 2;
   fish.push({
     id: nextFishId++, speciesId: spId, species: sp,
@@ -2213,20 +1977,21 @@ function simulateEquipment() {
   if (equipment.autoFeeder.owned && equipment.autoFeeder.enabled) {
     const amt = equipment.autoFeeder.amount;
     const cost = 0.25 * amt;
-    if (cash < cost) return;
-    water.no3 += 3 * amt; water.po4 += 0.08 * amt;
-    lastFeedDay = day;
-    for (const f of fish) f.fed = true;
-    cash -= cost;
+    if (cash >= cost) {
+      water.no3 += 3 * amt; water.po4 += 0.08 * amt;
+      for (const f of fish) f.fed = true;
+      cash -= cost;
+    }
   }
   // Carbon doser: reduces NO3/PO4 by promoting bacterial consumption
-  if (equipment.carbonDoser.owned && equipment.carbonDoser.enabled && cash >= 0.2) {
+  if (equipment.carbonDoser.owned && equipment.carbonDoser.enabled) {
     const amt = equipment.carbonDoser.amount;
-    water.no3 -= 0.8 * amt;
-    water.po4 -= 0.02 * amt;
-    water.no3 = Math.max(0, water.no3);
-    water.po4 = Math.max(0, water.po4);
-    cash -= 0.2 * amt;
+    const cost = 0.2 * amt;
+    if (cash >= cost) {
+      water.no3 = Math.max(0, water.no3 - 0.8 * amt);
+      water.po4 = Math.max(0, water.po4 - 0.02 * amt);
+      cash -= cost;
+    }
   }
   cash = Math.max(0, cash);
 }
@@ -2235,7 +2000,7 @@ function simulateDay() {
   day++;
   // Biweekly paycheck
   if (day % 14 === 0) {
-    const pay = DIFF[difficulty].paycheck;
+    const pay = DIFF[activeDifficulty].paycheck;
     cash += pay;
     showMsg(`Payday! +$${pay}`);
   }
@@ -2274,7 +2039,10 @@ function calculateScore() {
     if (getCell(x,y,z) === ALGAE) s -= 0.5;
   }
   score = Math.max(0, Math.round(s));
-  if (score > highScore) highScore = score;
+  if (score > highScore) {
+    highScore = score;
+    try { localStorage.setItem('reefHighScore', highScore); } catch (e) {}
+  }
 }
 
 // ============================================================
@@ -2294,7 +2062,7 @@ canvas.addEventListener('click', e => {
   const my=((e.clientY-r.top)*canvas.height/r.height)|0;
   const hit = getHitAt(mx,my);
   if (!hit) return;
-  if (currentTool==='remove') { removeVoxelAt(hit.x,hit.y,hit.z); computeLightMap(); updateUI(); return; }
+  if (currentTool==='remove') { removeVoxelAt(hit.x,hit.y,hit.z); computeLightMap(); rebuildSubVoxelMap(); updateUI(); return; }
   if (currentTool==='frag') {
     const val = getCell(hit.x, hit.y, hit.z);
     if (isCoralCell(val)) {
@@ -2317,6 +2085,7 @@ canvas.addEventListener('click', e => {
     cash -= 2;
     setCell(target.x,target.y,target.z,ROCK);
     computeLightMap();
+    rebuildSubVoxelMap(); // refresh cached coral colors under the new shadow
   } else if (currentTool==='coral') {
     const dirs=[[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]];
     let adj=false;
@@ -2333,7 +2102,7 @@ canvas.addEventListener('contextmenu', e => {
   const mx=((e.clientX-r.left)*canvas.width/r.width)|0;
   const my=((e.clientY-r.top)*canvas.height/r.height)|0;
   const hit=getHitAt(mx,my);
-  if(hit){removeVoxelAt(hit.x,hit.y,hit.z);computeLightMap();updateUI();}
+  if(hit){removeVoxelAt(hit.x,hit.y,hit.z);computeLightMap();rebuildSubVoxelMap();updateUI();}
 });
 
 canvas.addEventListener('wheel', e => {
@@ -2356,6 +2125,8 @@ function setDifficulty(d) {
   document.querySelectorAll('[id^=diff-]').forEach(b => b.classList.remove('active'));
   const btn = document.getElementById('diff-' + d);
   if (btn) btn.classList.add('active');
+  // Applies to the next tank; the running one keeps its starting difficulty
+  if (d !== activeDifficulty) showMsg(`${DIFF[d].label} starts on Clear All / Random Reef`);
 }
 
 function showMsg(msg) {
@@ -2419,85 +2190,45 @@ function buildShopUI() {
   }
 }
 
+const EQUIP_DEFS = [
+  { key:'doserCa',     label:'Ca Doser',     unit:'Ca mL/day',  price:50 },
+  { key:'doserAlk',    label:'Alk Doser',    unit:'Alk mL/day', price:50 },
+  { key:'doserNo3',    label:'NO3 Doser',    unit:'NO3 mL/day', price:40 },
+  { key:'doserPo4',    label:'PO4 Doser',    unit:'PO4 mL/day', price:40 },
+  { key:'autoFeeder',  label:'Auto-Feeder',  unit:'Feeder ×',   price:30 },
+  { key:'carbonDoser', label:'Carbon Doser', unit:'Carbon ×',   price:40 },
+];
+
+// Only rebuild the panel DOM when ownership changes; rebuilding every tick
+// replaces the buttons mid-click at high game speeds
+let equipUISig = '';
 function updateEquipUI() {
-  const p = document.getElementById('equipPanel');
-  let html = '';
-  // Ca Doser
-  const dCa = equipment.doserCa;
-  if (!dCa.owned) {
-    html += `<div class="equip-row"><label>Ca Doser</label><button class="equip-buy" onclick="buyEquip('doserCa')">Buy $50</button></div>`;
-  } else {
-    html += `<div class="equip-row"><input type="checkbox" ${dCa.enabled?'checked':''} onchange="equipment.doserCa.enabled=this.checked"><label>Ca mL/day </label>
-      <button class="equip-pm" onclick="adjustEquip('doserCa',-0.1)">−</button>
-      <span class="equip-val">${dCa.amount.toFixed(1)}</span>
-      <button class="equip-pm" onclick="adjustEquip('doserCa',0.1)">+</button></div>`;
-  }
-  // Alk Doser
-  const dAlk = equipment.doserAlk;
-  if (!dAlk.owned) {
-    html += `<div class="equip-row"><label>Alk Doser</label><button class="equip-buy" onclick="buyEquip('doserAlk')">Buy $50</button></div>`;
-  } else {
-    html += `<div class="equip-row"><input type="checkbox" ${dAlk.enabled?'checked':''} onchange="equipment.doserAlk.enabled=this.checked"><label>Alk mL/day </label>
-      <button class="equip-pm" onclick="adjustEquip('doserAlk',-0.1)">−</button>
-      <span class="equip-val">${dAlk.amount.toFixed(1)}</span>
-      <button class="equip-pm" onclick="adjustEquip('doserAlk',0.1)">+</button></div>`;
-  }
-  // NO3 Doser
-  const dNo3 = equipment.doserNo3;
-  if (!dNo3.owned) {
-    html += `<div class="equip-row"><label>NO3 Doser</label><button class="equip-buy" onclick="buyEquip('doserNo3')">Buy $40</button></div>`;
-  } else {
-    html += `<div class="equip-row"><input type="checkbox" ${dNo3.enabled?'checked':''} onchange="equipment.doserNo3.enabled=this.checked"><label>NO3 mL/day </label>
-      <button class="equip-pm" onclick="adjustEquip('doserNo3',-0.1)">−</button>
-      <span class="equip-val">${dNo3.amount.toFixed(1)}</span>
-      <button class="equip-pm" onclick="adjustEquip('doserNo3',0.1)">+</button></div>`;
-  }
-  // PO4 Doser
-  const dPo4 = equipment.doserPo4;
-  if (!dPo4.owned) {
-    html += `<div class="equip-row"><label>PO4 Doser</label><button class="equip-buy" onclick="buyEquip('doserPo4')">Buy $40</button></div>`;
-  } else {
-    html += `<div class="equip-row"><input type="checkbox" ${dPo4.enabled?'checked':''} onchange="equipment.doserPo4.enabled=this.checked"><label>PO4 mL/day </label>
-      <button class="equip-pm" onclick="adjustEquip('doserPo4',-0.1)">−</button>
-      <span class="equip-val">${dPo4.amount.toFixed(1)}</span>
-      <button class="equip-pm" onclick="adjustEquip('doserPo4',0.1)">+</button></div>`;
-  }
-  // Auto-feeder
-  const af = equipment.autoFeeder;
-  if (!af.owned) {
-    html += `<div class="equip-row"><label>Auto-Feeder</label><button class="equip-buy" onclick="buyEquip('autoFeeder')">Buy $30</button></div>`;
-  } else {
-    html += `<div class="equip-row"><input type="checkbox" ${af.enabled?'checked':''} onchange="equipment.autoFeeder.enabled=this.checked"><label>Feeder × </label>
-      <button class="equip-pm" onclick="adjustEquip('autoFeeder',-0.1)">−</button>
-      <span class="equip-val">${af.amount.toFixed(1)}</span>
-      <button class="equip-pm" onclick="adjustEquip('autoFeeder',0.1)">+</button></div>`;
-  }
-  // Carbon doser
-  const cd = equipment.carbonDoser;
-  if (!cd.owned) {
-    html += `<div class="equip-row"><label>Carbon Doser</label><button class="equip-buy" onclick="buyEquip('carbonDoser')">Buy $40</button></div>`;
-  } else {
-    html += `<div class="equip-row"><input type="checkbox" ${cd.enabled?'checked':''} onchange="equipment.carbonDoser.enabled=this.checked"><label>Carbon × </label>
-      <button class="equip-pm" onclick="adjustEquip('carbonDoser',-0.1)">−</button>
-      <span class="equip-val">${cd.amount.toFixed(1)}</span>
-      <button class="equip-pm" onclick="adjustEquip('carbonDoser',0.1)">+</button></div>`;
-  }
-  p.innerHTML = html;
+  const sig = EQUIP_DEFS.map(d => equipment[d.key].owned ? '1' : '0').join('');
+  if (sig === equipUISig) return;
+  equipUISig = sig;
+  document.getElementById('equipPanel').innerHTML = EQUIP_DEFS.map(d => {
+    const eq = equipment[d.key];
+    if (!eq.owned)
+      return `<div class="equip-row"><label>${d.label}</label><button class="equip-buy" onclick="buyEquip('${d.key}')">Buy $${d.price}</button></div>`;
+    return `<div class="equip-row"><input type="checkbox" ${eq.enabled?'checked':''} onchange="equipment.${d.key}.enabled=this.checked"><label>${d.unit} </label>
+      <button class="equip-pm" onclick="adjustEquip('${d.key}',-0.1)">−</button>
+      <span class="equip-val" id="eqv-${d.key}">${eq.amount.toFixed(1)}</span>
+      <button class="equip-pm" onclick="adjustEquip('${d.key}',0.1)">+</button></div>`;
+  }).join('');
 }
 
 function adjustEquip(key, delta) {
   equipment[key].amount = Math.max(0, +(equipment[key].amount + delta).toFixed(1));
-  updateEquipUI();
+  const el = document.getElementById('eqv-' + key);
+  if (el) el.textContent = equipment[key].amount.toFixed(1);
 }
 
 function buyEquip(key) {
-  const prices = { doserCa: 50, doserAlk: 50, doserNo3: 40, doserPo4: 40, autoFeeder: 30, carbonDoser: 40 };
-  const price = prices[key];
-  if (cash < price) { showMsg(`Need $${price}!`); return; }
-  cash -= price;
+  const def = EQUIP_DEFS.find(d => d.key === key);
+  if (cash < def.price) { showMsg(`Need $${def.price}!`); return; }
+  cash -= def.price;
   equipment[key].owned = true;
   equipment[key].enabled = true;
-  updateEquipUI();
   updateUI();
 }
 
@@ -2617,17 +2348,8 @@ function clearTank() {
     grid[x][y].fill(EMPTY);
     grid[x][y][0] = SAND;
   }
-  colonies=[]; nextColonyId=1;
-  fish=[]; nextFishId=1; inverts=[]; nextInvertId=1; cash=DIFF[difficulty].startCash; lastFeedDay=0; score=0;
-  equipment = {
-    doserCa:{owned:false,enabled:false,amount:1.0},
-    doserAlk:{owned:false,enabled:false,amount:1.0},
-    doserNo3:{owned:false,enabled:false,amount:1.0},
-    doserPo4:{owned:false,enabled:false,amount:1.0},
-    autoFeeder:{owned:false,enabled:false,amount:1.0},
-    carbonDoser:{owned:false,enabled:false,amount:1.0},
-  };
-  rebuildSubVoxelMap(); rebuildLookup(); updateUI();
+  resetGameState();
+  rebuildSubVoxelMap(); rebuildLookup(); computeLightMap(); updateUI();
 }
 
 // ============================================================
