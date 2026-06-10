@@ -56,6 +56,10 @@ button.active { background: #3a5a8a; border-color: #4a9eff; color: #fff; }
         <label>Score: <span id="scoreDisplay" style="color:#ffaa44">0</span></label>
         <label style="color:#886">Best: <span id="hiScoreDisplay">0</span></label>
       </div>
+      <div class="row" style="justify-content:space-between">
+        <label>Rep: <span id="repDisplay" style="color:#8af">50</span></label>
+        <label style="color:#666;font-size:10px">autosaves</label>
+      </div>
       <div class="time-btns">
         <button onclick="setSpeed(0)" id="sp0">||</button>
         <button onclick="setSpeed(1)" id="sp1" class="active">1x</button>
@@ -87,9 +91,15 @@ button.active { background: #3a5a8a; border-color: #4a9eff; color: #fff; }
       <h3>Info</h3>
       <div id="info">Click a coral for details</div>
     </div>
+    <div class="section">
+      <h3>Log</h3>
+      <div id="eventLogList" style="font-size:10px;max-height:110px;overflow-y:auto;color:#99a"></div>
+    </div>
     <div class="hint">
       Q/E: Rotate | Scroll: Zoom<br>
-      L-click: Place | R-click: Remove
+      L-click: Place | R-click: Remove<br>
+      Frag tool cuts corals onto the rack;<br>
+      sell frags or replant them
     </div>
   </div>
   <div id="viewport">
@@ -99,12 +109,23 @@ button.active { background: #3a5a8a; border-color: #4a9eff; color: #fff; }
   <div id="rightPanel" class="panel">
     <h2>SHOP</h2>
     <div class="section">
+      <h3>Orders</h3>
+      <div id="ordersList" style="font-size:10px"></div>
+    </div>
+    <div class="section">
       <h3>Tools</h3>
       <div class="tool-btns">
         <button id="tool-rock" class="active" onclick="selectTool('rock')">Rock $2</button>
         <button id="tool-frag" onclick="selectTool('frag')">Frag</button>
         <button id="tool-remove" onclick="selectTool('remove')">Remove</button>
       </div>
+    </div>
+    <div class="section">
+      <h3>Frag Rack</h3>
+      <div id="rackList" style="font-size:10px"></div>
+    </div>
+    <div class="section">
+      <div class="equip-row"><input type="checkbox" id="dipToggle" checked onchange="dipEnabled=this.checked"><label>Dip new corals (+$2, blocks pests)</label></div>
     </div>
     <div class="section">
       <h3>Branching Corals</h3>
@@ -150,7 +171,7 @@ button.active { background: #3a5a8a; border-color: #4a9eff; color: #fff; }
 // ============================================================
 const TANK_W = 40, TANK_D = 20, TANK_H = 28;
 const TILE_W = 16, TILE_H = 8, BLOCK_H = 8;
-const EMPTY = 0, SAND = 1, ROCK = 2, ALGAE = 3;
+const EMPTY = 0, SAND = 1, ROCK = 2, ALGAE = 3, AIPTASIA = 4;
 const CANVAS_W = 960, CANVAS_H = 720;
 const SUBVOX = 3; // sub-voxels per macro-voxel axis (3×3×3 = 27 per macro cell)
 function hash2(a,b){let h=Math.sin(a*127.1+b*311.7)*43758.5453;return h-Math.floor(h);}
@@ -209,6 +230,7 @@ const FISH_SPECIES = [
   { id:2, name:'Yellow Tang',  color:[255,220,40],   accent:[255,200,20],  size:1.4, price:40, wasteRate:0.5 },
   { id:3, name:'Firefish',     color:[230,80,60],    accent:[255,200,100], size:0.7, price:20, wasteRate:0.2 },
   { id:4, name:'Blue Chromis', color:[60,120,230],   accent:[80,180,255],  size:0.6, price:15, wasteRate:0.2 },
+  { id:5, name:'Sixline Wrasse', color:[130,60,170], accent:[235,150,60],  size:0.8, price:45, wasteRate:0.25, eatsFlatworms:true },
 ];
 
 const INVERT_SPECIES = [
@@ -216,6 +238,7 @@ const INVERT_SPECIES = [
   { id:1, name:'Hermit Crab',    color:[180,80,50],   size:0.5, price:6,  speed:0.5, algaeRate:0.3, type:'cleaner' },
   { id:2, name:'Cleaner Shrimp', color:[220,60,40],   size:0.7, price:20, speed:0.8, algaeRate:0,   type:'decorative' },
   { id:3, name:'Nassarius Snail',color:[140,130,100], size:0.4, price:5,  speed:0.4, algaeRate:0.2, type:'cleaner' },
+  { id:4, name:'Peppermint Shrimp', color:[235,110,85], size:0.7, price:15, speed:0.7, algaeRate:0, type:'aiptasia_eater' },
 ];
 
 // ============================================================
@@ -238,6 +261,12 @@ try { highScore = +localStorage.getItem('reefHighScore') || 0; } catch (e) {}
 let difficulty = 'medium';
 let activeDifficulty = difficulty; // difficulty the current tank was started with
 let gridVersion = 0; // bumped on any grid change; invalidates render caches
+let rack = [];            // frag cuttings: {speciesId, size, health}
+const RACK_SLOTS = 6;
+let orders = [], nextOrderId = 1, rep = 50;
+let eventLog = [];        // {day, msg}, newest first
+let dipEnabled = true;    // dip new corals on purchase ($2, blocks pests)
+let plantIdx = -1;        // rack slot being planted (currentTool 'plant')
 const DIFF = {
   easy:   { startCash: 300, paycheck: 50, label: 'Easy' },
   medium: { startCash: 200, paycheck: 38,  label: 'Medium' },
@@ -286,6 +315,8 @@ function resetGameState() {
   water = { ca: 420, alk: 8.5, no3: 5.0, po4: 0.05 };
   activeDifficulty = difficulty;
   cash = DIFF[difficulty].startCash; fish = []; nextFishId = 1; inverts = []; nextInvertId = 1;
+  rack = []; orders = []; nextOrderId = 1; rep = 50; eventLog = []; plantIdx = -1;
+  if (currentTool === 'plant') currentTool = 'rock';
   equipment = {
     doserCa: { owned: false, enabled: false, amount: 1.0 },
     doserAlk: { owned: false, enabled: false, amount: 1.0 },
@@ -658,29 +689,61 @@ function _createLPSBranchGrowth(variant) {
 // ============================================================
 // COLONIES
 // ============================================================
-function createColony(spId, x, y, z) {
-  const price = CORAL_PRICES[spId] || 15;
-  if (cash < price) { showMsg('Not enough cash!'); return null; }
-  cash -= price;
+function createColony(spId, x, y, z, opts = {}) {
+  if (!opts.free) {
+    const price = (CORAL_PRICES[spId] || 15) + (dipEnabled ? 2 : 0);
+    if (cash < price) { showMsg(`Not enough cash! ($${price})`); return null; }
+    cash -= price;
+  }
   const sp = SPECIES[spId];
   const id = nextColonyId++;
   const col = {
     id, speciesId: spId, species: sp,
     originX: x, originY: y, originZ: z,
     voxels: [], // macro-level voxels (derived from sub-voxels)
-    age: 0, health: 1.0,
+    age: 0, health: opts.health !== undefined ? opts.health : 1.0,
+    flatworms: 0,
     growthState: createGrowthState(sp),
   };
   // Give encrusting growth a reference to its colony for terrain access
   if (col.growthState.type === 'encrusting') col.growthState.colony = col;
-  // Initial growth tick to create starting sub-voxels
-  col.growthState.tick(1);
+  // Initial growth: bigger replanted frags get a head start
+  col.growthState.tick(1 + Math.min(5, Math.floor((opts.boost || 0) / 30)));
   colonies.push(col);
   syncColonyMacro(col);
+  if (!opts.noPest) rollHitchhiker(col);
   computeLightMap(); // before rebuildSubVoxelMap so cached colors use fresh light
   rebuildSubVoxelMap();
   rebuildLookup();
   return col;
+}
+
+// New purchases can carry pests; dipping nearly eliminates the risk
+function rollHitchhiker(col) {
+  const chance = dipEnabled ? 0.01 : 0.12;
+  if (Math.random() >= chance) return;
+  if (Math.random() < 0.5) {
+    if (spawnAiptasiaNear(col.originX, col.originY, col.originZ))
+      logEvent('An aiptasia hitchhiked in!');
+  } else {
+    col.flatworms = 0.15;
+    logEvent(`Flatworms spotted on the new ${col.species.name}!`);
+  }
+}
+
+function spawnAiptasiaNear(cx, cy, cz) {
+  // Find an empty cell adjacent to rock within a small radius
+  const spots = [];
+  for (let dx = -4; dx <= 4; dx++) for (let dy = -4; dy <= 4; dy++) for (let dz = -3; dz <= 3; dz++) {
+    const x = cx+dx, y = cy+dy, z = cz+dz;
+    if (!isEmpty(x, y, z)) continue;
+    if (getCell(x, y, z-1) === ROCK || getCell(x+1, y, z) === ROCK || getCell(x-1, y, z) === ROCK ||
+        getCell(x, y+1, z) === ROCK || getCell(x, y-1, z) === ROCK) spots.push([x, y, z]);
+  }
+  if (!spots.length) return false;
+  const [x, y, z] = spots[Math.floor(Math.random() * spots.length)];
+  setCell(x, y, z, AIPTASIA);
+  return true;
 }
 
 function syncColonyMacro(col) {
@@ -758,6 +821,17 @@ function removeColony(id) {
 function removeVoxelAt(x,y,z) {
   const v = getCell(x,y,z);
   if (v===SAND) return;
+  if (v===AIPTASIA) {
+    // Squishing aiptasia by hand can spread it — just like real life
+    setCell(x,y,z,EMPTY);
+    if (Math.random() < 0.4) {
+      let n = 0;
+      if (spawnAiptasiaNear(x,y,z)) n++;
+      if (Math.random() < 0.5 && spawnAiptasiaNear(x,y,z)) n++;
+      if (n) logEvent('Squishing the aiptasia spread larvae!');
+    }
+    return;
+  }
   if (v===ROCK||v===ALGAE) { setCell(x,y,z,EMPTY); return; }
   if (isCoralCell(v)) removeColony(cId(v));
 }
@@ -783,7 +857,8 @@ function fragVoxelAt(x, y, z) {
     return speciesId;
   }
 
-  // Branching types: cut everything at and above clicked z
+  // Branching types: the cutting goes onto the frag rack
+  if (rack.length >= RACK_SLOTS) { showMsg('Frag rack full!'); return -1; }
   const before = gs.voxels.length;
   const aboveCut = sv => sv.z >= cutZ;
 
@@ -812,8 +887,8 @@ function fragVoxelAt(x, y, z) {
     return speciesId;
   }
 
-  const fragValue = Math.round(removedCount * (basePrice / 80) * col.health);
-  if (fragValue > 0) { cash += fragValue; showMsg(`Fragged for $${fragValue}!`); }
+  rack.push({ speciesId, size: removedCount, health: col.health });
+  showMsg(`Frag on rack (${removedCount}sv)`);
 
   syncColonyMacro(col);
   if (col.voxels.length === 0) removeColony(colonyId);
@@ -821,6 +896,34 @@ function fragVoxelAt(x, y, z) {
   rebuildSubVoxelMap();
   rebuildLookup();
   return speciesId;
+}
+
+// ============================================================
+// FRAG RACK
+// ============================================================
+function fragSaleValue(item) {
+  return Math.round(item.size * ((CORAL_PRICES[item.speciesId] || 15) / 80) * item.health);
+}
+
+function sellFrag(i) {
+  const item = rack[i];
+  if (!item) return;
+  const value = fragSaleValue(item);
+  cash += value;
+  rack.splice(i, 1);
+  if (plantIdx === i) { plantIdx = -1; if (currentTool === 'plant') selectTool('frag'); }
+  else if (plantIdx > i) plantIdx--;
+  logEvent(`Sold ${SPECIES[item.speciesId].name} frag for $${value}`);
+  updateUI();
+}
+
+function plantFrag(i) {
+  if (!rack[i]) return;
+  plantIdx = i;
+  currentTool = 'plant';
+  document.querySelectorAll('.tool-btns button,.species-btn').forEach(b=>b.classList.remove('active'));
+  showMsg('Click rockwork to plant the frag');
+  updateUI();
 }
 
 function rebuildLookup() {
@@ -1009,6 +1112,11 @@ function drawSubVoxelsAt(c, subs) {
         c.fillStyle = `rgba(${accent[0]},${accent[1]},${accent[2]},0.8)`;
         c.beginPath(); c.arc(sx, sy, stw * 0.35, 0, Math.PI * 2); c.fill();
       }
+      // Flatworm infestation: rust-colored specks
+      if (colony.flatworms > 0.2 && zoom > 0.5 && (hash(sv.x, sv.y, sv.z) & 15) < colony.flatworms * 7) {
+        c.fillStyle = 'rgba(150,60,30,0.85)';
+        c.beginPath(); c.arc(sx, sy, stw * 0.3, 0, Math.PI * 2); c.fill();
+      }
     }
   }
 }
@@ -1159,6 +1267,40 @@ function drawAlgae(c, sx, sy, wx, wy, wz) {
       c.beginPath(); c.arc(sx + dx, ay + dy - zoom, zoom * 0.8, 0, Math.PI*2); c.fill();
     }
   }
+}
+
+// --- AIPTASIA (pest anemone) ---
+function drawAiptasia(c, sx, sy, wx, wy, wz) {
+  const ll = getLight(wx, wy, wz);
+  const h = hash(wx, wy, wz);
+  const s = (1.5 + (h % 5) * 0.25) * zoom;
+  const off = BLOCK_H * zoom * 0.55;
+  const ay = sy + off;
+  const pulse = Math.sin(animTime * 1.8 + h * 0.1) * 0.15 + 0.85;
+  // Stalk
+  c.fillStyle = colStr(120*ll, 100*ll, 70*ll, 0.85);
+  c.beginPath();
+  c.ellipse(sx, ay, s * 0.5, s * 0.8 * pulse, 0, 0, Math.PI * 2);
+  c.fill();
+  // Tentacle crown
+  c.strokeStyle = colStr(160*ll, 140*ll, 95*ll, 0.8);
+  c.lineWidth = Math.max(1, zoom * 0.5);
+  c.lineCap = 'round';
+  const top = ay - s * 0.7 * pulse;
+  for (let i = 0; i < 7; i++) {
+    const a = (i / 7) * Math.PI * 2 + h * 0.05;
+    const sway = Math.sin(animTime * 2.2 + i * 1.7 + h) * s * 0.25;
+    c.beginPath();
+    c.moveTo(sx, top);
+    c.quadraticCurveTo(
+      sx + Math.cos(a) * s * 0.8 + sway, top - s * 0.7,
+      sx + Math.cos(a) * s * 1.4 + sway, top - s * 0.9 * pulse
+    );
+    c.stroke();
+  }
+  // Oral disc dot
+  c.fillStyle = colStr(190*ll, 165*ll, 110*ll, 0.7);
+  c.beginPath(); c.arc(sx, top, s * 0.25, 0, Math.PI * 2); c.fill();
 }
 
 // --- FISH & INVERT SPRITES ---
@@ -1423,14 +1565,16 @@ function drawWater(c) {
 }
 
 function drawPlacementPreview(c) {
-  if (!hoverInfo || currentTool==='remove') return;
+  if (!hoverInfo || currentTool==='remove' || currentTool==='frag') return;
   const target = getPlacementTarget(hoverInfo);
   if (!target) return;
   const [rx,ry,rz] = txCoords(target.x,target.y,target.z);
   const [sx,sy] = isoP(rx,ry,rz);
   const tw=TILE_W/2*zoom, th=TILE_H/2*zoom, bh=BLOCK_H*zoom;
   c.globalAlpha = 0.35;
-  const pc = currentTool==='rock' ? [140,130,115] : SPECIES[selectedSpecies].baseColor;
+  const pc = currentTool==='rock' ? [140,130,115]
+    : currentTool==='plant' ? (rack[plantIdx] ? SPECIES[rack[plantIdx].speciesId].baseColor : [140,130,115])
+    : SPECIES[selectedSpecies].baseColor;
   drawCube(c, sx, sy, tw, th, bh, pc, adjCol(pc,0.7), adjCol(pc,0.85), {top:true,left:true,right:true});
   c.globalAlpha = 1.0;
 }
@@ -1465,6 +1609,8 @@ function render() {
       drawRock(ctx, sx, sy, v.x, v.y, v.z);
     } else if (val === ALGAE) {
       drawAlgae(ctx, sx, sy, v.x, v.y, v.z);
+    } else if (val === AIPTASIA) {
+      drawAiptasia(ctx, sx, sy, v.x, v.y, v.z);
     } else if (isCoralCell(val)) {
       // Sub-voxel rendering
       const mk = v.x * 10000 + v.y * 100 + v.z;
@@ -1534,7 +1680,7 @@ function computeLightMap() {
         raw[x][y][z] = l;
         if (isSolid(x, y, z)) {
           const cv = getCell(x, y, z);
-          if (cv === ALGAE) { l *= 0.7; }
+          if (cv === ALGAE || cv === AIPTASIA) { l *= 0.7; }
           else if (isCoralCell(cv)) {
             const cc = getColony(cId(cv));
             if (cc && (cc.species.type === 'encrusting' || cc.species.type === 'plating' || cc.species.type === 'lps_flat')) { l *= 0.95; }
@@ -1623,6 +1769,7 @@ function simulateGrowth() {
     if (col.health <= 0) {
       col.health = 0;
       // Dead colony stays as skeleton until manually removed
+      if (!col.deadLogged) { col.deadLogged = true; logEvent(`${col.species.name} colony died`); }
     } else {
       totalLiving += col.voxels.length;
 
@@ -1780,16 +1927,17 @@ function updateInverts(dt) {
   for (const inv of inverts) {
     inv.targetTimer -= sec;
     if (inv.targetTimer <= 0) {
-      // Cleaners seek algae, decoratives wander
-      if (inv.species.type === 'cleaner') {
+      // Cleaners seek algae, peppermints seek aiptasia, decoratives wander
+      const seekCell = inv.species.type === 'cleaner' ? ALGAE
+                     : inv.species.type === 'aiptasia_eater' ? AIPTASIA : 0;
+      if (seekCell) {
         let bestDist = Infinity, bx = inv.x, by = inv.y;
-        // Scan nearby for algae
         const ix = Math.round(inv.x), iy = Math.round(inv.y);
         for (let dx = -5; dx <= 5; dx++) for (let dy = -5; dy <= 5; dy++) {
           const ax = ix+dx, ay = iy+dy;
           if (!inBounds(ax, ay, 0)) continue;
           for (let z = TANK_H-1; z >= 0; z--) {
-            if (getCell(ax, ay, z) === ALGAE) {
+            if (getCell(ax, ay, z) === seekCell) {
               const d = dx*dx + dy*dy;
               if (d < bestDist) { bestDist = d; bx = ax + 0.5; by = ay + 0.5; }
               break;
@@ -1844,6 +1992,7 @@ function simulateFishWaste() {
       f.health = 0;
       // Dead fish spike nutrients
       water.no3 += 5; water.po4 += 0.2;
+      logEvent(`${f.species.name} died!`);
     }
   }
   fish = fish.filter(f => f.health > 0);
@@ -1856,7 +2005,7 @@ function simulateInvertGrazing() {
     // Health
     if (water.no3 > 60) inv.health -= 0.02;
     if (inv.health < 1 && water.no3 < 40) inv.health = Math.min(1, inv.health + 0.005);
-    if (inv.health <= 0) { inv.health = 0; continue; }
+    if (inv.health <= 0) { inv.health = 0; logEvent(`${inv.species.name} died`); continue; }
     // Cleaner inverts eat algae
     if (inv.species.algaeRate > 0 && Math.random() < inv.species.algaeRate) {
       const gx = Math.round(inv.x), gy = Math.round(inv.y);
@@ -1872,8 +2021,140 @@ function simulateInvertGrazing() {
         }
       }
     }
+    // Peppermint shrimp eat nearby aiptasia
+    if (inv.species.type === 'aiptasia_eater' && Math.random() < 0.5) {
+      const gx = Math.round(inv.x), gy = Math.round(inv.y);
+      let ate = false;
+      for (let dx = -2; dx <= 2 && !ate; dx++) for (let dy = -2; dy <= 2 && !ate; dy++) {
+        const ax = gx+dx, ay = gy+dy;
+        if (!inBounds(ax, ay, 0)) continue;
+        for (let z = TANK_H-1; z >= 0; z--) {
+          if (getCell(ax, ay, z) === AIPTASIA) { setCell(ax, ay, z, EMPTY); ate = true; break; }
+        }
+      }
+      if (ate && Math.random() < 0.3) logEvent('Peppermint shrimp ate an aiptasia');
+    }
   }
   inverts = inverts.filter(inv => inv.health > 0);
+}
+
+// ============================================================
+// PESTS
+// ============================================================
+function simulatePests() {
+  // Aiptasia: spread to nearby rock, sting adjacent corals
+  const aip = [];
+  for (let x=0;x<TANK_W;x++) for (let y=0;y<TANK_D;y++) for (let z=0;z<TANK_H;z++) {
+    if (grid[x][y][z] === AIPTASIA) aip.push([x,y,z]);
+  }
+  const dirs = [[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]];
+  for (const [x,y,z] of aip) {
+    if (Math.random() < 0.03) spawnAiptasiaNear(x, y, z);
+    for (const d of dirs) {
+      const cv = getCell(x+d[0], y+d[1], z+d[2]);
+      if (isCoralCell(cv)) {
+        const col = getColony(cId(cv));
+        if (col && col.health > 0) col.health = Math.max(0, col.health - 0.01);
+      }
+    }
+  }
+  // Flatworms: intensify, sap health, occasionally jump to another colony
+  for (const col of colonies) {
+    if (!col.flatworms || col.health <= 0) continue;
+    col.flatworms = Math.min(1, col.flatworms + 0.02);
+    col.health = Math.max(0, col.health - 0.015 * col.flatworms);
+    if (Math.random() < 0.02 * col.flatworms) {
+      const clean = colonies.filter(c => !c.flatworms && c.health > 0);
+      if (clean.length) {
+        let nearest = clean[0], nd = Infinity;
+        for (const c of clean) {
+          const d = (c.originX-col.originX)**2 + (c.originY-col.originY)**2;
+          if (d < nd) { nd = d; nearest = c; }
+        }
+        nearest.flatworms = 0.1;
+        logEvent(`Flatworms spread to the ${nearest.species.name}!`);
+      }
+    }
+  }
+  // Sixline wrasses graze flatworms off everything
+  const wrasses = fish.filter(f => f.species.eatsFlatworms && f.health > 0).length;
+  if (wrasses > 0) {
+    for (const col of colonies) {
+      if (col.flatworms > 0) {
+        col.flatworms = Math.max(0, col.flatworms - 0.06 * wrasses);
+        if (col.flatworms === 0) logEvent(`Wrasse cleared flatworms off the ${col.species.name}`);
+      }
+    }
+  }
+}
+
+// ============================================================
+// ORDERS
+// ============================================================
+function genOrder() {
+  // Orders only ask for rackable (branching-type) species; bias toward owned
+  const pool = SPECIES.filter(s => s.type === 'branching' || s.type === 'lps_branch');
+  const owned = pool.filter(s => colonies.some(c => c.speciesId === s.id && c.health > 0));
+  const sp = (owned.length && Math.random() < 0.7)
+    ? owned[Math.floor(Math.random() * owned.length)]
+    : pool[Math.floor(Math.random() * pool.length)];
+  const count = 2 + Math.floor(Math.random() * 4);
+  const minSize = 30 + Math.floor(Math.random() * 50);
+  const repMult = 0.8 + rep / 250;
+  const pricePer = Math.round((CORAL_PRICES[sp.id] || 15) * (0.5 + Math.random() * 0.4) * repMult);
+  return {
+    id: nextOrderId++, speciesId: sp.id, count, minSize, pricePer,
+    delivered: 0, accepted: false,
+    offerEnd: day + 15, deadline: day + 25 + Math.floor(Math.random() * 25),
+  };
+}
+
+function simulateOrders() {
+  for (const o of [...orders]) {
+    if (o.accepted && day > o.deadline) {
+      rep = Math.max(0, rep - 5);
+      logEvent(`Order failed: ${SPECIES[o.speciesId].name} ×${o.count} (rep -5)`);
+      orders = orders.filter(x => x.id !== o.id);
+    } else if (!o.accepted && day > o.offerEnd) {
+      orders = orders.filter(x => x.id !== o.id);
+    }
+  }
+  if (orders.length < 3 && Math.random() < 0.08) {
+    const o = genOrder();
+    orders.push(o);
+    logEvent(`Order posted: ${o.count}× ${SPECIES[o.speciesId].name} @ $${o.pricePer}`);
+  }
+}
+
+function acceptOrder(id) {
+  const o = orders.find(x => x.id === id);
+  if (o) { o.accepted = true; updateUI(); }
+}
+
+function deliverOrder(id) {
+  const o = orders.find(x => x.id === id);
+  if (!o) return;
+  let paid = 0, n = 0;
+  for (let i = rack.length - 1; i >= 0 && o.delivered < o.count; i--) {
+    const item = rack[i];
+    if (item.speciesId === o.speciesId && item.size >= o.minSize && item.health >= 0.5) {
+      rack.splice(i, 1);
+      o.delivered++; n++; paid += o.pricePer;
+    }
+  }
+  if (n === 0) { showMsg(`Need ${SPECIES[o.speciesId].name} frags ≥${o.minSize}sv`); return; }
+  // Rack indices shifted; drop any in-progress planting selection
+  if (currentTool === 'plant') { plantIdx = -1; selectTool('frag'); }
+  cash += paid;
+  logEvent(`Delivered ${n}× ${SPECIES[o.speciesId].name} for $${paid}`);
+  if (o.delivered >= o.count) {
+    const bonus = o.count * 2;
+    cash += bonus;
+    rep = Math.min(100, rep + 3);
+    logEvent(`Order complete! +$${bonus} bonus, rep +3`);
+    orders = orders.filter(x => x.id !== o.id);
+  }
+  updateUI();
 }
 
 // ============================================================
@@ -2002,15 +2283,18 @@ function simulateDay() {
   if (day % 14 === 0) {
     const pay = DIFF[activeDifficulty].paycheck;
     cash += pay;
-    showMsg(`Payday! +$${pay}`);
+    logEvent(`Payday! +$${pay}`);
   }
   simulateWater();
   simulateEquipment();
   simulateFishWaste();
   simulateAlgae();
+  simulatePests();
   simulateInvertGrazing();
   simulateGrowth();
+  simulateOrders();
   calculateScore();
+  if (day % 10 === 0) saveGame();
   updateUI();
 }
 
@@ -2034,9 +2318,11 @@ function calculateScore() {
   const no3Ok = water.no3 >= 1 && water.no3 <= 10;
   const po4Ok = water.po4 >= 0.01 && water.po4 <= 0.1;
   s += (caOk ? 5 : 0) + (alkOk ? 5 : 0) + (no3Ok ? 5 : 0) + (po4Ok ? 5 : 0);
-  // Algae penalty: -0.5 per algae voxel
+  // Pest penalties: -0.5 per algae voxel, -2 per aiptasia
   for (let x=0;x<TANK_W;x++) for (let y=0;y<TANK_D;y++) for (let z=0;z<TANK_H;z++) {
-    if (getCell(x,y,z) === ALGAE) s -= 0.5;
+    const cv = getCell(x,y,z);
+    if (cv === ALGAE) s -= 0.5;
+    else if (cv === AIPTASIA) s -= 2;
   }
   score = Math.max(0, Math.round(s));
   if (score > highScore) {
@@ -2065,16 +2351,7 @@ canvas.addEventListener('click', e => {
   if (currentTool==='remove') { removeVoxelAt(hit.x,hit.y,hit.z); computeLightMap(); rebuildSubVoxelMap(); updateUI(); return; }
   if (currentTool==='frag') {
     const val = getCell(hit.x, hit.y, hit.z);
-    if (isCoralCell(val)) {
-      const spId = fragVoxelAt(hit.x, hit.y, hit.z);
-      if (spId >= 0) {
-        selectedSpecies = spId;
-        currentTool = 'coral';
-        document.querySelectorAll('.tool-btns button,.species-btn').forEach(b=>b.classList.remove('active'));
-        const btn = document.getElementById('sp-'+spId);
-        if(btn) btn.classList.add('active');
-      }
-    }
+    if (isCoralCell(val)) fragVoxelAt(hit.x, hit.y, hit.z);
     updateUI();
     return;
   }
@@ -2087,14 +2364,32 @@ canvas.addEventListener('click', e => {
     computeLightMap();
     rebuildSubVoxelMap(); // refresh cached coral colors under the new shadow
   } else if (currentTool==='coral') {
-    const dirs=[[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]];
-    let adj=false;
-    for (const d of dirs) { const cv=getCell(target.x+d[0],target.y+d[1],target.z+d[2]); if(cv===ROCK||cv===SAND){adj=true;break;} }
-    if (!adj) return;
+    if (!hasSubstrateAdjacent(target.x, target.y, target.z)) return;
     createColony(selectedSpecies, target.x, target.y, target.z);
+  } else if (currentTool==='plant') {
+    if (plantIdx < 0 || !rack[plantIdx]) { selectTool('frag'); return; }
+    if (!hasSubstrateAdjacent(target.x, target.y, target.z)) return;
+    const item = rack[plantIdx];
+    const c = createColony(item.speciesId, target.x, target.y, target.z,
+      { free: true, noPest: true, health: item.health, boost: item.size });
+    if (c) {
+      rack.splice(plantIdx, 1);
+      plantIdx = -1;
+      selectTool('frag');
+      logEvent(`Planted a ${c.species.name} frag`);
+    }
   }
   updateUI();
 });
+
+function hasSubstrateAdjacent(x, y, z) {
+  const dirs=[[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]];
+  for (const d of dirs) {
+    const cv = getCell(x+d[0], y+d[1], z+d[2]);
+    if (cv===ROCK || cv===SAND) return true;
+  }
+  return false;
+}
 
 canvas.addEventListener('contextmenu', e => {
   e.preventDefault();
@@ -2133,6 +2428,71 @@ function showMsg(msg) {
   const info = document.getElementById('info');
   info.innerHTML = `<span style="color:#f88">${msg}</span>`;
   setTimeout(() => updateUI(), 1500);
+}
+
+function logEvent(msg) {
+  eventLog.unshift({ d: day, m: msg });
+  if (eventLog.length > 40) eventLog.pop();
+}
+
+let logSig = '';
+function renderLog() {
+  const sig = eventLog.length + ':' + (eventLog[0] ? eventLog[0].m : '');
+  if (sig === logSig) return;
+  logSig = sig;
+  document.getElementById('eventLogList').innerHTML =
+    eventLog.slice(0, 12).map(e => `<div><span style="color:#557">D${e.d}</span> ${e.m}</div>`).join('')
+    || '<span style="color:#555">Nothing yet</span>';
+}
+
+let rackSig = '';
+function updateRackUI() {
+  const sig = JSON.stringify([rack, plantIdx]);
+  if (sig === rackSig) return;
+  rackSig = sig;
+  const el = document.getElementById('rackList');
+  if (!rack.length) {
+    el.innerHTML = '<span style="color:#666">Empty — Frag tool cuts branching corals onto the rack</span>';
+    return;
+  }
+  el.innerHTML = rack.map((item, i) => {
+    const sp = SPECIES[item.speciesId];
+    return `<div class="equip-row"><span style="background:rgb(${sp.baseColor});width:8px;height:8px;display:inline-block;border-radius:2px"></span>
+      <label>${sp.name} ${item.size}sv</label>
+      <button class="equip-buy" onclick="sellFrag(${i})">Sell $${fragSaleValue(item)}</button>
+      <button class="equip-buy"${plantIdx===i?' style="background:#3a5a8a;color:#fff"':''} onclick="plantFrag(${i})">Plant</button></div>`;
+  }).join('') + `<div style="color:#666">${rack.length}/${RACK_SLOTS} slots</div>`;
+}
+
+let ordersSig = '';
+function updateOrdersUI() {
+  // Rebuild only on structural change; tick down the day counters in place
+  const sig = JSON.stringify(orders.map(o => [o.id, o.accepted, o.delivered])) + ':' +
+    rack.map(r => r.speciesId + '.' + r.size).join(',');
+  const el = document.getElementById('ordersList');
+  if (sig === ordersSig) {
+    for (const o of orders) {
+      const span = document.getElementById('odl-' + o.id);
+      if (span) span.textContent = ((o.accepted ? o.deadline : o.offerEnd) - day) + 'd';
+    }
+    return;
+  }
+  ordersSig = sig;
+  if (!orders.length) {
+    el.innerHTML = '<span style="color:#666">No orders — buyers post requests over time</span>';
+    return;
+  }
+  el.innerHTML = orders.map(o => {
+    const sp = SPECIES[o.speciesId];
+    const daysLeft = (o.accepted ? o.deadline : o.offerEnd) - day;
+    const avail = rack.filter(r => r.speciesId === o.speciesId && r.size >= o.minSize && r.health >= 0.5).length;
+    const btn = o.accepted
+      ? `<button class="equip-buy" onclick="deliverOrder(${o.id})"${avail ? '' : ' disabled style="opacity:0.5"'}>Deliver (${avail})</button>`
+      : `<button class="equip-buy" onclick="acceptOrder(${o.id})">Accept</button>`;
+    return `<div style="border:1px solid #2a2a4a;border-radius:3px;padding:3px 4px;margin:3px 0">
+      <span style="color:rgb(${sp.baseColor})">${sp.name}</span> ×${o.count} ≥${o.minSize}sv · $${o.pricePer} ea<br>
+      <span id="odl-${o.id}">${daysLeft}d</span> ${o.accepted ? `· ${o.delivered}/${o.count} sent` : 'left to accept'} ${btn}</div>`;
+  }).join('');
 }
 
 function selectTool(t) {
@@ -2237,6 +2597,7 @@ function updateUI() {
   document.getElementById('cashDisplay').textContent=Math.floor(cash);
   document.getElementById('scoreDisplay').textContent=score;
   document.getElementById('hiScoreDisplay').textContent=highScore;
+  document.getElementById('repDisplay').textContent=rep;
   const cd=document.getElementById('chemDisplay');
   const ps=[
     {l:'Ca',v:water.ca.toFixed(0),mn:300,mx:500,id:[400,450],c:'#4a9'},
@@ -2260,11 +2621,13 @@ function updateUI() {
       if(col) {
         const nSub = col.growthState ? col.growthState.voxels.length : 0;
         const vLight = getLight(col.originX, col.originY, col.originZ);
+        const pest = col.flatworms > 0.05 ? ' | <span style="color:#f88">flatworms!</span>' : '';
         info.innerHTML=`<b style="color:rgb(${col.species.baseColor})">${col.species.name}</b><br>
           Age: ${col.age}d | Cells: ${col.voxels.length} | Sub-voxels: ${nSub}<br>
-          Health: ${col.health<=0?'DEAD':Math.round(col.health*100)+'%'} | Light: ${Math.round(vLight*100)}%`;
+          Health: ${col.health<=0?'DEAD':Math.round(col.health*100)+'%'} | Light: ${Math.round(vLight*100)}%${pest}`;
       }
-    } else if(val===ALGAE) info.textContent='Algae';
+    } else if(val===AIPTASIA) info.innerHTML='<span style="color:#cb9">Aiptasia</span> — pest anemone. Squish at your own risk, or get a Peppermint Shrimp';
+    else if(val===ALGAE) info.textContent='Algae';
     else if(val===ROCK) info.textContent='Rock';
     else if(val===SAND) info.textContent='Sand bed';
     else info.textContent='Empty';
@@ -2284,6 +2647,206 @@ function updateUI() {
   ll.innerHTML = items.length ? items.join('<br>') : '<span style="color:#666">No livestock</span>';
 
   updateEquipUI();
+  updateRackUI();
+  updateOrdersUI();
+  renderLog();
+}
+
+// ============================================================
+// SAVE / LOAD
+// ============================================================
+const SAVE_KEY = 'reefTankSave';
+const r3 = v => Math.round(v * 1000) / 1000;
+
+// Per-type voxel field packing: [x,y,z,shell,flagBits,(polypEdge*100)]
+const VOX_FLAGS = {
+  massive:    ['isRidge','isValley'],
+  encrusting: ['isPolyp','isBump'],
+  plating:    ['isPolyp','isBump'],
+  lps_flat:   ['isWall','isPolypFlesh','isPolypCenter'],
+  branching:  ['isTip','isPolyp'],
+  lps_branch: ['isSkeleton','isPolyp','isPolypCenter'],
+};
+const VOX_FLOAT = { lps_flat:'polypEdge', lps_branch:'polypEdge' };
+
+function packVoxels(type, voxels) {
+  const flags = VOX_FLAGS[type], ff = VOX_FLOAT[type];
+  const out = [];
+  for (const v of voxels) {
+    let f = 0;
+    for (let i = 0; i < flags.length; i++) if (v[flags[i]]) f |= (1 << i);
+    out.push(v.x, v.y, v.z, v.shell | 0, f);
+    if (ff) out.push(Math.round((v[ff] || 0) * 100));
+  }
+  return out;
+}
+
+function unpackVoxels(type, flat) {
+  const flags = VOX_FLAGS[type], ff = VOX_FLOAT[type];
+  const stride = ff ? 6 : 5;
+  const out = [];
+  for (let i = 0; i < flat.length; i += stride) {
+    const v = { x: flat[i], y: flat[i+1], z: flat[i+2], shell: flat[i+3] };
+    for (let b = 0; b < flags.length; b++) v[flags[b]] = !!(flat[i+4] & (1 << b));
+    if (ff) v[ff] = flat[i+5] / 100;
+    out.push(v);
+  }
+  return out;
+}
+
+function serializeGrowth(gs) {
+  const d = { type: gs.type, radius: gs.radius, tickCount: gs.tickCount };
+  switch (gs.type) {
+    case 'massive': case 'plating': case 'lps_flat':
+      d.vox = packVoxels(gs.type, gs.voxels); break;
+    case 'encrusting':
+      d.vox = packVoxels(gs.type, gs.voxels);
+      d.cells = [...gs.macroCells];
+      d.frontier = gs.frontier.map(f => [f.dx, f.dy, f.dz, f.wz]);
+      break;
+    case 'branching':
+      d.vox = packVoxels(gs.type, gs.voxels);
+      d.tips = gs.tips.map(t => [r3(t.x), r3(t.y), r3(t.z), r3(t.dx), r3(t.dy), r3(t.dz), t.gen, t.maxGen]);
+      break;
+    case 'lps_branch':
+      d.skel = packVoxels(gs.type, gs.skelVoxels);
+      // Full precision: polyp domes are rebuilt from a hash of head positions,
+      // so any rounding changes the restored dome shapes
+      d.heads = gs.heads.map(h => [h.x, h.y, h.z, h.dx, h.dy, h.dz, h.gen, h.alive ? 1 : 0]);
+      break;
+  }
+  return d;
+}
+
+function restoreGrowth(sp, d, colony) {
+  const gs = createGrowthState(sp);
+  if (gs.type === 'encrusting') gs.colony = colony;
+  gs.radius = d.radius;
+  if (d.tickCount !== undefined) gs.tickCount = d.tickCount;
+  const keyOf = v => `${v.x},${v.y},${v.z}`;
+  switch (gs.type) {
+    case 'massive': case 'plating': case 'lps_flat':
+      gs.voxels = unpackVoxels(gs.type, d.vox);
+      gs.voxSet = new Set(gs.voxels.map(keyOf));
+      break;
+    case 'encrusting':
+      gs.voxels = unpackVoxels(gs.type, d.vox);
+      gs.voxSet = new Set(gs.voxels.map(keyOf));
+      gs.macroCells = new Set(d.cells);
+      gs.frontier = d.frontier.map(([dx, dy, dz, wz]) => ({ dx, dy, dz, wz }));
+      break;
+    case 'branching':
+      gs.voxels = unpackVoxels(gs.type, d.vox);
+      gs.voxSet = new Set(gs.voxels.map(keyOf));
+      gs.tips = d.tips.map(([x, y, z, dx, dy, dz, gen, maxGen]) => ({ x, y, z, dx, dy, dz, gen, maxGen }));
+      gs.tick(0); // re-mark tips/polyps from restored voxels
+      break;
+    case 'lps_branch':
+      gs.skelVoxels = unpackVoxels(gs.type, d.skel);
+      gs.skelSet = new Set(gs.skelVoxels.map(keyOf));
+      gs.heads = d.heads.map(([x, y, z, dx, dy, dz, gen, alive]) =>
+        ({ x, y, z, dx, dy, dz, gen, alive: !!alive, trail: [{ x, y, z }, { x, y, z }] }));
+      gs.tick(0); // rebuild polyp domes + combined voxels from heads
+      break;
+  }
+  return gs;
+}
+
+function gridToB64() {
+  const flat = new Uint8Array(TANK_W * TANK_D * TANK_H);
+  let i = 0;
+  for (let x = 0; x < TANK_W; x++) for (let y = 0; y < TANK_D; y++) { flat.set(grid[x][y], i); i += TANK_H; }
+  let s = '';
+  for (let j = 0; j < flat.length; j += 4096) s += String.fromCharCode.apply(null, flat.subarray(j, j + 4096));
+  return btoa(s);
+}
+
+function gridFromB64(b64) {
+  const s = atob(b64);
+  let i = 0;
+  for (let x = 0; x < TANK_W; x++) for (let y = 0; y < TANK_D; y++)
+    for (let z = 0; z < TANK_H; z++) grid[x][y][z] = s.charCodeAt(i++);
+}
+
+function saveGame() {
+  try {
+    const data = {
+      v: 1, day, water, cash, score, rep, dipEnabled,
+      difficulty, activeDifficulty,
+      nextColonyId, nextFishId, nextInvertId, nextOrderId,
+      grid: gridToB64(),
+      colonies: colonies.map(c => ({
+        id: c.id, speciesId: c.speciesId,
+        x: c.originX, y: c.originY, z: c.originZ,
+        age: c.age, health: r3(c.health), flatworms: r3(c.flatworms || 0),
+        growth: serializeGrowth(c.growthState),
+      })),
+      fish: fish.map(f => [f.id, f.speciesId, r3(f.x), r3(f.y), r3(f.z), r3(f.health), f.age, f.hunger]),
+      inverts: inverts.map(v => [v.id, v.speciesId, r3(v.x), r3(v.y), r3(v.z), r3(v.health), v.age]),
+      equipment, rack, orders, eventLog: eventLog.slice(0, 30),
+    };
+    localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+  } catch (e) {
+    console.warn('Save failed:', e);
+  }
+}
+
+function loadGame() {
+  let data;
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return false;
+    data = JSON.parse(raw);
+    if (!data || data.v !== 1) return false;
+  } catch (e) { return false; }
+  try {
+    day = data.day; dayAccum = 0;
+    water = data.water; cash = data.cash; score = data.score; rep = data.rep;
+    dipEnabled = !!data.dipEnabled;
+    difficulty = data.difficulty; activeDifficulty = data.activeDifficulty;
+    nextColonyId = data.nextColonyId; nextFishId = data.nextFishId;
+    nextInvertId = data.nextInvertId; nextOrderId = data.nextOrderId;
+    gridFromB64(data.grid);
+    colonies = data.colonies.map(c => {
+      const sp = SPECIES[c.speciesId];
+      const col = {
+        id: c.id, speciesId: c.speciesId, species: sp,
+        originX: c.x, originY: c.y, originZ: c.z,
+        voxels: [], age: c.age, health: c.health, flatworms: c.flatworms || 0,
+      };
+      col.growthState = restoreGrowth(sp, c.growth, col);
+      return col;
+    });
+    // Grid occupancy was saved authoritatively; sync rebuilds each colony's
+    // macro voxel list without disturbing other colonies' claimed cells
+    for (const col of colonies) syncColonyMacro(col);
+    fish = data.fish.map(([id, speciesId, x, y, z, health, age, hunger]) => ({
+      id, speciesId, species: FISH_SPECIES[speciesId], x, y, z,
+      vx: 1, vy: 0, vz: 0, health, fed: false, age, hunger,
+      targetX: x, targetY: y, targetZ: z, targetTimer: 0,
+    }));
+    inverts = data.inverts.map(([id, speciesId, x, y, z, health, age]) => ({
+      id, speciesId, species: INVERT_SPECIES[speciesId], x, y, z,
+      targetX: x, targetY: y, targetTimer: 0, health, age,
+    }));
+    equipment = data.equipment;
+    rack = data.rack || []; orders = data.orders || []; eventLog = data.eventLog || [];
+    plantIdx = -1;
+    const dt = document.getElementById('dipToggle');
+    if (dt) dt.checked = dipEnabled;
+    document.querySelectorAll('[id^=diff-]').forEach(b => b.classList.remove('active'));
+    const btn = document.getElementById('diff-' + difficulty);
+    if (btn) btn.classList.add('active');
+    gridVersion++;
+    computeLightMap();
+    rebuildSubVoxelMap();
+    rebuildLookup();
+    updateUI();
+    return true;
+  } catch (e) {
+    console.warn('Load failed:', e);
+    return false;
+  }
 }
 
 // ============================================================
@@ -2393,9 +2956,10 @@ function gameLoop(ts) {
 // ============================================================
 buildSpeciesUI();
 buildShopUI();
-generatePreset();
+if (!loadGame()) generatePreset();
 computeLightMap();
 updateUI();
+window.addEventListener('beforeunload', saveGame);
 requestAnimationFrame(t => { lastTime=t; gameLoop(t); });
 </script>
 </body>
