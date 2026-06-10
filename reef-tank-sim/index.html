@@ -860,21 +860,49 @@ function fragVoxelAt(x, y, z) {
   // Branching types: the cutting goes onto the frag rack
   if (rack.length >= RACK_SLOTS) { showMsg('Frag rack full!'); return -1; }
   const before = gs.voxels.length;
-  const aboveCut = sv => sv.z >= cutZ;
 
-  gs.voxels = gs.voxels.filter(sv => !aboveCut(sv));
+  // Cut only the clicked branch: flood-fill sub-voxels connected to the
+  // clicked macro cell without dipping below the cut plane, so sibling
+  // branches passing through the same height survive.
+  const sx0 = (x - ox) * SUBVOX, sy0 = (y - oy) * SUBVOX;
+  const removed = new Set();
+  const queue = [];
+  for (const sv of gs.voxels) {
+    if (sv.x >= sx0 && sv.x < sx0 + SUBVOX &&
+        sv.y >= sy0 && sv.y < sy0 + SUBVOX &&
+        sv.z >= cutZ && sv.z < cutZ + SUBVOX) {
+      const k = `${sv.x},${sv.y},${sv.z}`;
+      if (!removed.has(k)) { removed.add(k); queue.push(sv); }
+    }
+  }
+  while (queue.length) {
+    const v = queue.pop();
+    for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) for (let dz = -1; dz <= 1; dz++) {
+      if (!dx && !dy && !dz) continue;
+      const nz = v.z + dz;
+      if (nz < cutZ) continue; // never cross below the cut plane
+      const nx = v.x + dx, ny = v.y + dy;
+      const k = `${nx},${ny},${nz}`;
+      if (removed.has(k) || !gs.voxSet.has(k)) continue;
+      removed.add(k);
+      queue.push({ x: nx, y: ny, z: nz });
+    }
+  }
+  const cut = sv => removed.has(`${sv.x},${sv.y},${sv.z}`);
+
+  gs.voxels = gs.voxels.filter(sv => !cut(sv));
   gs.voxSet = new Set(gs.voxels.map(v => `${v.x},${v.y},${v.z}`));
 
   if (gs.type === 'branching' && gs.tips) {
-    gs.tips = gs.tips.filter(t => Math.round(t.z) < cutZ);
+    gs.tips = gs.tips.filter(t => !removed.has(`${Math.round(t.x)},${Math.round(t.y)},${Math.round(t.z)}`));
   }
   if (gs.type === 'lps_branch') {
     if (gs.skelVoxels) {
-      gs.skelVoxels = gs.skelVoxels.filter(sv => !aboveCut(sv));
+      gs.skelVoxels = gs.skelVoxels.filter(sv => !cut(sv));
       gs.skelSet = new Set(gs.skelVoxels.map(v => `${v.x},${v.y},${v.z}`));
     }
     if (gs.heads) {
-      gs.heads = gs.heads.filter(h => Math.round(h.z) < cutZ);
+      gs.heads = gs.heads.filter(h => !removed.has(`${Math.round(h.x)},${Math.round(h.y)},${Math.round(h.z)}`));
     }
   }
 
@@ -1777,7 +1805,7 @@ function simulateGrowth() {
       const gs = col.growthState;
       if (gs) {
         const mod = growthMod();
-        const amount = (col.species.growthRate || 0.03) * mod * col.health * 20;
+        const amount = (col.species.growthRate || 0.03) * mod * col.health * 14;
         gs.tick(amount);
         syncColonyMacro(col);
         consumeCA(amount * 0.3);

@@ -89,6 +89,35 @@ const test = `
   sellFrag(0);
   assert(cash === cashBefore + v0, 'sellFrag paid ' + v0);
 
+  // --- frag cut takes only the clicked branch, not the whole layer ---
+  // Hand-built Y-shaped colony: trunk splits into two branches at z=3.
+  setCell(15, 5, 1, ROCK);
+  const ycol = createColony(0, 15, 5, 2, { free: true, noPest: true });
+  const ygs = ycol.growthState;
+  ygs.voxels = [
+    [0,0,0],[0,0,1],[0,0,2],                            // trunk
+    [-1,0,3],[-2,0,4],[-3,0,5],[-3,0,6],[-3,0,7],[-3,0,8], // branch A (left)
+    [1,0,3],[2,0,4],[3,0,5],[3,0,6],[3,0,7],[3,0,8],       // branch B (right)
+  ].map(p => ({ x: p[0], y: p[1], z: p[2], shell: 0, isTip: false, isPolyp: false }));
+  ygs.voxSet = new Set(ygs.voxels.map(v => v.x + ',' + v.y + ',' + v.z));
+  ygs.tips = [
+    { x: -3, y: 0, z: 8, dx: 0, dy: 0, dz: 1, gen: 5, maxGen: 60 },
+    { x: 3, y: 0, z: 8, dx: 0, dy: 0, dz: 1, gen: 5, maxGen: 60 },
+  ];
+  syncColonyMacro(ycol);
+  computeLightMap(); rebuildSubVoxelMap(); rebuildLookup();
+  // Branch A's top sits in macro cell (14, 5, 4): subvox x [-3,0), z [6,9)
+  assert(isCoralCell(getCell(14, 5, 4)), 'branch A macro cell is coral');
+  const rackBefore = rack.length;
+  fragVoxelAt(14, 5, 4);
+  assert(rack.length === rackBefore + 1, 'branch frag landed on rack');
+  assert(rack[rack.length - 1].size === 3, 'cut exactly the clicked branch tip (got ' + rack[rack.length - 1].size + 'sv)');
+  assert(ygs.voxSet.has('3,0,8'), 'sibling branch at same height survived');
+  assert(ygs.voxSet.has('-3,0,5'), 'clicked branch below the cut survived');
+  assert(ygs.tips.length === 1 && Math.round(ygs.tips[0].x) === 3, 'only the cut branch lost its tip');
+  rack.pop();
+  removeColony(ycol.id);
+
   rack.push({ speciesId: 0, size: 60, health: 1 });
   const nCol = colonies.length;
   const c2 = createColony(0, 10, 8, 2, { free: true, noPest: true, health: 1, boost: 60 });
