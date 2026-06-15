@@ -21,6 +21,42 @@
   ],
   "read": [
     {
+      "title": "Rogue Squadron (Star Wars: X-Wing, #1)",
+      "author": "Michael A. Stackpole",
+      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1327860341l/513176.jpg",
+      "pages": 388,
+      "rating": 3,
+      "link": "https://www.goodreads.com/review/show/8682517822?utm_medium=api&utm_source=rss",
+      "readAt": "Sat, 13 Jun 2026 00:00:00 +0000"
+    },
+    {
+      "title": "Ascension (Star Wars: Fate of the Jedi, #8)",
+      "author": "Christie Golden",
+      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1309629271l/11360032.jpg",
+      "pages": 410,
+      "rating": 4,
+      "link": "https://www.goodreads.com/review/show/8676896835?utm_medium=api&utm_source=rss",
+      "readAt": "Wed, 10 Jun 2026 00:00:00 +0000"
+    },
+    {
+      "title": "The LEGO Story: How a Little Toy Sparked the World’s Imagination",
+      "author": "Jens Andersen",
+      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1652105322l/60254223.jpg",
+      "pages": 432,
+      "rating": 5,
+      "link": "https://www.goodreads.com/review/show/8670700982?utm_medium=api&utm_source=rss",
+      "readAt": "Mon, 8 Jun 2026 00:00:00 +0000"
+    },
+    {
+      "title": "Harry Potter and the Sorcerer's Stone (Harry Potter, #1)",
+      "author": "J.K. Rowling",
+      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1474154022l/3._SY475_.jpg",
+      "pages": 309,
+      "rating": 5,
+      "link": "https://www.goodreads.com/review/show/8669209758?utm_medium=api&utm_source=rss",
+      "readAt": "Sun, 7 Jun 2026 00:00:00 +0000"
+    },
+    {
       "title": "Fate of the Jedi: Conviction (Star Wars: Fate of the Jedi, #7)",
       "author": "Aaron Allston",
       "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1288137120l/7911068.jpg",
@@ -1435,7 +1471,7 @@
     },
     {
       "title": "Dune Messiah (Dune #2)",
-      "author": "Frank Patrick Herbert",
+      "author": "Frank Herbert",
       "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1577043824l/44492285._SY475_.jpg",
       "pages": 336,
       "rating": 0,
@@ -1444,7 +1480,7 @@
     },
     {
       "title": "Dune (Dune, #1)",
-      "author": "Frank Patrick Herbert",
+      "author": "Frank Herbert",
       "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1555447414l/44767458.jpg",
       "pages": 658,
       "rating": 0,
