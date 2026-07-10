@@ -64,15 +64,17 @@ def download_covers(books):
             continue
         ext = ".jpg"
         local_path = f"covers/{book_id}{ext}"
-        if os.path.exists(local_path):
-            continue
-        try:
-            req = urllib.request.Request(book["cover"], headers={"User-Agent": "Mozilla/5.0"})
-            with urllib.request.urlopen(req) as resp:
-                with open(local_path, "wb") as f:
-                    f.write(resp.read())
-        except Exception as e:
-            print(f"  Failed to download cover for {book['title']}: {e}")
+        if not os.path.exists(local_path):
+            try:
+                req = urllib.request.Request(book["cover"], headers={"User-Agent": "Mozilla/5.0"})
+                with urllib.request.urlopen(req) as resp:
+                    with open(local_path, "wb") as f:
+                        f.write(resp.read())
+            except Exception as e:
+                # Keep the remote Goodreads URL as a fallback
+                print(f"  Failed to download cover for {book['title']}: {e}")
+                continue
+        book["cover"] = local_path
 
 
 def main():

@@ -3,7 +3,7 @@
     {
       "title": "Exhalation",
       "author": "Ted Chiang",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1603031062l/55710304._SY475_.jpg",
+      "cover": "covers/7942857546.jpg",
       "pages": 362,
       "rating": 0,
       "link": "https://www.goodreads.com/review/show/7942857546?utm_medium=api&utm_source=rss",
@@ -12,7 +12,7 @@
     {
       "title": "Kissinger: A Biography",
       "author": "Walter Isaacson",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1427963811l/10887.jpg",
+      "cover": "covers/6140416625.jpg",
       "pages": 896,
       "rating": 0,
       "link": "https://www.goodreads.com/review/show/6140416625?utm_medium=api&utm_source=rss",
@@ -21,9 +21,63 @@
   ],
   "read": [
     {
+      "title": "Fate of the Jedi: Apocalypse (Star Wars: Fate of the Jedi, #9)",
+      "author": "Troy Denning",
+      "cover": "covers/8756694167.jpg",
+      "pages": 496,
+      "rating": 4,
+      "link": "https://www.goodreads.com/review/show/8756694167?utm_medium=api&utm_source=rss",
+      "readAt": "Thu, 9 Jul 2026 00:00:00 +0000"
+    },
+    {
+      "title": "The Well of Ascension (Mistborn, #2)",
+      "author": "Brandon Sanderson",
+      "cover": "covers/8749375092.jpg",
+      "pages": 590,
+      "rating": 4,
+      "link": "https://www.goodreads.com/review/show/8749375092?utm_medium=api&utm_source=rss",
+      "readAt": "Sun, 5 Jul 2026 00:00:00 +0000"
+    },
+    {
+      "title": "Rogue Squadron (Star Wars: X-Wing, #1)",
+      "author": "Michael A. Stackpole",
+      "cover": "covers/8682517822.jpg",
+      "pages": 388,
+      "rating": 3,
+      "link": "https://www.goodreads.com/review/show/8682517822?utm_medium=api&utm_source=rss",
+      "readAt": "Sat, 13 Jun 2026 00:00:00 +0000"
+    },
+    {
+      "title": "Ascension (Star Wars: Fate of the Jedi, #8)",
+      "author": "Christie Golden",
+      "cover": "covers/8676896835.jpg",
+      "pages": 410,
+      "rating": 4,
+      "link": "https://www.goodreads.com/review/show/8676896835?utm_medium=api&utm_source=rss",
+      "readAt": "Wed, 10 Jun 2026 00:00:00 +0000"
+    },
+    {
+      "title": "The LEGO Story: How a Little Toy Sparked the World’s Imagination",
+      "author": "Jens Andersen",
+      "cover": "covers/8670700982.jpg",
+      "pages": 432,
+      "rating": 5,
+      "link": "https://www.goodreads.com/review/show/8670700982?utm_medium=api&utm_source=rss",
+      "readAt": "Mon, 8 Jun 2026 00:00:00 +0000"
+    },
+    {
+      "title": "Harry Potter and the Sorcerer's Stone (Harry Potter, #1)",
+      "author": "J.K. Rowling",
+      "cover": "covers/8669209758.jpg",
+      "pages": 309,
+      "rating": 5,
+      "link": "https://www.goodreads.com/review/show/8669209758?utm_medium=api&utm_source=rss",
+      "readAt": "Sun, 7 Jun 2026 00:00:00 +0000"
+    },
+    {
       "title": "Fate of the Jedi: Conviction (Star Wars: Fate of the Jedi, #7)",
       "author": "Aaron Allston",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1288137120l/7911068.jpg",
+      "cover": "covers/8662704895.jpg",
       "pages": 380,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/8662704895?utm_medium=api&utm_source=rss",
@@ -32,7 +86,7 @@
     {
       "title": "Fate of the Jedi: Vortex (Star Wars: Fate of the Jedi, #6)",
       "author": "Troy Denning",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1388192916l/7913023.jpg",
+      "cover": "covers/8651315094.jpg",
       "pages": 363,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/8651315094?utm_medium=api&utm_source=rss",
@@ -41,7 +95,7 @@
     {
       "title": "Fate of the Jedi: Allies (Star Wars: Fate of the Jedi, #5)",
       "author": "Christie Golden",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1388275579l/6879289.jpg",
+      "cover": "covers/8644492417.jpg",
       "pages": 345,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/8644492417?utm_medium=api&utm_source=rss",
@@ -50,7 +104,7 @@
     {
       "title": "On the Edge: The Art of Risking Everything",
       "author": "Nate Silver",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1703217303l/204236707._SY475_.jpg",
+      "cover": "covers/8634335268.jpg",
       "pages": 576,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/8634335268?utm_medium=api&utm_source=rss",
@@ -59,7 +113,7 @@
     {
       "title": "Fate of the Jedi: Abyss (Star Wars: Fate of the Jedi, #3)",
       "author": "Troy Denning",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1388275625l/6100873.jpg",
+      "cover": "covers/8629929134.jpg",
       "pages": 374,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/8629929134?utm_medium=api&utm_source=rss",
@@ -68,7 +122,7 @@
     {
       "title": "Mistborn: The Final Empire (Mistborn, #1)",
       "author": "Brandon Sanderson",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1617768316l/68428._SY475_.jpg",
+      "cover": "covers/8624606513.jpg",
       "pages": 541,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/8624606513?utm_medium=api&utm_source=rss",
@@ -77,7 +131,7 @@
     {
       "title": "Redemption Ark (The Inhibitor Sequence, #2)",
       "author": "Alastair Reynolds",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1309206851l/89190.jpg",
+      "cover": "covers/8453542140.jpg",
       "pages": 694,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/8453542140?utm_medium=api&utm_source=rss",
@@ -86,7 +140,7 @@
     {
       "title": "Genghis Khan and the Making of the Modern World",
       "author": "Jack Weatherford",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1530716694l/40718726._SY475_.jpg",
+      "cover": "covers/8602998965.jpg",
       "pages": 352,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/8602998965?utm_medium=api&utm_source=rss",
@@ -95,7 +149,7 @@
     {
       "title": "Breakneck: China's Quest to Engineer the Future",
       "author": "Dan  Wang",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1763995484l/228185703._SY475_.jpg",
+      "cover": "covers/8296019008.jpg",
       "pages": 275,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/8296019008?utm_medium=api&utm_source=rss",
@@ -104,7 +158,7 @@
     {
       "title": "Cage of Souls",
       "author": "Adrian Tchaikovsky",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1547654406l/40803025._SY475_.jpg",
+      "cover": "covers/8588985778.jpg",
       "pages": 608,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/8588985778?utm_medium=api&utm_source=rss",
@@ -113,7 +167,7 @@
     {
       "title": "The Brewer's Tale: A History of the World According to Beer",
       "author": "William Bostwick",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1403207367l/20663698.jpg",
+      "cover": "covers/8587251313.jpg",
       "pages": 304,
       "rating": 3,
       "link": "https://www.goodreads.com/review/show/8587251313?utm_medium=api&utm_source=rss",
@@ -122,7 +176,7 @@
     {
       "title": "Shadow of the Sith (Star Wars)",
       "author": "Adam Christopher",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1648149155l/59149048.jpg",
+      "cover": "covers/8574619559.jpg",
       "pages": 465,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/8574619559?utm_medium=api&utm_source=rss",
@@ -131,7 +185,7 @@
     {
       "title": "Fate of the Jedi: Omen (Star Wars: Fate of the Jedi, #2)",
       "author": "Christie Golden",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1388215851l/5826352.jpg",
+      "cover": "covers/8560159441.jpg",
       "pages": 276,
       "rating": 3,
       "link": "https://www.goodreads.com/review/show/8560159441?utm_medium=api&utm_source=rss",
@@ -140,7 +194,7 @@
     {
       "title": "Fate of the Jedi: Outcast (Star Wars: Fate of the Jedi, #1)",
       "author": "Aaron Allston",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1388215849l/4161697.jpg",
+      "cover": "covers/8560158521.jpg",
       "pages": 318,
       "rating": 3,
       "link": "https://www.goodreads.com/review/show/8560158521?utm_medium=api&utm_source=rss",
@@ -149,7 +203,7 @@
     {
       "title": "City of Last Chances (The Tyrant Philosophers, #1)",
       "author": "Adrian Tchaikovsky",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1655508932l/60147395.jpg",
+      "cover": "covers/8551919490.jpg",
       "pages": 500,
       "rating": 3,
       "link": "https://www.goodreads.com/review/show/8551919490?utm_medium=api&utm_source=rss",
@@ -158,7 +212,7 @@
     {
       "title": "Star Wars: Scoundrels",
       "author": "Timothy Zahn",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1333577643l/13573427.jpg",
+      "cover": "covers/8521585092.jpg",
       "pages": 393,
       "rating": 3,
       "link": "https://www.goodreads.com/review/show/8521585092?utm_medium=api&utm_source=rss",
@@ -167,7 +221,7 @@
     {
       "title": "Dark Disciple (Star Wars)",
       "author": "Christie Golden",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1419965425l/23277298.jpg",
+      "cover": "covers/8497663903.jpg",
       "pages": 336,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/8497663903?utm_medium=api&utm_source=rss",
@@ -176,7 +230,7 @@
     {
       "title": "Star Wars: Allegiance",
       "author": "Timothy Zahn",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1168588167l/35414._SY475_.jpg",
+      "cover": "covers/8484311026.jpg",
       "pages": 324,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/8484311026?utm_medium=api&utm_source=rss",
@@ -185,7 +239,7 @@
     {
       "title": "Deep Navigation",
       "author": "Alastair Reynolds",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1337551820l/7944347.jpg",
+      "cover": "covers/8444559496.jpg",
       "pages": 336,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/8444559496?utm_medium=api&utm_source=rss",
@@ -194,7 +248,7 @@
     {
       "title": "The Web Beneath the Waves: The Fragile Cables that Connect our World",
       "author": "Samanth Subramanian",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1746893266l/228457397._SY475_.jpg",
+      "cover": "covers/8408564983.jpg",
       "pages": 121,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/8408564983?utm_medium=api&utm_source=rss",
@@ -203,7 +257,7 @@
     {
       "title": "Liftoff: Elon Musk and the Desperate Early Days That Launched SpaceX",
       "author": "Eric  Berger",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1602088633l/53402132._SY475_.jpg",
+      "cover": "covers/8383364568.jpg",
       "pages": 288,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/8383364568?utm_medium=api&utm_source=rss",
@@ -212,7 +266,7 @@
     {
       "title": "The Dispossessed: An Ambiguous Utopia",
       "author": "Ursula K. Le Guin",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1353467455l/13651.jpg",
+      "cover": "covers/8372677030.jpg",
       "pages": 387,
       "rating": 2,
       "link": "https://www.goodreads.com/review/show/8372677030?utm_medium=api&utm_source=rss",
@@ -221,7 +275,7 @@
     {
       "title": "The Founders: The Story of Paypal and the Entrepreneurs Who Shaped Silicon Valley",
       "author": "Jimmy Soni",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1643707855l/54304287.jpg",
+      "cover": "covers/8339801584.jpg",
       "pages": 496,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/8339801584?utm_medium=api&utm_source=rss",
@@ -230,7 +284,7 @@
     {
       "title": "Abundance",
       "author": "Ezra Klein",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1737312514l/176444106._SY475_.jpg",
+      "cover": "covers/8294719000.jpg",
       "pages": 304,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/8294719000?utm_medium=api&utm_source=rss",
@@ -239,7 +293,7 @@
     {
       "title": "The Poppy War (The Poppy War, #1)",
       "author": "R.F. Kuang",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1515691735l/35068705.jpg",
+      "cover": "covers/8284164699.jpg",
       "pages": 545,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/8284164699?utm_medium=api&utm_source=rss",
@@ -248,7 +302,7 @@
     {
       "title": "Why Nations Fail: The Origins of Power, Prosperity, and Poverty",
       "author": "Daron Acemoğlu",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1739034384l/227805553._SX318_.jpg",
+      "cover": "covers/8031713378.jpg",
       "pages": 556,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/8031713378?utm_medium=api&utm_source=rss",
@@ -257,7 +311,7 @@
     {
       "title": "Ghost Flames: Life and Death in a Hidden War, Korea 1950-1953",
       "author": "Charles J. Hanley",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1574748769l/53054971._SX318_SY475_.jpg",
+      "cover": "covers/8281509840.jpg",
       "pages": 528,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/8281509840?utm_medium=api&utm_source=rss",
@@ -266,7 +320,7 @@
     {
       "title": "The Science of Spin: How Rotational Forces Affect Everything from Your Body to Jet Engines to the Weather",
       "author": "Roland Ennos",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1687382939l/62919899.jpg",
+      "cover": "covers/8223471770.jpg",
       "pages": 288,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/8223471770?utm_medium=api&utm_source=rss",
@@ -275,7 +329,7 @@
     {
       "title": "Invisible Planets: Contemporary Chinese Science Fiction in Translation",
       "author": "Ken Liu",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1463570833l/28220730.jpg",
+      "cover": "covers/8200561213.jpg",
       "pages": 383,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/8200561213?utm_medium=api&utm_source=rss",
@@ -284,7 +338,7 @@
     {
       "title": "LeBron",
       "author": "Jeff Benedict",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1681266349l/61271823._SX318_.jpg",
+      "cover": "covers/8156103935.jpg",
       "pages": 0,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/8156103935?utm_medium=api&utm_source=rss",
@@ -293,7 +347,7 @@
     {
       "title": "The Mask of Fear (Star Wars: Reign of the Empire, #1)",
       "author": "Alexander Freed",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1722273614l/210213729.jpg",
+      "cover": "covers/8122473498.jpg",
       "pages": 496,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/8122473498?utm_medium=api&utm_source=rss",
@@ -302,7 +356,7 @@
     {
       "title": "Rationality",
       "author": "Steven Pinker",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1618510588l/56224080.jpg",
+      "cover": "covers/8111042587.jpg",
       "pages": 432,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/8111042587?utm_medium=api&utm_source=rss",
@@ -311,7 +365,7 @@
     {
       "title": "\"Surely You're Joking, Mr. Feynman!\": Adventures of a Curious Character",
       "author": "Richard P. Feynman",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1504936953l/35167685.jpg",
+      "cover": "covers/8083599113.jpg",
       "pages": 400,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/8083599113?utm_medium=api&utm_source=rss",
@@ -320,7 +374,7 @@
     {
       "title": "Shroud",
       "author": "Adrian Tchaikovsky",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1743428053l/230237860._SY475_.jpg",
+      "cover": "covers/7853336480.jpg",
       "pages": 453,
       "rating": 0,
       "link": "https://www.goodreads.com/review/show/7853336480?utm_medium=api&utm_source=rss",
@@ -329,7 +383,7 @@
     {
       "title": "Shroud",
       "author": "Adrian Tchaikovsky",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1745049244l/210384823._SY475_.jpg",
+      "cover": "covers/8051317555.jpg",
       "pages": 436,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/8051317555?utm_medium=api&utm_source=rss",
@@ -338,7 +392,7 @@
     {
       "title": "Elder Race (Elder Race #1)",
       "author": "Adrian Tchaikovsky",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1614008013l/56815367.jpg",
+      "cover": "covers/8023576686.jpg",
       "pages": 204,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/8023576686?utm_medium=api&utm_source=rss",
@@ -347,7 +401,7 @@
     {
       "title": "Recursion",
       "author": "Blake Crouch",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1750526564l/42046112._SX318_.jpg",
+      "cover": "covers/8020945998.jpg",
       "pages": 329,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/8020945998?utm_medium=api&utm_source=rss",
@@ -356,8 +410,8 @@
     {
       "title": "1493: Uncovering the New World Columbus Created",
       "author": "Charles C. Mann",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1327900945l/9862761.jpg",
-      "pages": 557,
+      "cover": "covers/7963524864.jpg",
+      "pages": 535,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/7963524864?utm_medium=api&utm_source=rss",
       "readAt": "Thu, 2 Oct 2025 00:00:00 +0000"
@@ -365,7 +419,7 @@
     {
       "title": "Air-Borne: The Hidden History of the Life We Breathe",
       "author": "Carl Zimmer",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1728415962l/216662304.jpg",
+      "cover": "covers/7879505601.jpg",
       "pages": 496,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/7879505601?utm_medium=api&utm_source=rss",
@@ -374,7 +428,7 @@
     {
       "title": "Project Hail Mary",
       "author": "Andy Weir",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1734434586l/222697645._SY475_.jpg",
+      "cover": "covers/7844805404.jpg",
       "pages": 482,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/7844805404?utm_medium=api&utm_source=rss",
@@ -383,7 +437,7 @@
     {
       "title": "Hillbilly Elegy: A Memoir of a Family and Culture in Crisis",
       "author": "J.D. Vance",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1517875862l/38358610._SY475_.jpg",
+      "cover": "covers/7822157052.jpg",
       "pages": 274,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/7822157052?utm_medium=api&utm_source=rss",
@@ -392,7 +446,7 @@
     {
       "title": "Islands of Abandonment: Life in the Post-Human Landscape",
       "author": "Cal Flyn",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1645656810l/41830657._SY475_.jpg",
+      "cover": "covers/7827106724.jpg",
       "pages": 376,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/7827106724?utm_medium=api&utm_source=rss",
@@ -401,7 +455,7 @@
     {
       "title": "Stories of Your Life and Others",
       "author": "Ted Chiang",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1356138316l/223380.jpg",
+      "cover": "covers/7819134698.jpg",
       "pages": 281,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/7819134698?utm_medium=api&utm_source=rss",
@@ -410,7 +464,7 @@
     {
       "title": "Into the Light (Star Wars: The High Republic)",
       "author": "Claudia Gray",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1731549555l/215808125._SY475_.jpg",
+      "cover": "covers/7810743142.jpg",
       "pages": 368,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/7810743142?utm_medium=api&utm_source=rss",
@@ -419,7 +473,7 @@
     {
       "title": "Nightfall and Other Stories",
       "author": "Isaac Asimov",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1297455226l/70771.jpg",
+      "cover": "covers/7805957498.jpg",
       "pages": 350,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/7805957498?utm_medium=api&utm_source=rss",
@@ -428,7 +482,7 @@
     {
       "title": "Tempest Breaker (Star Wars: The High Republic)",
       "author": "Cavan Scott",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1709912589l/209636194._SX318_.jpg",
+      "cover": "covers/7772852887.jpg",
       "pages": 7,
       "rating": 3,
       "link": "https://www.goodreads.com/review/show/7772852887?utm_medium=api&utm_source=rss",
@@ -437,7 +491,7 @@
     {
       "title": "Revelation Space (The Inhibitor Sequence, #1)",
       "author": "Alastair Reynolds",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1405532042l/89187.jpg",
+      "cover": "covers/7767161867.jpg",
       "pages": 585,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/7767161867?utm_medium=api&utm_source=rss",
@@ -446,7 +500,7 @@
     {
       "title": "1491: New Revelations of the Americas Before Columbus",
       "author": "Charles C. Mann",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1545238592l/39020.jpg",
+      "cover": "covers/7763453530.jpg",
       "pages": 563,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/7763453530?utm_medium=api&utm_source=rss",
@@ -455,7 +509,7 @@
     {
       "title": "Beyond the Aquila Rift: The Best of Alastair Reynolds",
       "author": "Alastair Reynolds",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1464830974l/30334284._SX318_.jpg",
+      "cover": "covers/7705381851.jpg",
       "pages": 938,
       "rating": 0,
       "link": "https://www.goodreads.com/review/show/7705381851?utm_medium=api&utm_source=rss",
@@ -464,7 +518,7 @@
     {
       "title": "The Doors of Eden",
       "author": "Adrian Tchaikovsky",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1597130185l/53546927._SX318_.jpg",
+      "cover": "covers/7716713468.jpg",
       "pages": 608,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/7716713468?utm_medium=api&utm_source=rss",
@@ -473,7 +527,7 @@
     {
       "title": "The Wages of Destruction: The Making and Breaking of the Nazi Economy",
       "author": "Adam Tooze",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1309285737l/711592.jpg",
+      "cover": "covers/7735701449.jpg",
       "pages": 802,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/7735701449?utm_medium=api&utm_source=rss",
@@ -482,7 +536,7 @@
     {
       "title": "One Day All This Will Be Yours",
       "author": "Adrian Tchaikovsky",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1593355556l/54303485.jpg",
+      "cover": "covers/7716058675.jpg",
       "pages": 144,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/7716058675?utm_medium=api&utm_source=rss",
@@ -491,7 +545,7 @@
     {
       "title": "Outlive: The Science & Art of Longevity",
       "author": "Peter Attia",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1700067079l/61153739._SX318_.jpg",
+      "cover": "covers/7705390090.jpg",
       "pages": 496,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/7705390090?utm_medium=api&utm_source=rss",
@@ -500,7 +554,7 @@
     {
       "title": "The Anxious Generation: How the Great Rewiring of Childhood Caused an Epidemic of Mental Illness",
       "author": "Jonathan Haidt",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1711573377l/171681821._SY475_.jpg",
+      "cover": "covers/7584359283.jpg",
       "pages": 385,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/7584359283?utm_medium=api&utm_source=rss",
@@ -509,7 +563,7 @@
     {
       "title": "The Wizard and the Prophet: Two Remarkable Scientists and Their Dueling Visions to Shape Tomorrow's World",
       "author": "Charles C. Mann",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1498830376l/34959327.jpg",
+      "cover": "covers/7675357724.jpg",
       "pages": 640,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/7675357724?utm_medium=api&utm_source=rss",
@@ -518,7 +572,7 @@
     {
       "title": "Orbital",
       "author": "Samantha Harvey",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1682375874l/123136728.jpg",
+      "cover": "covers/7648399035.jpg",
       "pages": 224,
       "rating": 2,
       "link": "https://www.goodreads.com/review/show/7648399035?utm_medium=api&utm_source=rss",
@@ -527,7 +581,7 @@
     {
       "title": "The Zoologist's Guide to the Galaxy: What Animals on Earth Reveal about Aliens – and Ourselves",
       "author": "Arik Kershenbaum",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1598216517l/52770736._SY475_.jpg",
+      "cover": "covers/7638009039.jpg",
       "pages": 356,
       "rating": 3,
       "link": "https://www.goodreads.com/review/show/7638009039?utm_medium=api&utm_source=rss",
@@ -536,7 +590,7 @@
     {
       "title": "The Case Against the Supreme Court",
       "author": "Erwin Chemerinsky",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1396671429l/20821099.jpg",
+      "cover": "covers/7611942797.jpg",
       "pages": 400,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/7611942797?utm_medium=api&utm_source=rss",
@@ -545,7 +599,7 @@
     {
       "title": "Star Wars:  The Living Force",
       "author": "John Jackson Miller",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1694106668l/195267496._SY475_.jpg",
+      "cover": "covers/7570905119.jpg",
       "pages": 432,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/7570905119?utm_medium=api&utm_source=rss",
@@ -554,7 +608,7 @@
     {
       "title": "Inquisitor: Rise of the Red Blade (Star Wars)",
       "author": "Delilah S. Dawson",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1665328069l/62802781.jpg",
+      "cover": "covers/7559957582.jpg",
       "pages": 343,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/7559957582?utm_medium=api&utm_source=rss",
@@ -563,7 +617,7 @@
     {
       "title": "The Great Mistake: How We Wrecked Public Universities and How We Can Fix Them (Critical University Studies)",
       "author": "Christopher Newfield",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1619495992l/57869474._SY475_.jpg",
+      "cover": "covers/7454087381.jpg",
       "pages": 435,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/7454087381?utm_medium=api&utm_source=rss",
@@ -572,7 +626,7 @@
     {
       "title": "Playground",
       "author": "Richard Powers",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1712677708l/205478762._SY475_.jpg",
+      "cover": "covers/7515119992.jpg",
       "pages": 381,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/7515119992?utm_medium=api&utm_source=rss",
@@ -581,7 +635,7 @@
     {
       "title": "The Adventures of Amina al-Sirafi (Amina al-Sirafi, #1)",
       "author": "Shannon Chakraborty",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1663869260l/61294937.jpg",
+      "cover": "covers/7503708974.jpg",
       "pages": 483,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/7503708974?utm_medium=api&utm_source=rss",
@@ -590,7 +644,7 @@
     {
       "title": "Color: A Natural History of the Palette",
       "author": "Victoria Finlay",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1427998243l/19596.jpg",
+      "cover": "covers/7495001902.jpg",
       "pages": 448,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/7495001902?utm_medium=api&utm_source=rss",
@@ -599,7 +653,7 @@
     {
       "title": "The Icarus Coda (The Icarus Saga, #6)",
       "author": "Timothy Zahn",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1724972501l/214565606.jpg",
+      "cover": "covers/7476538163.jpg",
       "pages": 400,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/7476538163?utm_medium=api&utm_source=rss",
@@ -608,7 +662,7 @@
     {
       "title": "Children of Memory (Children of Time, #3)",
       "author": "Adrian Tchaikovsky",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1663353031l/61344353._SY475_.jpg",
+      "cover": "covers/7416493201.jpg",
       "pages": 489,
       "rating": 0,
       "link": "https://www.goodreads.com/review/show/7416493201?utm_medium=api&utm_source=rss",
@@ -617,7 +671,7 @@
     {
       "title": "Children of Memory (Children of Time, #3)",
       "author": "Adrian Tchaikovsky",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1655929460l/60850767._SY475_.jpg",
+      "cover": "covers/7452335222.jpg",
       "pages": 486,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/7452335222?utm_medium=api&utm_source=rss",
@@ -626,7 +680,7 @@
     {
       "title": "The Good Virus: The Amazing Story and Forgotten Promise of the Phage",
       "author": "Tom  Ireland",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1665471350l/62586006.jpg",
+      "cover": "covers/7440263951.jpg",
       "pages": 400,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/7440263951?utm_medium=api&utm_source=rss",
@@ -635,7 +689,7 @@
     {
       "title": "Children of Ruin (Children of Time, #2)",
       "author": "Adrian Tchaikovsky",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1654469390l/41742154._SY475_.jpg",
+      "cover": "covers/7388458991.jpg",
       "pages": 576,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/7388458991?utm_medium=api&utm_source=rss",
@@ -644,7 +698,7 @@
     {
       "title": "House of Suns",
       "author": "Alastair Reynolds",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1447892903l/1126719.jpg",
+      "cover": "covers/7413782880.jpg",
       "pages": 512,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/7413782880?utm_medium=api&utm_source=rss",
@@ -653,7 +707,7 @@
     {
       "title": "Life on Earth",
       "author": "David Attenborough",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1318182086l/1027910.jpg",
+      "cover": "covers/7390836523.jpg",
       "pages": 319,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/7390836523?utm_medium=api&utm_source=rss",
@@ -662,7 +716,7 @@
     {
       "title": "Artemis",
       "author": "Andy Weir",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1776234222l/34928122._SY475_.jpg",
+      "cover": "covers/7350758488.jpg",
       "pages": 305,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/7350758488?utm_medium=api&utm_source=rss",
@@ -671,7 +725,7 @@
     {
       "title": "War",
       "author": "Bob Woodward",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1723050655l/217217007._SY475_.jpg",
+      "cover": "covers/7387583959.jpg",
       "pages": 448,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/7387583959?utm_medium=api&utm_source=rss",
@@ -680,7 +734,7 @@
     {
       "title": "Children of Time (Children of Time, #1)",
       "author": "Adrian Tchaikovsky",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1431014197l/25499718.jpg",
+      "cover": "covers/7350760712.jpg",
       "pages": 600,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/7350760712?utm_medium=api&utm_source=rss",
@@ -689,7 +743,7 @@
     {
       "title": "Science in the Soul: Selected Writings of a Passionate Rationalist",
       "author": "Richard Dawkins",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1498810178l/33192011.jpg",
+      "cover": "covers/7318446320.jpg",
       "pages": 439,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/7318446320?utm_medium=api&utm_source=rss",
@@ -698,7 +752,7 @@
     {
       "title": "Alien Clay",
       "author": "Adrian Tchaikovsky",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1693389349l/195443798._SY475_.jpg",
+      "cover": "covers/7305543132.jpg",
       "pages": 396,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/7305543132?utm_medium=api&utm_source=rss",
@@ -707,7 +761,7 @@
     {
       "title": "Pattern Breakers: Why Some Start-Ups Change the Future",
       "author": "Mike Maples Jr.",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1719751834l/201757917._SY475_.jpg",
+      "cover": "covers/7294475172.jpg",
       "pages": 256,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/7294475172?utm_medium=api&utm_source=rss",
@@ -716,7 +770,7 @@
     {
       "title": "The Rise of Endymion (Hyperion Cantos, #4)",
       "author": "Dan Simmons",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1305812635l/10294362.jpg",
+      "cover": "covers/7251453103.jpg",
       "pages": 722,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/7251453103?utm_medium=api&utm_source=rss",
@@ -725,7 +779,7 @@
     {
       "title": "The Icarus Needle (The Icarus Saga, #5)",
       "author": "Timothy Zahn",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1717021748l/207298476.jpg",
+      "cover": "covers/7231194982.jpg",
       "pages": 336,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/7231194982?utm_medium=api&utm_source=rss",
@@ -734,7 +788,7 @@
     {
       "title": "Playing with Reality: How Games Have Shaped Our World",
       "author": "Kelly  Clancy",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1697685901l/200206308._SY475_.jpg",
+      "cover": "covers/7219407439.jpg",
       "pages": 368,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/7219407439?utm_medium=api&utm_source=rss",
@@ -743,7 +797,7 @@
     {
       "title": "Empire of Ants: The Hidden  World and Extraordinary Lives of Earth's Tiny Conquerors",
       "author": "Susanne Foitzik",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1606539623l/56067522._SY475_.jpg",
+      "cover": "covers/7192518023.jpg",
       "pages": 352,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/7192518023?utm_medium=api&utm_source=rss",
@@ -752,7 +806,7 @@
     {
       "title": "The Icarus Changeling (The Icarus Saga, #4)",
       "author": "Timothy Zahn",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1708004384l/199798707._SY475_.jpg",
+      "cover": "covers/6924755552.jpg",
       "pages": 320,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/6924755552?utm_medium=api&utm_source=rss",
@@ -761,7 +815,7 @@
     {
       "title": "The Icarus Job (The Icarus Saga, #3)",
       "author": "Timothy Zahn",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1687105765l/176443737.jpg",
+      "cover": "covers/6907178800.jpg",
       "pages": 320,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/6907178800?utm_medium=api&utm_source=rss",
@@ -770,7 +824,7 @@
     {
       "title": "The Icarus Twin (The Icarus Saga, #2)",
       "author": "Timothy Zahn",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1675909333l/101161880.jpg",
+      "cover": "covers/6814252128.jpg",
       "pages": 320,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/6814252128?utm_medium=api&utm_source=rss",
@@ -779,7 +833,7 @@
     {
       "title": "A New Dawn (Star Wars)",
       "author": "John Jackson Miller",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1516016790l/20262705._SY475_.jpg",
+      "cover": "covers/6741706532.jpg",
       "pages": 367,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/6741706532?utm_medium=api&utm_source=rss",
@@ -788,7 +842,7 @@
     {
       "title": "Temptation of the Force (Star Wars: The High Republic)",
       "author": "Tessa  Gratton",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1707924968l/201102251._SY475_.jpg",
+      "cover": "covers/6715274086.jpg",
       "pages": 448,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/6715274086?utm_medium=api&utm_source=rss",
@@ -797,7 +851,7 @@
     {
       "title": "The Last Colony (Old Man's War, #3)",
       "author": "John Scalzi",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1437660786l/88071._SY475_.jpg",
+      "cover": "covers/6535766223.jpg",
       "pages": 320,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/6535766223?utm_medium=api&utm_source=rss",
@@ -806,7 +860,7 @@
     {
       "title": "The Fallen Star (Star Wars: The High Republic)",
       "author": "Claudia Gray",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1632343524l/58640884._SY475_.jpg",
+      "cover": "covers/6591893153.jpg",
       "pages": 345,
       "rating": 3,
       "link": "https://www.goodreads.com/review/show/6591893153?utm_medium=api&utm_source=rss",
@@ -815,7 +869,7 @@
     {
       "title": "To Hold Up the Sky",
       "author": "Liu Cixin",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1584633840l/49247266.jpg",
+      "cover": "covers/6959871573.jpg",
       "pages": 336,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/6959871573?utm_medium=api&utm_source=rss",
@@ -824,7 +878,7 @@
     {
       "title": "Cataclysm (Star Wars: The High Republic)",
       "author": "Lydia Kang",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1665326677l/61213099.jpg",
+      "cover": "covers/6879421647.jpg",
       "pages": 394,
       "rating": 3,
       "link": "https://www.goodreads.com/review/show/6879421647?utm_medium=api&utm_source=rss",
@@ -833,7 +887,7 @@
     {
       "title": "Think Again: The Power of Knowing What You Don't Know",
       "author": "Adam M. Grant",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1602574232l/55539565.jpg",
+      "cover": "covers/6718877802.jpg",
       "pages": 307,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/6718877802?utm_medium=api&utm_source=rss",
@@ -842,7 +896,7 @@
     {
       "title": "Supercommunicators: How to Unlock the Secret Language of Connection",
       "author": "Charles Duhigg",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1702893819l/157981748._SY475_.jpg",
+      "cover": "covers/6503266430.jpg",
       "pages": 320,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/6503266430?utm_medium=api&utm_source=rss",
@@ -851,7 +905,7 @@
     {
       "title": "Light of the Jedi (Star Wars: The High Republic)",
       "author": "Charles Soule",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1582619576l/51637946.jpg",
+      "cover": "covers/6734578849.jpg",
       "pages": 380,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/6734578849?utm_medium=api&utm_source=rss",
@@ -860,7 +914,7 @@
     {
       "title": "Becoming",
       "author": "Michelle Obama",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1528206996l/38746485.jpg",
+      "cover": "covers/6794962179.jpg",
       "pages": 448,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/6794962179?utm_medium=api&utm_source=rss",
@@ -869,7 +923,7 @@
     {
       "title": "The Light We Carry: Overcoming in Uncertain Times",
       "author": "Michelle Obama",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1658477208l/61355265.jpg",
+      "cover": "covers/6845743369.jpg",
       "pages": 319,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/6845743369?utm_medium=api&utm_source=rss",
@@ -878,7 +932,7 @@
     {
       "title": "Hyperion (Hyperion Cantos, #1)",
       "author": "Dan Simmons",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1746983261l/77566._SY475_.jpg",
+      "cover": "covers/6589732436.jpg",
       "pages": 500,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/6589732436?utm_medium=api&utm_source=rss",
@@ -887,7 +941,7 @@
     {
       "title": "The Human Division (Old Man's War, #5)",
       "author": "John Scalzi",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1341582413l/15698479.jpg",
+      "cover": "covers/6609507989.jpg",
       "pages": 431,
       "rating": 3,
       "link": "https://www.goodreads.com/review/show/6609507989?utm_medium=api&utm_source=rss",
@@ -896,7 +950,7 @@
     {
       "title": "The Rising Storm (Star Wars: The High Republic)",
       "author": "Cavan Scott",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1607094743l/55644027.jpg",
+      "cover": "covers/6587997013.jpg",
       "pages": 430,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/6587997013?utm_medium=api&utm_source=rss",
@@ -905,7 +959,7 @@
     {
       "title": "Ignition!: An informal history of liquid rocket propellants",
       "author": "John Drury Clark",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1339317383l/677285.jpg",
+      "cover": "covers/6560691795.jpg",
       "pages": 214,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/6560691795?utm_medium=api&utm_source=rss",
@@ -914,7 +968,7 @@
     {
       "title": "Hyperspace: A Scientific Odyssey Through Parallel Universes, Time Warps, and the Tenth Dimension",
       "author": "Michio Kaku",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1404794967l/33426.jpg",
+      "cover": "covers/6483495671.jpg",
       "pages": 359,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/6483495671?utm_medium=api&utm_source=rss",
@@ -923,7 +977,7 @@
     {
       "title": "The Ghost Brigades (Old Man's War, #2)",
       "author": "John Scalzi",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1403295928l/239399.jpg",
+      "cover": "covers/6463121965.jpg",
       "pages": 343,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/6463121965?utm_medium=api&utm_source=rss",
@@ -932,7 +986,7 @@
     {
       "title": "A History of the United States in Five Crashes: Stock Market Meltdowns That Defined a Nation",
       "author": "Scott Nations",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1481095214l/32075479.jpg",
+      "cover": "covers/6372906568.jpg",
       "pages": 352,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/6372906568?utm_medium=api&utm_source=rss",
@@ -941,7 +995,7 @@
     {
       "title": "Old Man's War (Old Man's War, #1)",
       "author": "John Scalzi",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1509467059l/36510196._SY475_.jpg",
+      "cover": "covers/6358746828.jpg",
       "pages": 318,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/6358746828?utm_medium=api&utm_source=rss",
@@ -950,7 +1004,7 @@
     {
       "title": "The Eye of Darkness",
       "author": "George Mann",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1688639368l/124019528._SY475_.jpg",
+      "cover": "covers/6419301199.jpg",
       "pages": 416,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/6419301199?utm_medium=api&utm_source=rss",
@@ -959,7 +1013,7 @@
     {
       "title": "Atomic Habits: An Easy & Proven Way to Build Good Habits & Break Bad Ones",
       "author": "James Clear",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1655988385l/40121378.jpg",
+      "cover": "covers/6318508782.jpg",
       "pages": 319,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/6318508782?utm_medium=api&utm_source=rss",
@@ -968,7 +1022,7 @@
     {
       "title": "Spineless: The Science of Jellyfish and the Art of Growing a Backbone",
       "author": "Juli Berwald",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1498858782l/34758417.jpg",
+      "cover": "covers/6291765857.jpg",
       "pages": 336,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/6291765857?utm_medium=api&utm_source=rss",
@@ -977,7 +1031,7 @@
     {
       "title": "Star Wars: Specter of the Past (The Hand of Thrawn Duology, #1)",
       "author": "Timothy Zahn",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1326718522l/77787.jpg",
+      "cover": "covers/6223714019.jpg",
       "pages": 386,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/6223714019?utm_medium=api&utm_source=rss",
@@ -986,7 +1040,7 @@
     {
       "title": "The Consuming Fire (The Interdependency, #2)",
       "author": "John Scalzi",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1518468399l/34942741._SY475_.jpg",
+      "cover": "covers/6269146525.jpg",
       "pages": 304,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/6269146525?utm_medium=api&utm_source=rss",
@@ -995,7 +1049,7 @@
     {
       "title": "The Icarus Hunt (The Icarus Saga, #0)",
       "author": "Timothy Zahn",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1403181207l/192528.jpg",
+      "cover": "covers/6271765847.jpg",
       "pages": 459,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/6271765847?utm_medium=api&utm_source=rss",
@@ -1004,7 +1058,7 @@
     {
       "title": "Aftermath (Star Wars: Aftermath, #1)",
       "author": "Chuck Wendig",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1700547067l/25131600.jpg",
+      "cover": "covers/6266779435.jpg",
       "pages": 366,
       "rating": 3,
       "link": "https://www.goodreads.com/review/show/6266779435?utm_medium=api&utm_source=rss",
@@ -1013,7 +1067,7 @@
     {
       "title": "Star Wars: Vision of the Future (The Hand of Thrawn Duology, #2)",
       "author": "Timothy Zahn",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1328289436l/77786.jpg",
+      "cover": "covers/6229315168.jpg",
       "pages": 520,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/6229315168?utm_medium=api&utm_source=rss",
@@ -1022,7 +1076,7 @@
     {
       "title": "Star Wars: Survivor's Quest",
       "author": "Timothy Zahn",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1330605305l/46623.jpg",
+      "cover": "covers/6190810908.jpg",
       "pages": 480,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/6190810908?utm_medium=api&utm_source=rss",
@@ -1031,7 +1085,7 @@
     {
       "title": "Star Wars: Outbound Flight",
       "author": "Timothy Zahn",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1405546347l/192523.jpg",
+      "cover": "covers/6179503025.jpg",
       "pages": 480,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/6179503025?utm_medium=api&utm_source=rss",
@@ -1040,7 +1094,7 @@
     {
       "title": "The Collapsing Empire (The Interdependency, #1)",
       "author": "John Scalzi",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1464097677l/30078567.jpg",
+      "cover": "covers/6140413825.jpg",
       "pages": 336,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/6140413825?utm_medium=api&utm_source=rss",
@@ -1049,7 +1103,7 @@
     {
       "title": "Convergence (Star Wars: The High Republic)",
       "author": "Zoraida Córdova",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1655696614l/60353769.jpg",
+      "cover": "covers/6971639950.jpg",
       "pages": 340,
       "rating": 3,
       "link": "https://www.goodreads.com/review/show/6971639950?utm_medium=api&utm_source=rss",
@@ -1058,7 +1112,7 @@
     {
       "title": "Endymion (Hyperion Cantos, #3)",
       "author": "Dan Simmons",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1329611385l/3977.jpg",
+      "cover": "covers/7003919872.jpg",
       "pages": 563,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/7003919872?utm_medium=api&utm_source=rss",
@@ -1067,7 +1121,7 @@
     {
       "title": "Shards of Earth (The Final Architecture, #1)",
       "author": "Adrian Tchaikovsky",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1724827773l/55278507._SY475_.jpg",
+      "cover": "covers/7066517107.jpg",
       "pages": 0,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/7066517107?utm_medium=api&utm_source=rss",
@@ -1076,7 +1130,7 @@
     {
       "title": "Dream: The Life and Legacy of Hakeem Olajuwon",
       "author": "Mirin Fader",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1718836237l/207567737._SY475_.jpg",
+      "cover": "covers/7085371098.jpg",
       "pages": 400,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/7085371098?utm_medium=api&utm_source=rss",
@@ -1085,7 +1139,7 @@
     {
       "title": "Co-Intelligence: Living and Working with AI",
       "author": "Ethan Mollick",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1709537279l/198678736.jpg",
+      "cover": "covers/7109108716.jpg",
       "pages": 243,
       "rating": 0,
       "link": "https://www.goodreads.com/review/show/7109108716?utm_medium=api&utm_source=rss",
@@ -1094,7 +1148,7 @@
     {
       "title": "Eyes of the Void (The Final Architecture, #2)",
       "author": "Adrian Tchaikovsky",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1641881897l/58950674._SY475_.jpg",
+      "cover": "covers/7109109612.jpg",
       "pages": 596,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/7109109612?utm_medium=api&utm_source=rss",
@@ -1103,7 +1157,7 @@
     {
       "title": "Lords of Uncreation (The Final Architecture, #3)",
       "author": "Adrian Tchaikovsky",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1671150806l/62315578._SY475_.jpg",
+      "cover": "covers/7128301657.jpg",
       "pages": 608,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/7128301657?utm_medium=api&utm_source=rss",
@@ -1112,7 +1166,7 @@
     {
       "title": "Why We Die: The New Science of Aging and the Quest for Immortality",
       "author": "Venki Ramakrishnan",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1695459720l/179312197._SY475_.jpg",
+      "cover": "covers/7012097257.jpg",
       "pages": 318,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/7012097257?utm_medium=api&utm_source=rss",
@@ -1121,7 +1175,7 @@
     {
       "title": "The End of All Things (Old Man's War, #6)",
       "author": "John Scalzi",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1423019405l/24661365.jpg",
+      "cover": "covers/6863498635.jpg",
       "pages": 368,
       "rating": 0,
       "link": "https://www.goodreads.com/review/show/6863498635?utm_medium=api&utm_source=rss",
@@ -1130,7 +1184,7 @@
     {
       "title": "Livesuit (The Captive's War, #1.5)",
       "author": "James S.A. Corey",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1724079438l/215760525.jpg",
+      "cover": "covers/7011923586.jpg",
       "pages": 90,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/7011923586?utm_medium=api&utm_source=rss",
@@ -1139,7 +1193,7 @@
     {
       "title": "The End of All Things (Old Man's War, #6)",
       "author": "John Scalzi",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1411134775l/23168809.jpg",
+      "cover": "covers/6933925709.jpg",
       "pages": 380,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/6933925709?utm_medium=api&utm_source=rss",
@@ -1148,7 +1202,7 @@
     {
       "title": "The Mercy of Gods (The Captive's War #1)",
       "author": "James S.A. Corey",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1701559999l/202110188._SY475_.jpg",
+      "cover": "covers/6848079453.jpg",
       "pages": 423,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/6848079453?utm_medium=api&utm_source=rss",
@@ -1157,7 +1211,7 @@
     {
       "title": "The Fall of Hyperion (Hyperion Cantos, #2)",
       "author": "Dan Simmons",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1300719157l/10429950.jpg",
+      "cover": "covers/6656716658.jpg",
       "pages": 676,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/6656716658?utm_medium=api&utm_source=rss",
@@ -1166,7 +1220,7 @@
     {
       "title": "Fathoms: The World in the Whale",
       "author": "Rebecca Giggs",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1591391775l/53849384._SY475_.jpg",
+      "cover": "covers/6192038412.jpg",
       "pages": 352,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/6192038412?utm_medium=api&utm_source=rss",
@@ -1175,7 +1229,7 @@
     {
       "title": "Sisters in Law: How Sandra Day O'Connor and Ruth Bader Ginsburg Went to the Supreme Court and Changed the World",
       "author": "Linda R. Hirshman",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1435602442l/24331373._SY475_.jpg",
+      "cover": "covers/6140416047.jpg",
       "pages": 390,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/6140416047?utm_medium=api&utm_source=rss",
@@ -1184,7 +1238,7 @@
     {
       "title": "The Last Emperox (The Interdependency, #3)",
       "author": "John Scalzi",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1585292401l/45154551._SY475_.jpg",
+      "cover": "covers/6284140006.jpg",
       "pages": 308,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/6284140006?utm_medium=api&utm_source=rss",
@@ -1193,7 +1247,7 @@
     {
       "title": "Writing for Busy Readers: Communicate More Effectively in the Real World",
       "author": "Todd Rogers",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1680671036l/125071270._SY475_.jpg",
+      "cover": "covers/6223705413.jpg",
       "pages": 253,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/6223705413?utm_medium=api&utm_source=rss",
@@ -1202,7 +1256,7 @@
     {
       "title": "The Sins of Our Fathers (The Expanse #9.5)",
       "author": "James S.A. Corey",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1640579364l/59231624._SX318_.jpg",
+      "cover": "covers/5977788837.jpg",
       "pages": 71,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/5977788837?utm_medium=api&utm_source=rss",
@@ -1211,7 +1265,7 @@
     {
       "title": "Making Numbers Count: The Art and Science of Communicating Numbers",
       "author": "Chip Heath",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1626927753l/58605460._SY475_.jpg",
+      "cover": "covers/5971795451.jpg",
       "pages": 224,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/5971795451?utm_medium=api&utm_source=rss",
@@ -1220,7 +1274,7 @@
     {
       "title": "Memory's Legion",
       "author": "James S.A. Corey",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1623242081l/36130437._SY475_.jpg",
+      "cover": "covers/5950345279.jpg",
       "pages": 423,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/5950345279?utm_medium=api&utm_source=rss",
@@ -1229,7 +1283,7 @@
     {
       "title": "Leviathan Falls (The Expanse, #9)",
       "author": "James S.A. Corey",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1600283641l/28335699._SY475_.jpg",
+      "cover": "covers/5950344539.jpg",
       "pages": 528,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/5950344539?utm_medium=api&utm_source=rss",
@@ -1238,7 +1292,7 @@
     {
       "title": "Tiamat's Wrath (The Expanse, #8)",
       "author": "James S.A. Corey",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1522779721l/28335698.jpg",
+      "cover": "covers/5950344426.jpg",
       "pages": 534,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/5950344426?utm_medium=api&utm_source=rss",
@@ -1247,7 +1301,7 @@
     {
       "title": "Persepolis Rising (The Expanse, #7)",
       "author": "James S.A. Corey",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1481562381l/28335696._SY475_.jpg",
+      "cover": "covers/5950344339.jpg",
       "pages": 608,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/5950344339?utm_medium=api&utm_source=rss",
@@ -1256,7 +1310,7 @@
     {
       "title": "Babylon’s Ashes (The Expanse, #6)",
       "author": "James S.A. Corey",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1442247299l/25877663._SY475_.jpg",
+      "cover": "covers/5950344233.jpg",
       "pages": 532,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/5950344233?utm_medium=api&utm_source=rss",
@@ -1265,7 +1319,7 @@
     {
       "title": "Nemesis Games (The Expanse, #5)",
       "author": "James S.A. Corey",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1654567652l/22886612._SY475_.jpg",
+      "cover": "covers/5950344080.jpg",
       "pages": 536,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/5950344080?utm_medium=api&utm_source=rss",
@@ -1274,7 +1328,7 @@
     {
       "title": "Cibola Burn (The Expanse, #4)",
       "author": "James S.A. Corey",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1729035804l/18656030._SY475_.jpg",
+      "cover": "covers/5950343895.jpg",
       "pages": 581,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/5950343895?utm_medium=api&utm_source=rss",
@@ -1283,7 +1337,7 @@
     {
       "title": "Abaddon’s Gate (The Expanse, #3)",
       "author": "James S.A. Corey",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1407572059l/16131032.jpg",
+      "cover": "covers/5950343577.jpg",
       "pages": 539,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/5950343577?utm_medium=api&utm_source=rss",
@@ -1292,7 +1346,7 @@
     {
       "title": "This Is Your Brain on Parasites: How Tiny Creatures Manipulate Our Behavior and Shape Society",
       "author": "Kathleen McAuliffe",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1445050332l/25897836.jpg",
+      "cover": "covers/4975375463.jpg",
       "pages": 268,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/4975375463?utm_medium=api&utm_source=rss",
@@ -1301,7 +1355,7 @@
     {
       "title": "American Prometheus: The Triumph and Tragedy of J. Robert Oppenheimer",
       "author": "Kai Bird",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1686079247l/80571.jpg",
+      "cover": "covers/5950340209.jpg",
       "pages": 721,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/5950340209?utm_medium=api&utm_source=rss",
@@ -1310,7 +1364,7 @@
     {
       "title": "Noise: A Flaw in Human Judgment",
       "author": "Daniel Kahneman",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1617709587l/55339408.jpg",
+      "cover": "covers/5950339528.jpg",
       "pages": 454,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/5950339528?utm_medium=api&utm_source=rss",
@@ -1319,7 +1373,7 @@
     {
       "title": "Ascension",
       "author": "Nicholas Binge",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1675642495l/61813107.jpg",
+      "cover": "covers/5950338768.jpg",
       "pages": 344,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/5950338768?utm_medium=api&utm_source=rss",
@@ -1328,7 +1382,7 @@
     {
       "title": "Jill: A Biography of the First Lady",
       "author": "Julie Pace",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1645390986l/58684305.jpg",
+      "cover": "covers/5950338157.jpg",
       "pages": 320,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/5950338157?utm_medium=api&utm_source=rss",
@@ -1337,7 +1391,7 @@
     {
       "title": "Water Tossing Boulders: How a Family of Chinese Immigrants Led the First Fight to Desegregate Schools in the Jim Crow South",
       "author": "Adrienne Berard",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1457291707l/29092981.jpg",
+      "cover": "covers/5950335747.jpg",
       "pages": 208,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/5950335747?utm_medium=api&utm_source=rss",
@@ -1346,7 +1400,7 @@
     {
       "title": "Think Like a Freak",
       "author": "Steven D. Levitt",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1395610974l/17331349.jpg",
+      "cover": "covers/5950335227.jpg",
       "pages": 293,
       "rating": 4,
       "link": "https://www.goodreads.com/review/show/5950335227?utm_medium=api&utm_source=rss",
@@ -1355,7 +1409,7 @@
     {
       "title": "A Desolation Called Peace (Teixcalaan, #2)",
       "author": "Arkady Martine",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1654565596l/45154547._SY475_.jpg",
+      "cover": "covers/5950334849.jpg",
       "pages": 496,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/5950334849?utm_medium=api&utm_source=rss",
@@ -1364,7 +1418,7 @@
     {
       "title": "A Memory Called Empire (Teixcalaan, #1)",
       "author": "Arkady Martine",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1526486698l/37794149._SY475_.jpg",
+      "cover": "covers/5950334299.jpg",
       "pages": 448,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/5950334299?utm_medium=api&utm_source=rss",
@@ -1373,7 +1427,7 @@
     {
       "title": "An Immense World: How Animal Senses Reveal the Hidden Realms Around Us",
       "author": "Ed Yong",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1652105350l/59575939.jpg",
+      "cover": "covers/5950333691.jpg",
       "pages": 464,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/5950333691?utm_medium=api&utm_source=rss",
@@ -1382,7 +1436,7 @@
     {
       "title": "I Contain Multitudes: The Microbes Within Us and a Grander View of Life",
       "author": "Ed Yong",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1445606162l/27213168.jpg",
+      "cover": "covers/5950333377.jpg",
       "pages": 368,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/5950333377?utm_medium=api&utm_source=rss",
@@ -1391,7 +1445,7 @@
     {
       "title": "The Death and Life of the Great Lakes",
       "author": "Dan Egan",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1523542441l/35187180.jpg",
+      "cover": "covers/5950329725.jpg",
       "pages": 364,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/5950329725?utm_medium=api&utm_source=rss",
@@ -1400,7 +1454,7 @@
     {
       "title": "The Devil's Element: Phosphorus and a World Out of Balance",
       "author": "Dan Egan",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1671532695l/61089465.jpg",
+      "cover": "covers/5950329135.jpg",
       "pages": 228,
       "rating": 5,
       "link": "https://www.goodreads.com/review/show/5950329135?utm_medium=api&utm_source=rss",
@@ -1409,7 +1463,7 @@
     {
       "title": "Supertall: How the World's Tallest Buildings Are Reshaping Our Cities and Our Lives",
       "author": "Stefan Al",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1646449871l/58100654.jpg",
+      "cover": "covers/5950328549.jpg",
       "pages": 320,
       "rating": 0,
       "link": "https://www.goodreads.com/review/show/5950328549?utm_medium=api&utm_source=rss",
@@ -1418,7 +1472,7 @@
     {
       "title": "Thinking In Systems: A Primer",
       "author": "Donella H. Meadows",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1390169859l/3828902.jpg",
+      "cover": "covers/5950327870.jpg",
       "pages": 218,
       "rating": 0,
       "link": "https://www.goodreads.com/review/show/5950327870?utm_medium=api&utm_source=rss",
@@ -1427,7 +1481,7 @@
     {
       "title": "The Rational Optimist: How Prosperity Evolves",
       "author": "Matt Ridley",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1347664546l/7776209.jpg",
+      "cover": "covers/5950326638.jpg",
       "pages": 448,
       "rating": 0,
       "link": "https://www.goodreads.com/review/show/5950326638?utm_medium=api&utm_source=rss",
@@ -1435,8 +1489,8 @@
     },
     {
       "title": "Dune Messiah (Dune #2)",
-      "author": "Frank Patrick Herbert",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1577043824l/44492285._SY475_.jpg",
+      "author": "Frank Herbert",
+      "cover": "covers/5950325540.jpg",
       "pages": 336,
       "rating": 0,
       "link": "https://www.goodreads.com/review/show/5950325540?utm_medium=api&utm_source=rss",
@@ -1444,8 +1498,8 @@
     },
     {
       "title": "Dune (Dune, #1)",
-      "author": "Frank Patrick Herbert",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1555447414l/44767458.jpg",
+      "author": "Frank Herbert",
+      "cover": "covers/5950324948.jpg",
       "pages": 658,
       "rating": 0,
       "link": "https://www.goodreads.com/review/show/5950324948?utm_medium=api&utm_source=rss",
@@ -1454,7 +1508,7 @@
     {
       "title": "Thrawn: Treason (Star Wars: Thrawn, #3)",
       "author": "Timothy Zahn",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1545447248l/43160651.jpg",
+      "cover": "covers/5950324025.jpg",
       "pages": 333,
       "rating": 0,
       "link": "https://www.goodreads.com/review/show/5950324025?utm_medium=api&utm_source=rss",
@@ -1463,7 +1517,7 @@
     {
       "title": "Thrawn: Alliances (Star Wars: Thrawn, #2)",
       "author": "Timothy Zahn",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1511385584l/36385830.jpg",
+      "cover": "covers/5950323785.jpg",
       "pages": 342,
       "rating": 0,
       "link": "https://www.goodreads.com/review/show/5950323785?utm_medium=api&utm_source=rss",
@@ -1472,7 +1526,7 @@
     {
       "title": "Lesser Evil (Star Wars: Thrawn Ascendancy, #3)",
       "author": "Timothy Zahn",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1617449776l/55213763._SX318_.jpg",
+      "cover": "covers/5950323215.jpg",
       "pages": 416,
       "rating": 0,
       "link": "https://www.goodreads.com/review/show/5950323215?utm_medium=api&utm_source=rss",
@@ -1481,7 +1535,7 @@
     {
       "title": "Greater Good (Star Wars: Thrawn Ascendancy, #2)",
       "author": "Timothy Zahn",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1603988845l/55213748._SY475_.jpg",
+      "cover": "covers/5950322916.jpg",
       "pages": 432,
       "rating": 0,
       "link": "https://www.goodreads.com/review/show/5950322916?utm_medium=api&utm_source=rss",
@@ -1490,7 +1544,7 @@
     {
       "title": "Chaos Rising (Star Wars: Thrawn Ascendancy, #1)",
       "author": "Timothy Zahn",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1574793053l/53112442._SX318_SY475_.jpg",
+      "cover": "covers/5950322619.jpg",
       "pages": 400,
       "rating": 0,
       "link": "https://www.goodreads.com/review/show/5950322619?utm_medium=api&utm_source=rss",
@@ -1499,7 +1553,7 @@
     {
       "title": "Thrawn (Star Wars: Thrawn, #1)",
       "author": "Timothy Zahn",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1468787895l/31140332._SY475_.jpg",
+      "cover": "covers/5950321502.jpg",
       "pages": 427,
       "rating": 0,
       "link": "https://www.goodreads.com/review/show/5950321502?utm_medium=api&utm_source=rss",
@@ -1508,7 +1562,7 @@
     {
       "title": "1000 Years of Joys and Sorrows: A Memoir",
       "author": "Weiwei Ai",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1629112907l/57423429.jpg",
+      "cover": "covers/4925414552.jpg",
       "pages": 400,
       "rating": 0,
       "link": "https://www.goodreads.com/review/show/4925414552?utm_medium=api&utm_source=rss",
@@ -1517,16 +1571,16 @@
     {
       "title": "Caliban’s War (The Expanse, #2)",
       "author": "James S.A. Corey",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1407572377l/12591698.jpg",
+      "cover": "covers/4925396076.jpg",
       "pages": 624,
       "rating": 0,
       "link": "https://www.goodreads.com/review/show/4925396076?utm_medium=api&utm_source=rss",
       "readAt": null
     },
     {
-      "title": "Leviathan Wakes (The Expanse, #1)",
+      "title": "Leviathan Wakes",
       "author": "James S.A. Corey",
-      "cover": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1411013134l/8855321.jpg",
+      "cover": "covers/4925395603.jpg",
       "pages": 561,
       "rating": 0,
       "link": "https://www.goodreads.com/review/show/4925395603?utm_medium=api&utm_source=rss",
