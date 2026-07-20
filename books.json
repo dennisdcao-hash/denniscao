@@ -21,6 +21,42 @@
   ],
   "read": [
     {
+      "title": "Star Wars: Rebel Rising",
+      "author": "Beth Revis",
+      "cover": "covers/8785017915.jpg",
+      "pages": 410,
+      "rating": 4,
+      "link": "https://www.goodreads.com/review/show/8785017915?utm_medium=api&utm_source=rss",
+      "readAt": "Sun, 19 Jul 2026 00:00:00 +0000"
+    },
+    {
+      "title": "Star Wars: Catalyst - A Rogue One Novel",
+      "author": "James Luceno",
+      "cover": "covers/8783535529.jpg",
+      "pages": 330,
+      "rating": 5,
+      "link": "https://www.goodreads.com/review/show/8783535529?utm_medium=api&utm_source=rss",
+      "readAt": "Sun, 19 Jul 2026 00:00:00 +0000"
+    },
+    {
+      "title": "Killers of the Flower Moon: The Osage Murders and the Birth of the FBI",
+      "author": "David Grann",
+      "cover": "covers/8780874859.jpg",
+      "pages": 338,
+      "rating": 5,
+      "link": "https://www.goodreads.com/review/show/8780874859?utm_medium=api&utm_source=rss",
+      "readAt": "Sat, 18 Jul 2026 00:00:00 +0000"
+    },
+    {
+      "title": "Absolution Gap (The Inhibitor Sequence, #3)",
+      "author": "Alastair Reynolds",
+      "cover": "covers/8771305272.jpg",
+      "pages": 756,
+      "rating": 4,
+      "link": "https://www.goodreads.com/review/show/8771305272?utm_medium=api&utm_source=rss",
+      "readAt": "Tue, 14 Jul 2026 00:00:00 +0000"
+    },
+    {
       "title": "Fate of the Jedi: Apocalypse (Star Wars: Fate of the Jedi, #9)",
       "author": "Troy Denning",
       "cover": "covers/8756694167.jpg",
