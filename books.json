@@ -21,6 +21,33 @@
   ],
   "read": [
     {
+      "title": "Children of Strife (Children of Time, #4)",
+      "author": "Adrian Tchaikovsky",
+      "cover": "covers/8843461920.jpg",
+      "pages": 679,
+      "rating": 5,
+      "link": "https://www.goodreads.com/review/show/8843461920?utm_medium=api&utm_source=rss",
+      "readAt": "Sun, 9 Aug 2026 00:00:00 +0000"
+    },
+    {
+      "title": "Sanctuary (Star Wars: Bad Batch)",
+      "author": "Lamar Giles",
+      "cover": "covers/8841214518.jpg",
+      "pages": 320,
+      "rating": 4,
+      "link": "https://www.goodreads.com/review/show/8841214518?utm_medium=api&utm_source=rss",
+      "readAt": "Sat, 8 Aug 2026 00:00:00 +0000"
+    },
+    {
+      "title": "Wedge's Gamble (Star Wars: X-Wing, #2)",
+      "author": "Michael A. Stackpole",
+      "cover": "covers/8841212738.jpg",
+      "pages": 357,
+      "rating": 3,
+      "link": "https://www.goodreads.com/review/show/8841212738?utm_medium=api&utm_source=rss",
+      "readAt": "Sat, 1 Aug 2026 00:00:00 +0000"
+    },
+    {
       "title": "Exhalation",
       "author": "Ted Chiang",
       "cover": "covers/8802943812.jpg",
@@ -688,7 +715,7 @@
     },
     {
       "title": "The Adventures of Amina al-Sirafi (Amina al-Sirafi, #1)",
-      "author": "Shannon Chakraborty",
+      "author": "S.A. Chakraborty",
       "cover": "covers/7503708974.jpg",
       "pages": 483,
       "rating": 4,
